@@ -6,7 +6,7 @@ import { useLanguage } from '../hooks/useLanguage';
 
 export default function Buscar() {
   const navigate = useNavigate();
-  const { lang } = useLanguage();
+  const { lang, translate } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [buscaAtivaTab, setBuscaAtivaTab] = useState('tudo'); // 'tudo' | 'pessoas' | 'posts' | 'anuncios'
   const [anuncioSelecionado, setAnuncioSelecionado] = useState(null);
@@ -524,6 +524,7 @@ export default function Buscar() {
         <form onSubmit={lidarComSubmit} className="flex items-center gap-3 bg-white dark:bg-[#12101b] border border-gray-100 dark:border-purple-500/10 rounded-3xl px-5 py-3.5 focus-within:border-blue-500 dark:focus-within:border-purple-500/40 transition-all shadow-[0_4px_15px_rgba(0,0,0,0.015)]">
           <Search size={18} className="text-gray-400" />
           <input 
+            key={lang}
             type="text" 
             ref={searchInputRef}
             placeholder={dict.placeholder} 
@@ -790,9 +791,10 @@ export default function Buscar() {
               <div className="relative max-w-md flex items-center gap-2">
                 <div className="relative flex-1">
                   <input 
+                    key={lang}
                     type="text"
                     id="input-hashtag-busca"
-                    placeholder={dict.buscarHashtagPlaceholder}
+                    placeholder={translate('buscarHashtagPlaceholder')}
                     className="w-full bg-gray-50/50 dark:bg-[#161424] border border-gray-100 dark:border-purple-500/10 rounded-full pl-10 pr-4 py-2 text-[12px] text-gray-700 dark:text-gray-300 outline-none focus:border-[#8b5cf6] transition-colors"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -820,7 +822,7 @@ export default function Buscar() {
                   }}
                   className="px-4 py-2 bg-gradient-to-tr from-[#3b82f6] to-[#8b5cf6] text-white rounded-full text-[11px] font-semibold hover:opacity-90 cursor-pointer active:scale-98 transition-all shadow-sm flex-shrink-0"
                 >
-                  {dict.buscarBtn}
+                  {translate('buscarBtn')}
                 </button>
               </div>
 
@@ -840,7 +842,7 @@ export default function Buscar() {
                 ))}
                 {hashtagsMaisUsadas.length === 0 && (
                   <p className="text-xs text-gray-400 w-full italic">
-                    {dict.hashtagHelpText}
+                    {translate('hashtagHelpText')}
                   </p>
                 )}
               </div>

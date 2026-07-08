@@ -863,7 +863,10 @@ const extraTranslations = {
     announcementContentLabel: 'Conteúdo do Informativo',
     announcementContentPlaceholder: 'Digite os detalhes do comunicado para los alunos...',
     publishingAnnouncement: 'Disparando Comunicado...',
-    publishAnnouncementBtn: 'Publicar no Mural'
+    publishAnnouncementBtn: 'Publicar no Mural',
+    buscarHashtagPlaceholder: 'Pesquisar ou digitar #hashtag...',
+    buscarBtn: 'Buscar',
+    hashtagHelpText: 'Inclua hashtags nos conteúdos dos seus posts para que elas apareçam computadas aqui!'
   },
   'English': {
     notificationsTitle: 'NOTIFICATIONS',
@@ -914,7 +917,10 @@ const extraTranslations = {
     announcementContentLabel: 'Announcement Content',
     announcementContentPlaceholder: 'Enter the details of the announcement for the students...',
     publishingAnnouncement: 'Publishing Announcement...',
-    publishAnnouncementBtn: 'Publish to Wall'
+    publishAnnouncementBtn: 'Publish to Wall',
+    buscarHashtagPlaceholder: 'Search or type #hashtag...',
+    buscarBtn: 'Search',
+    hashtagHelpText: 'Include hashtags in your post content for them to appear here!'
   },
   'Español': {
     notificationsTitle: 'NOTIFICACIONES',
@@ -965,7 +971,10 @@ const extraTranslations = {
     announcementContentLabel: 'Contenido del Informativo',
     announcementContentPlaceholder: 'Ingresa los detalles del comunicado para los estudiantes...',
     publishingAnnouncement: 'Publicando Comunicado...',
-    publishAnnouncementBtn: 'Publicar en el Muro'
+    publishAnnouncementBtn: 'Publicar en el Muro',
+    buscarHashtagPlaceholder: 'Buscar o escribir #hashtag...',
+    buscarBtn: 'Buscar',
+    hashtagHelpText: '¡Incluye hashtags en el contenido de tus publicaciones para que aparezcan contadas aquí!'
   },
   'Français': {
     notificationsTitle: 'NOTIFICATIONS',
@@ -1016,7 +1025,10 @@ const extraTranslations = {
     announcementContentLabel: 'Contenu de l\'annonce',
     announcementContentPlaceholder: 'Saisissez les détails de l\'annonce pour les étudiants...',
     publishingAnnouncement: 'Publication de l\'annonce...',
-    publishAnnouncementBtn: 'Publier sur le mur'
+    publishAnnouncementBtn: 'Publier sur le mur',
+    buscarHashtagPlaceholder: 'Rechercher ou saisir #hashtag...',
+    buscarBtn: 'Rechercher',
+    hashtagHelpText: 'Incluez des hashtags dans le contenu de vos posts pour qu\'ils apparaissent ici !'
   },
   'Deutsch': {
     notificationsTitle: 'EINSTELLUNGEN', // wait, notifications is BENACHRICHTIGUNGEN
@@ -1067,7 +1079,10 @@ const extraTranslations = {
     announcementContentLabel: 'Inhalt der Ankündigung',
     announcementContentPlaceholder: 'Geben Sie die Details der Ankündigung für die Schüler ein...',
     publishingAnnouncement: 'Ankündigung wird veröffentlicht...',
-    publishAnnouncementBtn: 'Auf Pinnwand veröffentlichen'
+    publishAnnouncementBtn: 'Auf Pinnwand veröffentlichen',
+    buscarHashtagPlaceholder: 'Suchen oder #Hashtag eingeben...',
+    buscarBtn: 'Suchen',
+    hashtagHelpText: 'Fügen Sie Hashtags in Ihre Beiträge ein, damit sie hier gezählt werden!'
   },
   'Italiano': {
     notificationsTitle: 'NOTIFICHE',
@@ -1118,7 +1133,10 @@ const extraTranslations = {
     announcementContentLabel: 'Contenuto dell\'annuncio',
     announcementContentPlaceholder: 'Inserisci i dettagli dell\'annuncio per gli studenti...',
     publishingAnnouncement: 'Pubblicazione dell\'annuncio...',
-    publishAnnouncementBtn: 'Pubblica sulla bacheca'
+    publishAnnouncementBtn: 'Pubblica sulla bacheca',
+    buscarHashtagPlaceholder: 'Cerca o inserisci #hashtag...',
+    buscarBtn: 'Cerca',
+    hashtagHelpText: 'Includi gli hashtag nei tuoi post affinché vengano conteggiati qui!'
   },
   '日本語': {
     notificationsTitle: '通知',
@@ -1169,7 +1187,10 @@ const extraTranslations = {
     announcementContentLabel: 'お知らせの内容',
     announcementContentPlaceholder: '学生向けのお知らせの詳細を入力してください...',
     publishingAnnouncement: 'お知らせを投稿中...',
-    publishAnnouncementBtn: '掲示板に投稿'
+    publishAnnouncementBtn: '掲示板に投稿',
+    buscarHashtagPlaceholder: '検索またはハッシュタグを入力...',
+    buscarBtn: '検索',
+    hashtagHelpText: '投稿にハッシュタグを含めると、ここに集計されて表示されます！'
   },
   '中文': {
     notificationsTitle: '通知',
@@ -1220,7 +1241,10 @@ const extraTranslations = {
     announcementContentLabel: '公告内容',
     announcementContentPlaceholder: '为学生输入公告的详细内容...',
     publishingAnnouncement: '正在发布公告...',
-    publishAnnouncementBtn: '发布到公告栏'
+    publishAnnouncementBtn: '发布到公告栏',
+    buscarHashtagPlaceholder: '搜索或输入 #标签...',
+    buscarBtn: '搜索',
+    hashtagHelpText: '在你的帖子内容中添加标签，它们就会在这里统计显示！'
   },
   'Русский': {
     notificationsTitle: 'УВЕДОМЛЕНИЯ',
@@ -1271,7 +1295,10 @@ const extraTranslations = {
     announcementContentLabel: 'Содержание объявления',
     announcementContentPlaceholder: 'Введите подробности объявления для студентов...',
     publishingAnnouncement: 'Публикация объявления...',
-    publishAnnouncementBtn: 'Опубликовать на доске'
+    publishAnnouncementBtn: 'Опубликовать на доске',
+    buscarHashtagPlaceholder: 'Искать или ввести #хэштег...',
+    buscarBtn: 'Найти',
+    hashtagHelpText: 'Добавляйте хэштеги в свои публикации, чтобы они отображались здесь!'
   },
   'العربية': {
     notificationsTitle: 'الإشعارات',
@@ -1322,7 +1349,10 @@ const extraTranslations = {
     announcementContentLabel: 'محتوى الإعلان',
     announcementContentPlaceholder: 'أدخل تفاصيل الإعلان للطلاب...',
     publishingAnnouncement: 'جاري نشر الإعلان...',
-    publishAnnouncementBtn: 'نشر على لوحة الإعلانات'
+    publishAnnouncementBtn: 'نشر على لوحة الإعلانات',
+    buscarHashtagPlaceholder: 'ابحث أو اكتب #وسم...',
+    buscarBtn: 'بحث',
+    hashtagHelpText: 'أضف وسوماً في محتوى منشوراتك لتظهر وتُحسب هنا!'
   },
   'हिन्दी': {
     notificationsTitle: 'सूचनाएं',
@@ -1373,7 +1403,10 @@ const extraTranslations = {
     announcementContentLabel: 'सूचना की सामग्री',
     announcementContentPlaceholder: 'छात्रों के लिए सूचना का विवरण दर्ज करें...',
     publishingAnnouncement: 'सूचना प्रकाशित हो रही है...',
-    publishAnnouncementBtn: 'बोर्ड पर प्रकाशित करें'
+    publishAnnouncementBtn: 'बोर्ड पर प्रकाशित करें',
+    buscarHashtagPlaceholder: 'खोजें या #हैशटैग टाइप करें...',
+    buscarBtn: 'खोजें',
+    hashtagHelpText: 'अपने पोस्ट की सामग्री में हैशटैग शामिल करें ताकि वे यहां दिखाई दे सकें!'
   },
   '한국어': {
     notificationsTitle: '알림',
@@ -1424,7 +1457,10 @@ const extraTranslations = {
     announcementContentLabel: '공지사항 내용',
     announcementContentPlaceholder: '학생들을 위한 공지사항의 상세 내용을 입력하세요...',
     publishingAnnouncement: '공지 게시 중...',
-    publishAnnouncementBtn: '게시판에 게시'
+    publishAnnouncementBtn: '게시판에 게시',
+    buscarHashtagPlaceholder: '검색 또는 #해시태그 입력...',
+    buscarBtn: '검색',
+    hashtagHelpText: '게시물 내용에 해시태그를 포함하여 여기에 집계되도록 하세요!'
   }
 };
 
