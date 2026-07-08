@@ -577,15 +577,17 @@ export default function Perfil() {
 
     try {
       if (isFollowing) {
-        await supabase
+        const { error } = await supabase
           .from('follows')
           .delete()
           .eq('follower_id', usuario.id)
           .eq('following_id', perfilId);
+        if (error) throw error;
       } else {
-        await supabase
+        const { error } = await supabase
           .from('follows')
           .insert({ follower_id: usuario.id, following_id: perfilId });
+        if (error) throw error;
 
         const { data: meuPerfil } = await supabase
           .from('profiles')

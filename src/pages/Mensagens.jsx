@@ -9,6 +9,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from 'sonner';
 import { useLanguage } from '../hooks/useLanguage';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function Mensagens() {
   const { translate } = useLanguage();
@@ -48,6 +49,7 @@ export default function Mensagens() {
   const emojisPopulares = ['👍', '❤️', '😂', '🔥', '👏', '😮', '😢', '🚀', '🎓', '📖', '🎉', '💡'];
 
   const [mostrarTradutor, setMostrarTradutor] = useState(false);
+  const [mostrarConfirmDeletar, setMostrarConfirmDeletar] = useState(false);
   const [idiomaDestino, setIdiomaDestino] = useState('en');
   const [traduzindo, setTraduzindo] = useState(false);
 
@@ -352,13 +354,12 @@ export default function Mensagens() {
     }
   };
 
-  const apagarConversa = async () => {
+  const apagarConversa = () => {
     if (!me || !destinatario) return;
+    setMostrarConfirmDeletar(true);
+  };
 
-    if (!window.confirm("Deseja realmente apagar todo o histórico de conversa com este contato?")) {
-      return;
-    }
-
+  const confirmarApagarConversa = async () => {
     try {
       const { error } = await supabase
         .from('messages')
@@ -1344,6 +1345,16 @@ export default function Mensagens() {
         )}
 
       </div>
+
+      <ConfirmModal 
+        isOpen={mostrarConfirmDeletar}
+        title="Apagar Conversa"
+        message="Deseja realmente apagar todo o histórico de conversa com este contato?"
+        confirmText="Apagar"
+        cancelText="Cancelar"
+        onConfirm={confirmarApagarConversa}
+        onClose={() => setMostrarConfirmDeletar(false)}
+      />
     </div>
   );
 }

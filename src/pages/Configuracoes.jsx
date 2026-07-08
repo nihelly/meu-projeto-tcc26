@@ -18,6 +18,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useLanguage } from '../hooks/useLanguage';
+import ConfirmModal from '../components/ConfirmModal';
 
 // COMPONENTE DE SELEÇÃO PREMIUM (CUSTOM TOGGLE SWITCH)
 const CustomToggle = ({ checked, onChange }) => (
@@ -73,6 +74,7 @@ export default function Configuracoes() {
   const [emailRecuperacao, setEmailRecuperacao] = useState(() => {
     return localStorage.getItem('educonnect-recovery-email') || '';
   });
+  const [mostrarConfirmSair, setMostrarConfirmSair] = useState(false);
 
   // Salva Toggles no LocalStorage ao mudar
   useEffect(() => {
@@ -133,12 +135,13 @@ export default function Configuracoes() {
     localStorage.setItem('educonnect-recovery-email', valor);
   };
 
-  const lidarComSair = async () => {
-    const confirmar = window.confirm("Deseja realmente sair da conta?");
-    if (confirmar) {
-      await supabase.auth.signOut();
-      navigate('/');
-    }
+  const lidarComSair = () => {
+    setMostrarConfirmSair(true);
+  };
+
+  const confirmarSaida = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
   };
 
   return (
@@ -434,6 +437,16 @@ export default function Configuracoes() {
           <LogOut size={16} />
         </button>
       </div>
+
+      <ConfirmModal 
+        isOpen={mostrarConfirmSair}
+        title="Sair da Conta"
+        message="Deseja realmente sair da conta?"
+        confirmText="Sair"
+        cancelText="Cancelar"
+        onConfirm={confirmarSaida}
+        onClose={() => setMostrarConfirmSair(false)}
+      />
     </div>
   );
 }

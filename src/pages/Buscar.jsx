@@ -41,7 +41,10 @@ export default function Buscar() {
           fechar: 'Fechar',
           dicaBusca: 'Pesquise por @nome, palavras-chave ou hashtags (ex: #tcc)',
           searchTitle: 'BUSCAR',
-          resultados: 'Resultados da busca'
+          resultados: 'Resultados da busca',
+          buscarHashtagPlaceholder: 'Pesquisar ou digitar #hashtag...',
+          buscarBtn: 'Buscar',
+          hashtagHelpText: 'Inclua hashtags nos conteúdos dos seus posts para que elas apareçam computadas aqui!'
         };
       case 'Español':
         return {
@@ -60,7 +63,10 @@ export default function Buscar() {
           fechar: 'Cerrar',
           dicaBusca: 'Busque por @nombre, palabras clave o hashtags (ej: #tcc)',
           searchTitle: 'BUSCAR',
-          resultados: 'Resultados de búsqueda'
+          resultados: 'Resultados de búsqueda',
+          buscarHashtagPlaceholder: 'Buscar o escribir #hashtag...',
+          buscarBtn: 'Buscar',
+          hashtagHelpText: '¡Incluye hashtags en el contenido de tus publicaciones para que aparezcan contadas aquí!'
         };
       case 'Français':
         return {
@@ -79,7 +85,10 @@ export default function Buscar() {
           fechar: 'Fermer',
           dicaBusca: 'Recherchez par @nom, mots-clés ou hashtags (ex: #tcc)',
           searchTitle: 'RECHERCHE',
-          resultados: 'Résultats de recherche'
+          resultados: 'Résultats de recherche',
+          buscarHashtagPlaceholder: 'Rechercher ou saisir #hashtag...',
+          buscarBtn: 'Rechercher',
+          hashtagHelpText: 'Incluez des hashtags dans le contenu de vos posts pour qu\'ils apparaissent ici !'
         };
       case 'Deutsch':
         return {
@@ -98,7 +107,10 @@ export default function Buscar() {
           fechar: 'Schließen',
           dicaBusca: 'Suchen Sie nach @name, Begriffen oder Hashtags (z.B. #tcc)',
           searchTitle: 'SUCHE',
-          resultados: 'Suchergebnisse'
+          resultados: 'Suchergebnisse',
+          buscarHashtagPlaceholder: 'Suchen oder #Hashtag eingeben...',
+          buscarBtn: 'Suchen',
+          hashtagHelpText: 'Fügen Sie Hashtags in Ihre Beiträge ein, damit sie hier gezählt werden!'
         };
       case 'Italiano':
         return {
@@ -117,7 +129,10 @@ export default function Buscar() {
           fechar: 'Chiudi',
           dicaBusca: 'Cerca per @nome, parole o hashtag (es: #tcc)',
           searchTitle: 'CERCA',
-          resultados: 'Risultati di ricerca'
+          resultados: 'Risultati di ricerca',
+          buscarHashtagPlaceholder: 'Cerca o inserisci #hashtag...',
+          buscarBtn: 'Cerca',
+          hashtagHelpText: 'Includi gli hashtag nei tuoi post affinché vengano conteggiati qui!'
         };
       case '日本語':
         return {
@@ -136,7 +151,10 @@ export default function Buscar() {
           fechar: '閉じる',
           dicaBusca: '@名前、キーワード、またはハッシュタグ（例：#tcc）で検索',
           searchTitle: '検索',
-          resultados: '検索結果'
+          resultados: '検索結果',
+          buscarHashtagPlaceholder: '検索またはハッシュタグを入力...',
+          buscarBtn: '検索',
+          hashtagHelpText: '投稿にハッシュタグを含めると、ここに集計されて表示されます！'
         };
       case '中文':
         return {
@@ -155,7 +173,10 @@ export default function Buscar() {
           fechar: '关闭',
           dicaBusca: '搜索 @姓名、关键词或标签（例如：#tcc）',
           searchTitle: '搜索',
-          resultados: '搜索结果'
+          resultados: '搜索结果',
+          buscarHashtagPlaceholder: '搜索或输入 #标签...',
+          buscarBtn: '搜索',
+          hashtagHelpText: '在你的帖子内容中添加标签，它们就会在这里统计显示！'
         };
       case 'Русский':
         return {
@@ -174,7 +195,10 @@ export default function Buscar() {
           fechar: 'Закрыть',
           dicaBusca: 'Ищите по @имени, ключевым словам или тегам (например: #tcc)',
           searchTitle: 'ПОИСК',
-          resultados: 'Результаты поиска'
+          resultados: 'Результаты поиска',
+          buscarHashtagPlaceholder: 'Искать или ввести #хэштег...',
+          buscarBtn: 'Найти',
+          hashtagHelpText: 'Добавляйте хэштеги в свои публикации, чтобы они отображались здесь!'
         };
       case 'العربية':
         return {
@@ -193,7 +217,10 @@ export default function Buscar() {
           fechar: 'إغلاق',
           dicaBusca: 'ابحث عن @اسم، كلمات رئيسية أو وسوم (مثل: #tcc)',
           searchTitle: 'بحث',
-          resultados: 'نتائج البحث'
+          resultados: 'نتائج البحث',
+          buscarHashtagPlaceholder: 'ابحث أو اكتب #وسم...',
+          buscarBtn: 'بحث',
+          hashtagHelpText: 'أضف وسوماً في محتوى منشوراتك لتظهر وتُحسب هنا!'
         };
       case 'हिन्दी':
         return {
@@ -212,7 +239,10 @@ export default function Buscar() {
           fechar: 'बंद करें',
           dicaBusca: '@नाम, कीवर्ड या हैशटैग खोजें (उदा: #tcc)',
           searchTitle: 'खोजें',
-          resultados: 'खोज परिणाम'
+          resultados: 'खोज परिणाम',
+          buscarHashtagPlaceholder: 'खोजें या #हैशटैग टाइप करें...',
+          buscarBtn: 'खोजें',
+          hashtagHelpText: 'अपने पोस्ट की सामग्री में हैशटैग शामिल करें ताकि वे यहां दिखाई दे सकें!'
         };
       case '한국어':
         return {
@@ -231,7 +261,10 @@ export default function Buscar() {
           fechar: '닫기',
           dicaBusca: '@이름, 키워드 또는 해시태그(예: #tcc)로 검색',
           searchTitle: '검색',
-          resultados: '검색 결과'
+          resultados: '검색 결과',
+          buscarHashtagPlaceholder: '검색 또는 #해시태그 입력...',
+          buscarBtn: '검색',
+          hashtagHelpText: '게시물 내용에 해시태그를 포함하여 여기에 집계되도록 하세요!'
         };
       default: // English fallback
         return {
@@ -250,7 +283,10 @@ export default function Buscar() {
           fechar: 'Close',
           dicaBusca: 'Search for @name, keywords or hashtags (e.g. #tcc)',
           searchTitle: 'SEARCH',
-          resultados: 'Search results'
+          resultados: 'Search results',
+          buscarHashtagPlaceholder: 'Search or type #hashtag...',
+          buscarBtn: 'Search',
+          hashtagHelpText: 'Include hashtags in your post content for them to appear here!'
         };
     }
   };
@@ -756,7 +792,7 @@ export default function Buscar() {
                   <input 
                     type="text"
                     id="input-hashtag-busca"
-                    placeholder="Pesquisar ou digitar #hashtag..."
+                    placeholder={dict.buscarHashtagPlaceholder}
                     className="w-full bg-gray-50/50 dark:bg-[#161424] border border-gray-100 dark:border-purple-500/10 rounded-full pl-10 pr-4 py-2 text-[12px] text-gray-700 dark:text-gray-300 outline-none focus:border-[#8b5cf6] transition-colors"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -784,7 +820,7 @@ export default function Buscar() {
                   }}
                   className="px-4 py-2 bg-gradient-to-tr from-[#3b82f6] to-[#8b5cf6] text-white rounded-full text-[11px] font-semibold hover:opacity-90 cursor-pointer active:scale-98 transition-all shadow-sm flex-shrink-0"
                 >
-                  Buscar
+                  {dict.buscarBtn}
                 </button>
               </div>
 
@@ -804,7 +840,7 @@ export default function Buscar() {
                 ))}
                 {hashtagsMaisUsadas.length === 0 && (
                   <p className="text-xs text-gray-400 w-full italic">
-                    Inclua hashtags nos conteúdos dos seus posts para que elas apareçam computadas aqui!
+                    {dict.hashtagHelpText}
                   </p>
                 )}
               </div>

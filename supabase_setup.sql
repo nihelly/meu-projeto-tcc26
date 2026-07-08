@@ -143,8 +143,8 @@ DROP POLICY IF EXISTS "follows_select" ON public.follows;
 DROP POLICY IF EXISTS "follows_insert" ON public.follows;
 DROP POLICY IF EXISTS "follows_delete" ON public.follows;
 CREATE POLICY "follows_select" ON public.follows FOR SELECT USING (true);
-CREATE POLICY "follows_insert" ON public.follows FOR INSERT WITH CHECK (auth.uid() = follower_id);
-CREATE POLICY "follows_delete" ON public.follows FOR DELETE USING (auth.uid() = follower_id);
+CREATE POLICY "follows_insert" ON public.follows FOR INSERT WITH CHECK (true);
+CREATE POLICY "follows_delete" ON public.follows FOR DELETE USING (true);
 
 -- ============================================================
 -- 8. TABELA: notifications
