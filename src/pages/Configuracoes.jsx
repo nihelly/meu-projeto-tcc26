@@ -428,10 +428,10 @@ export default function Configuracoes() {
       </div>
 
       {/* Botão Sair da Conta */}
-      <div className="mt-12 flex justify-center">
+      <div className="mt-12 flex justify-center items-center w-full">
         <button 
           onClick={lidarComSair}
-          className="flex items-center gap-2 text-red-500 font-semibold text-[13px] hover:text-red-600 hover:underline transition-all cursor-pointer"
+          className="flex items-center justify-center gap-2 text-red-500 font-semibold text-[13px] hover:text-red-600 hover:underline transition-all cursor-pointer"
         >
           <span>{translate('logout')}</span>
           <LogOut size={16} />

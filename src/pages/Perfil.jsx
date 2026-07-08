@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { User, Heart, MessageCircle, Repeat2, ArrowLeft, GraduationCap, BookOpen, Layers, Camera, Loader2 } from 'lucide-react';
+import { User, Heart, MessageCircle, Repeat2, ArrowLeft, Layers, Camera, Loader2, Trash2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'sonner';
 import { useLanguage } from '../hooks/useLanguage';
 import { TradutorInput } from '../components/TradutorInput';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function Perfil() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export default function Perfil() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [postsDoUsuario, setPostsDoUsuario] = useState([]);
   const [repostsDoUsuario, setRepostsDoUsuario] = useState([]);
+  const [postParaExcluir, setPostParaExcluir] = useState(null);
 
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef(null);
@@ -391,6 +393,32 @@ export default function Perfil() {
         }
         return p;
       }));
+    }
+  };
+
+  // Lógica para Excluir Post
+  const handleExcluirPost = async () => {
+    if (!usuario || !postParaExcluir) return;
+
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postParaExcluir);
+
+      if (error) throw error;
+
+      // Remove do estado local e atualiza métricas
+      setPostsDoUsuario(prev => prev.filter(p => p.id !== postParaExcluir));
+      setRepostsDoUsuario(prev => prev.filter(p => p.id !== postParaExcluir));
+      setMetrics(prev => ({ ...prev, posts: Math.max(0, prev.posts - 1) }));
+      
+      toast.success("Publicação excluída com sucesso!");
+    } catch (err) {
+      console.error("Erro ao excluir publicação:", err.message);
+      toast.error("Não foi possível excluir a publicação. Tente novamente.");
+    } finally {
+      setPostParaExcluir(null);
     }
   };
 
@@ -818,9 +846,20 @@ export default function Perfil() {
               <div key={post.id} className="bg-white border border-gray-100 rounded-[1.5rem] p-5 shadow-[0_1px_4px_rgba(0,0,0,0.01)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:-translate-y-0.5 transition-all duration-300 space-y-3">
                 <div className="flex justify-between items-start">
                   <h3 className="text-[13.5px] font-bold text-gray-950 uppercase tracking-tight">{post.title}</h3>
-                  <span className="text-[10px] text-gray-400">
-                    {new Date(post.created_at).toLocaleDateString([], { day: '2-digit', month: '2-digit' })}
-                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {usuario && post.user_id === usuario.id && (
+                      <button 
+                        onClick={() => setPostParaExcluir(post.id)}
+                        className="text-red-400 hover:text-red-655 transition-colors cursor-pointer p-1"
+                        title="Excluir publicação"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    )}
+                    <span className="text-[10px] text-gray-400">
+                      {new Date(post.created_at).toLocaleDateString([], { day: '2-digit', month: '2-digit' })}
+                    </span>
+                  </div>
                 </div>
                 {post.image_url && (
                   <div className="w-full rounded-xl overflow-hidden border border-gray-100 max-h-56">
@@ -998,6 +1037,16 @@ export default function Perfil() {
         </div>
       )}
 
+      {/* Modal de Confirmação para Excluir Post */}
+      <ConfirmModal
+        isOpen={postParaExcluir !== null}
+        title="Excluir Publicação"
+        message="Tem certeza que deseja excluir esta publicação? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={handleExcluirPost}
+        onClose={() => setPostParaExcluir(null)}
+      />
     </div>
   );
 }

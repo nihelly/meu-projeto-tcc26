@@ -1476,15 +1476,40 @@ export function useLanguage() {
   });
 
   useEffect(() => {
+    const langMap = {
+      'Português (BR)': 'pt-BR',
+      'English': 'en',
+      'Español': 'es',
+      'Français': 'fr',
+      'Deutsch': 'de',
+      'Italiano': 'it',
+      '日本語': 'ja',
+      '中文': 'zh-CN',
+      'Русский': 'ru',
+      'العربية': 'ar',
+      'हिन्दी': 'hi',
+      '한국어': 'ko'
+    };
+
+    const atualizarLangHTML = (idioma) => {
+      const codigo = langMap[idioma] || 'pt-BR';
+      document.documentElement.setAttribute('lang', codigo);
+    };
+
+    // Atualiza no carregamento inicial
+    atualizarLangHTML(lang);
+
     const handleLanguageChange = () => {
-      setLang(localStorage.getItem('educonnect-lang') || 'Português (BR)');
+      const novoIdioma = localStorage.getItem('educonnect-lang') || 'Português (BR)';
+      setLang(novoIdioma);
+      atualizarLangHTML(novoIdioma);
     };
 
     window.addEventListener('educonnect-language-change', handleLanguageChange);
     return () => {
       window.removeEventListener('educonnect-language-change', handleLanguageChange);
     };
-  }, []);
+  }, [lang]);
 
   const translate = (key) => {
     const langDict = translations[lang] || translations['Português (BR)'];

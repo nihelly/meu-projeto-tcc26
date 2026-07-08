@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Repeat2, User, MoreHorizontal, Layers } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, User, MoreHorizontal, Layers, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { Anuncios } from '../components/Anuncios';
 import { toast } from 'sonner';
 import { useLanguage } from '../hooks/useLanguage';
 import { TradutorInput } from '../components/TradutorInput';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function Feed() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function Feed() {
   const [currentUser, setCurrentUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [postParaExcluir, setPostParaExcluir] = useState(null);
 
   // Estados de comentários
   const [comentariosPostId, setComentariosPostId] = useState(null);
@@ -113,6 +115,28 @@ export default function Feed() {
 
     inicializarFeed();
   }, []);
+
+  // Lógica para Excluir Post
+  const handleExcluirPost = async () => {
+    if (!currentUser || !postParaExcluir) return;
+
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postParaExcluir);
+
+      if (error) throw error;
+
+      setPosts(prevPosts => prevPosts.filter(p => p.id !== postParaExcluir));
+      toast.success("Publicação excluída com sucesso!");
+    } catch (err) {
+      console.error("Erro ao excluir publicação:", err.message);
+      toast.error("Não foi possível excluir a publicação. Tente novamente.");
+    } finally {
+      setPostParaExcluir(null);
+    }
+  };
 
   // 2. Lógica para Curtir / Descurtir
   const handleLike = async (postId) => {
@@ -422,9 +446,20 @@ export default function Feed() {
                     {post.authorHandle || '@usuario'}
                   </span>
                 </div>
-                <button className="text-gray-300 hover:text-gray-500 transition-colors cursor-pointer p-1">
-                  <MoreHorizontal size={18} />
-                </button>
+                <div className="flex items-center gap-1.5">
+                  {currentUser && post.user_id === currentUser.id && (
+                    <button 
+                      onClick={() => setPostParaExcluir(post.id)}
+                      className="text-red-400 hover:text-red-650 transition-colors cursor-pointer p-1"
+                      title="Excluir publicação"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                  <button className="text-gray-300 hover:text-gray-500 transition-colors cursor-pointer p-1">
+                    <MoreHorizontal size={18} />
+                  </button>
+                </div>
               </div>
 
               {/* Título */}
@@ -582,6 +617,16 @@ export default function Feed() {
         </div>
       )}
 
+      {/* Modal de Confirmação para Excluir Post */}
+      <ConfirmModal
+        isOpen={postParaExcluir !== null}
+        title="Excluir Publicação"
+        message="Tem certeza que deseja excluir esta publicação? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={handleExcluirPost}
+        onClose={() => setPostParaExcluir(null)}
+      />
     </div>
   );
 }
