@@ -254,7 +254,8 @@ export default function Notificacoes() {
   // Contagens para os Filtros superiores
   const totalNotifs = notificacoes.length;
   const totalNaoLidas = notificacoes.filter(n => !n.is_read).length;
-  const totalMencoes = notificacoes.filter(n => n.content?.toLowerCase().includes(`@${perfil?.nome?.toLowerCase().replace(/\s+/g, '')}`)).length;
+  const nomeLimpo = perfil?.nome ? perfil.nome.toLowerCase().replace(/\s+/g, '') : '';
+  const totalMencoes = notificacoes.filter(n => n.content?.toLowerCase().includes(`@${nomeLimpo}`)).length;
   const totalSistema = notificacoes.filter(n => n.type === 'system').length;
 
   // Filtragem da lista principal
@@ -262,7 +263,7 @@ export default function Notificacoes() {
     const bateBusca = !busca.trim() || n.content.toLowerCase().includes(busca.toLowerCase());
     
     if (tabAtiva === 'nao_lidas') return bateBusca && !n.is_read;
-    if (tabAtiva === 'mencoes') return bateBusca && n.content?.toLowerCase().includes(`@${perfil?.nome?.toLowerCase().replace(/\s+/g, '')}`);
+    if (tabAtiva === 'mencoes') return bateBusca && n.content?.toLowerCase().includes(`@${nomeLimpo}`);
     if (tabAtiva === 'sistema') return bateBusca && n.type === 'system';
     
     return bateBusca;
