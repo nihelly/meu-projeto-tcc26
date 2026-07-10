@@ -26,6 +26,7 @@ import PainelProfessor from './pages/PainelProfessor';
 import PainelAdministrador from './pages/PainelAdministrador';
 import Turmas from './pages/Turmas';
 import PaginaTurma from './pages/PaginaTurma';
+import PostDetalhe from './pages/PostDetalhe';
 
 export default function App() {
   return (
@@ -105,6 +106,16 @@ export default function App() {
           element={
             <RotaProtegida>
               <MainLayout><Mensagens /></MainLayout>
+            </RotaProtegida>
+          } 
+        />
+
+        {/* Detalhe da Postagem (Comentários e Interações) */}
+        <Route 
+          path="/post/:id" 
+          element={
+            <RotaProtegida>
+              <MainLayout><PostDetalhe /></MainLayout>
             </RotaProtegida>
           } 
         />

@@ -505,30 +505,33 @@ export default function Feed() {
                 </div>
               </div>
 
-              {/* Título */}
-              <div className="px-5 pb-2">
-                <h2 className="text-[14px] font-bold text-gray-900 uppercase tracking-tight">
-                  {post.title || 'TÍTULO'}
-                </h2>
-              </div>
-
-              {/* Imagem do post */}
-              {post.image_url && (
-                <div className="mx-5 mb-3">
-                  <div className="w-full rounded-xl overflow-hidden border border-gray-100">
-                    <img src={post.image_url} alt="Imagem do post" className="w-full object-cover" />
-                  </div>
-                </div>
-              )}
-
-              {/* Conteúdo textual */}
-              {post.content && (
+              {/* Título, Imagem e Conteúdo clicáveis para ver detalhes */}
+              <div onClick={() => navigate(`/post/${post.id}`)} className="cursor-pointer">
+                {/* Título */}
                 <div className="px-5 pb-2">
-                  <p className="text-[13px] text-gray-600 leading-relaxed whitespace-pre-line">
-                    {post.content}
-                  </p>
+                  <h2 className="text-[14px] font-bold text-gray-900 uppercase tracking-tight">
+                    {post.title || 'TÍTULO'}
+                  </h2>
                 </div>
-              )}
+
+                {/* Imagem do post */}
+                {post.image_url && (
+                  <div className="mx-5 mb-3">
+                    <div className="w-full rounded-xl overflow-hidden border border-gray-100">
+                      <img src={post.image_url} alt="Imagem do post" className="w-full object-cover" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Conteúdo textual */}
+                {post.content && (
+                  <div className="px-5 pb-2">
+                    <p className="text-[13px] text-gray-650 leading-relaxed whitespace-pre-line">
+                      {post.content}
+                    </p>
+                  </div>
+                )}
+              </div>
 
               {/* Footer: Interações */}
               <div className="flex items-center justify-between px-5 pb-4 pt-1">
@@ -545,7 +548,7 @@ export default function Feed() {
                   
                   {/* Comentários (MessageCircle) */}
                   <button 
-                    onClick={() => setComentariosPostId(post.id)}
+                    onClick={() => navigate(`/post/${post.id}`)}
                     className="flex items-center gap-1.5 text-gray-400 text-[12px] hover:text-blue-500 cursor-pointer transition-colors"
                   >
                     <MessageCircle size={15} strokeWidth={1.5} /> 
