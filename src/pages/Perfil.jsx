@@ -17,7 +17,7 @@ export default function Perfil() {
   const [perfil, setPerfil] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [abaAtiva, setAbaAtiva] = useState('posts');
-  const [metrics, setMetrics] = useState({ posts: 0, seguidores: 0, seguindo: 0 });
+  const [metrics, setMetrics] = useState({ posts: 0, seguidores: 0, seguindo: 0, commentsCount: 0, likesReceived: 0 });
   const [isFollowing, setIsFollowing] = useState(false);
   const [postsDoUsuario, setPostsDoUsuario] = useState([]);
   const [repostsDoUsuario, setRepostsDoUsuario] = useState([]);
@@ -73,10 +73,29 @@ export default function Perfil() {
         .select('id', { count: 'exact', head: true })
         .eq('follower_id', perfilId);
 
+      // Contar comentários do usuário
+      const { count: commentsCount } = await supabase
+        .from('comments')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', perfilId);
+
+      // Contar curtidas recebidas
+      let likesReceivedCount = 0;
+      if (postsReais && postsReais.length > 0) {
+        const ids = postsReais.map(p => p.id);
+        const { count: likesCount } = await supabase
+          .from('likes')
+          .select('id', { count: 'exact', head: true })
+          .in('post_id', ids);
+        likesReceivedCount = likesCount || 0;
+      }
+
       setMetrics({
         posts: postsReais.length,
         seguidores: seguidoresCount || 0,
-        seguindo: seguindoCount || 0
+        seguindo: seguindoCount || 0,
+        commentsCount: commentsCount || 0,
+        likesReceived: likesReceivedCount
       });
 
       // 4. Se não for o dono do perfil, checar se o usuário logado segue esta conta
@@ -736,18 +755,26 @@ export default function Perfil() {
           )}
 
           {/* CONTADORES */}
-          <div className="flex-1 flex justify-around text-center pb-2 pl-0 sm:pl-4">
+          <div className="flex-1 grid grid-cols-5 text-center pb-2 pl-0 sm:pl-4 gap-1">
             <div className="flex flex-col">
-              <span className="text-[15px] font-bold text-gray-950">{metrics?.posts || 0}</span>
-              <span className="text-[11px] text-gray-400 font-light lowercase">{translate('postsLabel')}</span>
+              <span className="text-[13px] md:text-[15px] font-bold text-gray-950">{metrics?.posts || 0}</span>
+              <span className="text-[9px] md:text-[10px] text-gray-400 font-light lowercase">Posts</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[15px] font-bold text-gray-950">{metrics?.seguidores || 0}</span>
-              <span className="text-[11px] text-gray-400 font-light lowercase">{translate('followers')}</span>
+              <span className="text-[13px] md:text-[15px] font-bold text-gray-950">{metrics?.seguidores || 0}</span>
+              <span className="text-[9px] md:text-[10px] text-gray-400 font-light lowercase">Seguidores</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[15px] font-bold text-gray-950">{metrics?.seguindo || 0}</span>
-              <span className="text-[11px] text-gray-400 font-light lowercase">{translate('following')}</span>
+              <span className="text-[13px] md:text-[15px] font-bold text-gray-950">{metrics?.seguindo || 0}</span>
+              <span className="text-[9px] md:text-[10px] text-gray-400 font-light lowercase">Seguindo</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[13px] md:text-[15px] font-bold text-gray-950">{metrics?.commentsCount || 0}</span>
+              <span className="text-[9px] md:text-[10px] text-gray-400 font-light lowercase">Comentários</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[13px] md:text-[15px] font-bold text-gray-950">{metrics?.likesReceived || 0}</span>
+              <span className="text-[9px] md:text-[10px] text-gray-400 font-light lowercase">Curtidas</span>
             </div>
           </div>
         </div>
@@ -759,7 +786,11 @@ export default function Perfil() {
             <h2 className="text-[16px] font-bold text-gray-950">{perfil?.nome}</h2>
             
             {/* Badge acadêmico */}
-            {perfil?.papel === 'professor' ? (
+            {perfil?.papel === 'administrador' ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200/50 uppercase tracking-wider">
+                Admin
+              </span>
+            ) : perfil?.papel === 'professor' ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200/50 uppercase tracking-wider">
                 {translate('teacher')}
               </span>
@@ -781,6 +812,26 @@ export default function Perfil() {
           <p className="text-gray-600 font-light leading-relaxed whitespace-pre-line text-[13px] pt-1">
             {perfil?.bio || translate('noBio')}
           </p>
+
+          {/* Informações Acadêmicas Adicionais */}
+          <div className="mt-3 grid grid-cols-2 gap-y-2 gap-x-4 border-t border-gray-100 pt-3 text-[11.5px] text-gray-500 font-light">
+            {perfil?.turma && (
+              <div className="col-span-2">
+                <span className="font-semibold text-gray-700">{perfil?.papel === 'professor' ? 'Turmas' : 'Turma'}:</span> {perfil.turma}
+              </div>
+            )}
+            {perfil?.disciplinas && (
+              <div className="col-span-2">
+                <span className="font-semibold text-gray-700">Disciplinas:</span> {perfil.disciplinas}
+              </div>
+            )}
+            <div>
+              <span className="font-semibold text-gray-700">Data de Cadastro:</span> {new Date(perfil?.created_at).toLocaleDateString()}
+            </div>
+            <div>
+              <span className="font-semibold text-gray-700">Último Acesso:</span> {perfil?.ultimo_acesso ? new Date(perfil.ultimo_acesso).toLocaleDateString([], {hour: '2-digit', minute:'2-digit'}) : '---'}
+            </div>
+          </div>
         </div>
 
         {/* BOTÕES DE AÇÃO */}

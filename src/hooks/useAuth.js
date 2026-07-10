@@ -1,10 +1,22 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { toast } from 'sonner';
 
 export function useAuth() {
   const [usuario, setUsuario] = useState(null);
   const [perfil, setPerfil] = useState(null);
   const [carregando, setCarregando] = useState(true);
+
+  async function atualizarUltimoAcesso(id) {
+    try {
+      await supabase
+        .from('profiles')
+        .update({ ultimo_acesso: new Date().toISOString() })
+        .eq('id', id);
+    } catch (err) {
+      console.error('Erro ao atualizar ultimo acesso:', err.message);
+    }
+  }
 
   async function buscarPerfil(id) {
     try {
@@ -17,7 +29,16 @@ export function useAuth() {
       if (error) {
         console.error('Erro ao buscar perfil:', error.message);
       } else {
+        if (data?.status === 'Bloqueado' || data?.status === 'bloqueado') {
+          toast.error("Acesso Negado", { description: "Sua conta foi bloqueada por um administrador." });
+          await supabase.auth.signOut();
+          setPerfil(null);
+          setUsuario(null);
+          setCarregando(false);
+          return;
+        }
         setPerfil(data);
+        atualizarUltimoAcesso(id);
       }
     } catch (err) {
       console.error('Erro ao buscar perfil no Supabase:', err.message);
@@ -56,6 +77,7 @@ export function useAuth() {
     usuario, 
     perfil, 
     carregando, 
-    ehProfessor: perfil?.papel === 'professor' 
+    ehProfessor: perfil?.papel === 'professor',
+    ehAdmin: perfil?.papel === 'administrador'
   };
 }

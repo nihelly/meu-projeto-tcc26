@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 
 // Importação dos Layouts
 import { MainLayout } from './layouts/MainLayout';
+import { AdminLayout } from './layouts/AdminLayout';
 
 // Importação do componente de proteção de rota
 import { RotaProtegida } from './components/RotaProtegida';
@@ -19,6 +20,12 @@ import Perfil from './pages/Perfil';
 import EditarPerfil from './pages/EditarPerfil';
 import Buscar from './pages/Buscar';
 import Configuracoes from './pages/Configuracoes';
+import GerenciarUsuarios from './pages/GerenciarUsuarios';
+import ModerarPostagens from './pages/ModerarPostagens';
+import PainelProfessor from './pages/PainelProfessor';
+import PainelAdministrador from './pages/PainelAdministrador';
+import Turmas from './pages/Turmas';
+import PaginaTurma from './pages/PaginaTurma';
 
 export default function App() {
   return (
@@ -128,6 +135,64 @@ export default function App() {
           element={
             <RotaProtegida>
               <MainLayout><Configuracoes /></MainLayout>
+            </RotaProtegida>
+          } 
+        />
+
+        {/* Gerenciar Usuários (Administração) */}
+        <Route 
+          path="/gerenciar-usuarios" 
+          element={
+            <RotaProtegida apenasProfessor={true}>
+              <AdminLayout><GerenciarUsuarios /></AdminLayout>
+            </RotaProtegida>
+          } 
+        />
+
+        {/* Moderar Postagens (Administração) */}
+        <Route 
+          path="/moderar-postagens" 
+          element={
+            <RotaProtegida apenasProfessor={true}>
+              <AdminLayout><ModerarPostagens /></AdminLayout>
+            </RotaProtegida>
+          } 
+        />
+
+        {/* Painel do Professor (Professor/Admin) */}
+        <Route 
+          path="/professor" 
+          element={
+            <RotaProtegida apenasProfessor={true}>
+              <AdminLayout><PainelProfessor /></AdminLayout>
+            </RotaProtegida>
+          } 
+        />
+
+        {/* Painel do Administrador (Apenas Admin) */}
+        <Route 
+          path="/admin" 
+          element={
+            <RotaProtegida apenasAdmin={true}>
+              <AdminLayout><PainelAdministrador /></AdminLayout>
+            </RotaProtegida>
+          } 
+        />
+
+        {/* Organização por Turmas (Acesso para todos os logados) */}
+        <Route 
+          path="/turmas" 
+          element={
+            <RotaProtegida>
+              <AdminLayout><Turmas /></AdminLayout>
+            </RotaProtegida>
+          } 
+        />
+        <Route 
+          path="/turma/:id" 
+          element={
+            <RotaProtegida>
+              <AdminLayout><PaginaTurma /></AdminLayout>
             </RotaProtegida>
           } 
         />

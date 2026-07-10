@@ -19,6 +19,8 @@ export default function EditarPerfil() {
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [papel, setPapel] = useState('aluno');
+  const [turma, setTurma] = useState('');
+  const [disciplinas, setDisciplinas] = useState('');
   const [bannerUrl, setBannerUrl] = useState('');
   const [bannerFile, setBannerFile] = useState(null);
   const [bannerPreview, setBannerPreview] = useState('');
@@ -53,6 +55,8 @@ export default function EditarPerfil() {
           setAvatarUrl(perfil.avatar_url || '');
           setPreviewUrl(perfil.avatar_url || '');
           setPapel(perfil.papel || 'aluno');
+          setTurma(perfil.turma || '');
+          setDisciplinas(perfil.disciplinas || '');
           setBannerUrl(perfil.banner_url || '');
           setBannerPreview(perfil.banner_url || '');
         }
@@ -158,6 +162,8 @@ export default function EditarPerfil() {
           avatar_url: novaAvatarUrl,
           banner_url: novaBannerUrl,
           papel: papel,
+          turma: (papel === 'aluno' || papel === 'professor') ? turma.trim() : null,
+          disciplinas: papel === 'professor' ? disciplinas.trim() : null,
         })
         .eq('id', userId);
 
@@ -282,6 +288,39 @@ export default function EditarPerfil() {
               <option value="professor">Professor (Docente)</option>
             </select>
           </div>
+
+          {/* Turma (Apenas para Alunos ou Professores) */}
+          {(papel === 'aluno' || papel === 'professor') && (
+            <div className="space-y-1.5 animate-in fade-in duration-200">
+              <label className="text-[11px] font-bold text-gray-700 tracking-wider uppercase">
+                {papel === 'aluno' ? 'Turma' : 'Turmas Lecionadas'}
+              </label>
+              <input 
+                type="text" 
+                value={turma}
+                onChange={(e) => setTurma(e.target.value)}
+                placeholder={papel === 'aluno' ? "Ex: 1º Ano A" : "Ex: 1º Ano A, 2º Ano B"}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-medium text-gray-800 outline-none focus:border-black transition-colors"
+              />
+              <p className="text-[10px] text-gray-400 pl-1">
+                {papel === 'aluno' ? 'Especifique sua turma atual.' : 'Separe as turmas com vírgula.'}
+              </p>
+            </div>
+          )}
+
+          {/* Disciplinas (Apenas para Professores) */}
+          {papel === 'professor' && (
+            <div className="space-y-1.5 animate-in fade-in duration-200">
+              <label className="text-[11px] font-bold text-gray-700 tracking-wider uppercase">Disciplinas</label>
+              <input 
+                type="text" 
+                value={disciplinas}
+                onChange={(e) => setDisciplinas(e.target.value)}
+                placeholder="Ex: Matemática, Física"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-medium text-gray-800 outline-none focus:border-black transition-colors"
+              />
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-gray-700 tracking-wider uppercase">Identificador (@) (Não editável)</label>

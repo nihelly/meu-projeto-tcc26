@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Repeat2, User, MoreHorizontal, Layers, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, User, MoreHorizontal, Layers, Trash2, Flag, AlertTriangle, X, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { Anuncios } from '../components/Anuncios';
 import { toast } from 'sonner';
@@ -15,6 +15,9 @@ export default function Feed() {
   const [posts, setPosts] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [postParaExcluir, setPostParaExcluir] = useState(null);
+  const [postParaDenunciar, setPostParaDenunciar] = useState(null);
+  const [motivoDenuncia, setMotivoDenuncia] = useState('Conteúdo ofensivo');
+  const [enviandoDenuncia, setEnviandoDenuncia] = useState(false);
 
   // Estados de comentários
   const [comentariosPostId, setComentariosPostId] = useState(null);
@@ -31,10 +34,11 @@ export default function Feed() {
         const { data: { user } } = await supabase.auth.getUser();
         setCurrentUser(user);
 
-        // Obter posts (excluindo avisos com prefixo AVISO:)
+        // Obter posts (apenas aprovados e excluindo avisos com prefixo AVISO:)
         const { data: postsData, error: postsError } = await supabase
           .from('posts')
           .select('*')
+          .eq('status', 'Aprovada')
           .order('created_at', { ascending: false });
 
         if (postsError) throw postsError;
@@ -135,6 +139,36 @@ export default function Feed() {
       toast.error("Não foi possível excluir a publicação. Tente novamente.");
     } finally {
       setPostParaExcluir(null);
+    }
+  };
+  
+  // Lógica para Enviar Denúncia
+  const handleEnviarDenuncia = async (e) => {
+    e.preventDefault();
+    if (!currentUser || !postParaDenunciar) return;
+
+    try {
+      setEnviandoDenuncia(true);
+
+      const { error } = await supabase
+        .from('reports')
+        .insert({
+          post_id: postParaDenunciar,
+          reporter_id: currentUser.id,
+          reason: motivoDenuncia
+        });
+
+      if (error) throw error;
+
+      toast.success('Denúncia enviada com sucesso!', {
+        description: 'Obrigado por nos ajudar a manter a comunidade segura.'
+      });
+      setPostParaDenunciar(null);
+    } catch (err) {
+      console.error('Erro ao enviar denúncia:', err);
+      toast.error('Erro ao enviar denúncia. Tente novamente.');
+    } finally {
+      setEnviandoDenuncia(false);
     }
   };
 
@@ -456,7 +490,16 @@ export default function Feed() {
                       <Trash2 size={16} />
                     </button>
                   )}
-                  <button className="text-gray-300 hover:text-gray-500 transition-colors cursor-pointer p-1">
+                  {currentUser && post.user_id !== currentUser.id && (
+                    <button 
+                      onClick={() => setPostParaDenunciar(post.id)}
+                      className="text-gray-300 hover:text-amber-600 transition-colors cursor-pointer p-1"
+                      title="Denunciar publicação"
+                    >
+                      <Flag size={15} />
+                    </button>
+                  )}
+                  <button className="text-gray-350 hover:text-gray-500 transition-colors cursor-pointer p-1">
                     <MoreHorizontal size={18} />
                   </button>
                 </div>
@@ -627,6 +670,69 @@ export default function Feed() {
         onConfirm={handleExcluirPost}
         onClose={() => setPostParaExcluir(null)}
       />
+
+      {/* Modal de Denúncia */}
+      {postParaDenunciar !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setPostParaDenunciar(null)} />
+          <div className="relative bg-white rounded-[2rem] w-full max-w-[400px] p-8 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[15px] font-bold text-gray-950 flex items-center gap-2">
+                <AlertTriangle size={18} className="text-amber-500" /> Denunciar Publicação
+              </h3>
+              <button onClick={() => setPostParaDenunciar(null)} className="text-gray-400 hover:text-black p-1 hover:bg-gray-50 rounded-lg cursor-pointer">
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="text-[12px] text-gray-400 font-light mb-4 leading-relaxed">
+              Selecione o motivo que descreve melhor a irregularidade desta publicação para análise dos moderadores.
+            </p>
+
+            <form onSubmit={handleEnviarDenuncia} className="space-y-4">
+              <div className="space-y-2">
+                {[
+                  'Conteúdo ofensivo',
+                  'Spam',
+                  'Fake News',
+                  'Assédio',
+                  'Outro'
+                ].map((motivo) => (
+                  <label key={motivo} className="flex items-center gap-2.5 p-3 rounded-xl border border-gray-100 bg-[#fcfcfc] hover:bg-gray-50 cursor-pointer text-[12.5px] text-gray-700 transition-colors">
+                    <input 
+                      type="radio" 
+                      name="motivo_denuncia" 
+                      value={motivo} 
+                      checked={motivoDenuncia === motivo}
+                      onChange={() => setMotivoDenuncia(motivo)}
+                      className="text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span>{motivo}</span>
+                  </label>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setPostParaDenunciar(null)}
+                  disabled={enviandoDenuncia}
+                  className="flex-1 bg-gray-50 hover:bg-gray-100 py-2.5 rounded-xl text-[12px] font-semibold text-gray-500 transition-all cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={enviandoDenuncia}
+                  className="flex-1 bg-[#6366f1] hover:bg-[#5053e1] text-white py-2.5 rounded-xl text-[12px] font-semibold transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  {enviandoDenuncia ? <Loader2 className="animate-spin" size={14} /> : 'Enviar Denúncia'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,20 +1,31 @@
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Search, User, Settings, Loader2 } from 'lucide-react';
+import { Home, Search, User, Settings, Loader2, Users } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useLanguage } from '../hooks/useLanguage';
 import logoEduconnect from '../assets/logo-educonnect.png';
 
 export default function Sidebar() {
   const [userId, setUserId] = useState(null);
+  const [ehAdminOuProfessor, setEhAdminOuProfessor] = useState(false);
   const { translate } = useLanguage();
 
-  // Busca o ID do usuário logado para montar a rota dinâmica do perfil
+  // Busca o ID do usuário logado para montar a rota dinâmica do perfil e verificar papel
   useEffect(() => {
     async function obterUsuarioLogado() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
+        
+        const { data: perfil } = await supabase
+          .from('profiles')
+          .select('papel')
+          .eq('id', user.id)
+          .single();
+          
+        if (perfil?.papel === 'administrador' || perfil?.papel === 'professor') {
+          setEhAdminOuProfessor(true);
+        }
       }
     }
     obterUsuarioLogado();
@@ -58,6 +69,13 @@ export default function Sidebar() {
             <div className="flex items-center justify-center w-11 h-11 text-gray-300">
               <Loader2 size={20} className="animate-spin" />
             </div>
+          )}
+
+          {/* LINK DE ADMINISTRAÇÃO (APENAS PROFESSORES E ADMINS) */}
+          {ehAdminOuProfessor && (
+            <NavLink to="/gerenciar-usuarios" className={linkStyle} title="Administração">
+              <Users size={20} strokeWidth={1.8} />
+            </NavLink>
           )}
         </nav>
       </div>

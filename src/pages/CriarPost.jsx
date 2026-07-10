@@ -14,6 +14,7 @@ export default function CriarPost() {
   const [titulo, setTitulo] = useState('');
   const [corpo, setCorpo] = useState('');
   const [imagemUrl, setImagemUrl] = useState(''); // URL final pública da imagem
+  const [tipo, setTipo] = useState('Dúvida'); // Categoria do post
   const [carregando, setCarregando] = useState(false);
   const [enviandoImagem, setEnviandoImagem] = useState(false);
 
@@ -70,16 +71,19 @@ export default function CriarPost() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não autenticado.');
 
-      // Buscar nome do perfil para handle consistente
+      // Buscar nome e papel do perfil para regras de moderação
       const { data: meuPerfil } = await supabase
         .from('profiles')
-        .select('nome')
+        .select('nome, papel')
         .eq('id', user.id)
         .single();
 
       const autorHandle = meuPerfil?.nome
         ? `@${meuPerfil.nome.toLowerCase().replace(/\s+/g, '')}`
         : (user.email ? `@${user.email.split('@')[0]}` : '@usuario');
+
+      const papelUser = meuPerfil?.papel || 'aluno';
+      const statusInicial = papelUser === 'aluno' ? 'Aguardando aprovação' : 'Aprovada';
 
       const { error } = await supabase
         .from('posts') 
@@ -90,13 +94,21 @@ export default function CriarPost() {
             image_url: imagemUrl || null,
             user_id: user.id,
             author_handle: autorHandle,
+            tipo: tipo,
+            status: statusInicial,
             created_at: new Date().toISOString(),
           }
         ]);
 
       if (error) throw error;
 
-      toast.success('Publicado com sucesso! 🎉');
+      if (statusInicial === 'Aguardando aprovação') {
+        toast.success('Publicação enviada para moderação! ⏳', {
+          description: 'Sua postagem ficará visível no feed após a aprovação de um professor.',
+        });
+      } else {
+        toast.success('Publicado com sucesso! 🎉');
+      }
       navigate('/feed');
     } catch (error) {
       toast.error('Erro ao publicar', { description: error.message });
@@ -159,6 +171,25 @@ export default function CriarPost() {
               rows={4}
               className="w-full bg-[#fcfcfc] border border-gray-100 rounded-2xl py-3 px-4 text-[13px] text-gray-800 outline-none focus:bg-white focus:border-black transition-all resize-none leading-relaxed"
             />
+          </div>
+
+          {/* Categoria / Tipo de Conteúdo */}
+          <div className="space-y-1.5">
+            <label htmlFor="tipoPost" className="text-[12px] font-semibold text-gray-700 pl-1 block">
+              Tipo de Publicação
+            </label>
+            <select
+              id="tipoPost"
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value)}
+              className="w-full bg-[#fcfcfc] border border-gray-100 rounded-2xl py-3 px-4 text-[13px] text-gray-700 outline-none focus:bg-white focus:border-black transition-all cursor-pointer"
+            >
+              <option value="Dúvida">Dúvida (Pergunta/Ajuda)</option>
+              <option value="Projeto">Projeto (Trabalhos/Apresentações)</option>
+              <option value="Ideia">Ideia (Sugestões/Inovações)</option>
+              <option value="Material de estudo">Material de estudo (Resumos/Artigos/Links)</option>
+              <option value="Geral">Geral (Outros Conteúdos)</option>
+            </select>
           </div>
 
           {/* ÁREA DE UPLOAD DE IMAGEM REAL */}

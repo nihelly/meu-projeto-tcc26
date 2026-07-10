@@ -5,8 +5,8 @@ import { useAuth } from '../hooks/useAuth';
  * Componente de Ordem Superior (HOC) para proteger rotas.
  * Ele verifica se o usuário está logado e se tem o papel necessário.
  */
-export const RotaProtegida = ({ children, apenasProfessor = false }) => {
-  const { usuario, carregando, ehProfessor } = useAuth();
+export const RotaProtegida = ({ children, apenasProfessor = false, apenasAdmin = false }) => {
+  const { usuario, carregando, ehProfessor, ehAdmin } = useAuth();
 
   // 1. Enquanto o Supabase verifica a sessão, mostramos uma tela de carregamento limpa
   if (carregando) {
@@ -27,8 +27,13 @@ export const RotaProtegida = ({ children, apenasProfessor = false }) => {
   // if (perfil?.primeiro_acesso) return <Navigate to="/trocar-senha" />;
 
   // 4. Proteção por Papel (Role-Based Access Control)
-  // Se a rota exige ser professor e o usuário é aluno, manda para o feed comum
-  if (apenasProfessor && !ehProfessor) {
+  // Se a rota exige ser professor e o usuário não é professor nem admin, manda para o feed comum
+  if (apenasProfessor && !ehProfessor && !ehAdmin) {
+    return <Navigate to="/feed" replace />;
+  }
+
+  // Se a rota exige ser admin e o usuário não é admin, manda para o feed comum
+  if (apenasAdmin && !ehAdmin) {
     return <Navigate to="/feed" replace />;
   }
 
