@@ -33,7 +33,7 @@ export default function SidebarProfessor({ unreadCount, usuario, perfil, handleL
           </div>
 
           {/* Lista de Navegação */}
-          <nav className="space-y-1">
+          <nav className="space-y-2">
             <MenuItem to="/professor" label="Início" icon={Home} isHome={true} papel="professor" onClick={onLinkClick} />
             <MenuItem to="/feed" label="Feed" icon={FileText} papel="professor" onClick={onLinkClick} />
             <MenuItem to="/mensagens" label="Mensagens" icon={MessageSquare} badge={3} papel="professor" onClick={onLinkClick} />

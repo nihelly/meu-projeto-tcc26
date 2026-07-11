@@ -318,7 +318,7 @@ export function AdminLayout({ children }) {
         </header>
 
         {/* CONTEÚDO PRINCIPAL */}
-        <main className="flex-1 p-6 sm:p-8 md:p-8 overflow-y-auto max-w-[1200px] w-full mx-auto animate-in fade-in duration-300">
+        <main className="flex-1 p-6 sm:p-8 md:p-10 overflow-y-auto max-w-[1200px] w-full mx-auto animate-in fade-in duration-300">
           {children}
         </main>
       </div>

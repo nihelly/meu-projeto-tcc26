@@ -156,7 +156,7 @@ export function MainLayout({ children }) {
         
         {/* HEADER SUPERIOR — Título + Ícones de ação */}
         <header className={`sticky top-0 z-20 backdrop-blur-md border-b transition-all duration-300 ${isDarkTheme ? 'bg-[#0d0c13]/80 border-white/5 text-white' : 'bg-white/80 border-gray-100'}`}>
-          <div className="w-full max-w-[1200px] mx-auto px-6 sm:px-8 md:px-12 h-14 flex items-center justify-between">
+          <div className="w-full max-w-[1200px] mx-auto px-6 sm:px-8 md:px-12 h-16 flex items-center justify-between">
             
             {/* Título da página + Menu hambúrguer no celular */}
             <div className="flex items-center gap-2.5">
@@ -204,7 +204,7 @@ export function MainLayout({ children }) {
         </header>
 
         {/* Conteúdo da página — padding inferior responsivo para acomodar bottom bar no celular */}
-        <main className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-6 sm:px-8 sm:py-8 md:px-8 md:py-8 pb-20 md:pb-8 animate-in fade-in duration-300">
+        <main className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-8 sm:px-8 sm:py-10 md:px-10 md:py-10 pb-20 md:pb-10 animate-in fade-in duration-300">
           {children}
         </main>
         

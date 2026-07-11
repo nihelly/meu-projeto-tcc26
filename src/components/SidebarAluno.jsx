@@ -32,7 +32,7 @@ export default function SidebarAluno({ unreadCount, usuario, perfil, handleLogou
           </div>
 
           {/* Lista de Navegação */}
-          <nav className="space-y-1">
+          <nav className="space-y-2">
             <MenuItem to="/feed" label="Início" icon={Home} isHome={true} papel="aluno" onClick={onLinkClick} />
             <MenuItem to="/feed" label="Feed" icon={FileText} papel="aluno" onClick={onLinkClick} />
             <MenuItem to="/mensagens" label="Mensagens" icon={MessageSquare} badge={3} papel="aluno" onClick={onLinkClick} />

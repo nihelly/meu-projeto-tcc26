@@ -35,7 +35,7 @@ export default function SidebarAdmin({ unreadCount, reportCount, usuario, perfil
           </div>
 
           {/* Lista de Navegação */}
-          <nav className="space-y-1">
+          <nav className="space-y-2">
             <MenuItem to="/admin" label="Início" icon={Home} isHome={true} papel="administrador" onClick={onLinkClick} />
             <MenuItem to="/feed" label="Feed" icon={FileText} papel="administrador" onClick={onLinkClick} />
             <MenuItem to="/mensagens" label="Mensagens" icon={MessageSquare} badge={3} papel="administrador" onClick={onLinkClick} />

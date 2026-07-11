@@ -656,13 +656,13 @@ export default function PainelProfessor() {
               <div className="absolute top-4 right-4 w-9 h-9 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center">
                 <GraduationCap size={18} />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-3">
                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Turmas ativas</span>
                 <h3 className="text-2xl font-black text-gray-950">{totalTurmas}</h3>
               </div>
               <button 
                 onClick={() => setSearchParams({ aba: 'turmas' })}
-                className="text-[11px] font-bold text-violet-600 hover:text-violet-800 flex items-center gap-1 mt-4 group-hover:translate-x-0.5 transition-transform cursor-pointer"
+                className="text-[11px] font-bold text-violet-600 hover:text-violet-800 flex items-center gap-1 mt-6 group-hover:translate-x-0.5 transition-transform cursor-pointer"
               >
                 Ver turmas <ArrowRight size={12} />
               </button>
@@ -672,13 +672,13 @@ export default function PainelProfessor() {
               <div className="absolute top-4 right-4 w-9 h-9 bg-green-50 text-green-600 rounded-xl flex items-center justify-center">
                 <Users size={18} />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-3">
                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Alunos</span>
                 <h3 className="text-2xl font-black text-gray-950">{totalAlunosCount}</h3>
               </div>
               <button 
                 onClick={() => setSearchParams({ aba: 'alunos' })}
-                className="text-[11px] font-bold text-green-600 hover:text-green-800 flex items-center gap-1 mt-4 group-hover:translate-x-0.5 transition-transform cursor-pointer"
+                className="text-[11px] font-bold text-green-600 hover:text-green-800 flex items-center gap-1 mt-6 group-hover:translate-x-0.5 transition-transform cursor-pointer"
               >
                 Ver alunos <ArrowRight size={12} />
               </button>
@@ -688,13 +688,13 @@ export default function PainelProfessor() {
               <div className="absolute top-4 right-4 w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
                 <FileText size={18} />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-3">
                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Revisões pendentes</span>
                 <h3 className="text-2xl font-black text-gray-950">{totalPostsPendentes}</h3>
               </div>
               <button 
                 onClick={() => setSearchParams({ aba: 'postagens' })}
-                className="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 mt-4 group-hover:translate-x-0.5 transition-transform cursor-pointer"
+                className="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 mt-6 group-hover:translate-x-0.5 transition-transform cursor-pointer"
               >
                 Revisar agora <ArrowRight size={12} />
               </button>
@@ -704,13 +704,13 @@ export default function PainelProfessor() {
               <div className="absolute top-4 right-4 w-9 h-9 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
                 <Bell size={18} />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-3">
                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Avisos enviados</span>
                 <h3 className="text-2xl font-black text-gray-950">{totalAvisosCount}</h3>
               </div>
               <button 
                 onClick={() => setSearchParams({ aba: 'avisos' })}
-                className="text-[11px] font-bold text-amber-600 hover:text-amber-800 flex items-center gap-1 mt-4 group-hover:translate-x-0.5 transition-transform cursor-pointer"
+                className="text-[11px] font-bold text-amber-600 hover:text-amber-800 flex items-center gap-1 mt-6 group-hover:translate-x-0.5 transition-transform cursor-pointer"
               >
                 Ver avisos <ArrowRight size={12} />
               </button>
@@ -720,13 +720,13 @@ export default function PainelProfessor() {
               <div className="absolute top-4 right-4 w-9 h-9 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
                 <Award size={18} />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-3">
                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Participação média</span>
                 <h3 className="text-2xl font-black text-gray-950">92%</h3>
               </div>
               <button 
                 onClick={() => setSearchParams({ aba: 'relatorios' })}
-                className="text-[11px] font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1 mt-4 group-hover:translate-x-0.5 transition-transform cursor-pointer"
+                className="text-[11px] font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1 mt-6 group-hover:translate-x-0.5 transition-transform cursor-pointer"
               >
                 Ver relatório <ArrowRight size={12} />
               </button>
