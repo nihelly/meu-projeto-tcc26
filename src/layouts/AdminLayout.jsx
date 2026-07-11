@@ -26,7 +26,10 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import logoEduconnect from '../assets/logo-educonnect.png';
-import sidebarGirl from '../assets/globo.png'; // We have globo.png in assets, or we can use it or a placeholder/generated illustration
+import sidebarGirl from '../assets/globo.png';
+import SidebarAdmin from '../components/SidebarAdmin';
+import SidebarProfessor from '../components/SidebarProfessor';
+import SidebarAluno from '../components/SidebarAluno'; // We have globo.png in assets, or we can use it or a placeholder/generated illustration
 
 export function AdminLayout({ children }) {
   const navigate = useNavigate();
@@ -128,115 +131,48 @@ export function AdminLayout({ children }) {
     return 'Aluno';
   };
 
-  const getSidebarLinks = () => {
+  const renderSidebar = (onLinkClick) => {
     const papel = perfil?.papel || 'aluno';
-
     if (papel === 'administrador') {
-      return [
-        { to: '/admin', label: 'Início', icon: Home, isHome: true },
-        { to: '/feed', label: 'Feed', icon: FileText },
-        { to: '/mensagens', label: 'Mensagens', icon: MessageSquare, badge: 3 },
-        { to: '/turmas', label: 'Turmas', icon: GraduationCap },
-        { to: '/turmas', label: 'Calendário', icon: Calendar },
-        { to: '/gerenciar-usuarios', label: 'Gerenciar Usuários', icon: Users },
-        { to: '/admin?aba=moderacao', label: 'Moderação', icon: AlertTriangle, badge: reportCount },
-        { to: '/professor', label: 'Painel do Professor', icon: LayoutDashboard },
-        { to: '/admin', label: 'Painel do Administrador', icon: LayoutDashboard },
-        { to: '/notificacoes', label: 'Notificações', icon: Bell, badge: unreadCount },
-        { to: '/seguranca', label: 'Segurança', icon: Shield },
-        { to: '/privacidade', label: 'Configurações', icon: Settings },
-      ];
+      return (
+        <SidebarAdmin 
+          unreadCount={unreadCount} 
+          reportCount={reportCount} 
+          usuario={usuario} 
+          perfil={perfil} 
+          handleLogout={handleLogout} 
+          onLinkClick={onLinkClick}
+        />
+      );
     }
-
     if (papel === 'professor') {
-      return [
-        { to: '/professor', label: 'Início', icon: Home, isHome: true },
-        { to: '/feed', label: 'Feed', icon: FileText },
-        { to: '/mensagens', label: 'Mensagens', icon: MessageSquare, badge: 3 },
-        { to: '/turmas', label: 'Turmas', icon: GraduationCap },
-        { to: '/turmas', label: 'Calendário', icon: Calendar },
-        { to: '/professor', label: 'Painel do Professor', icon: LayoutDashboard },
-        { to: '/notificacoes', label: 'Notificações', icon: Bell, badge: unreadCount },
-        { to: `/perfil/${usuario?.id}`, label: 'Perfil', icon: User },
-      ];
+      return (
+        <SidebarProfessor 
+          unreadCount={unreadCount} 
+          usuario={usuario} 
+          perfil={perfil} 
+          handleLogout={handleLogout} 
+          onLinkClick={onLinkClick}
+        />
+      );
     }
-
-    // Default/Aluno
-    return [
-      { to: '/feed', label: 'Início', icon: Home, isHome: true },
-      { to: '/feed', label: 'Feed', icon: FileText },
-      { to: '/mensagens', label: 'Mensagens', icon: MessageSquare, badge: 3 },
-      { to: '/turmas', label: 'Turma', icon: GraduationCap },
-      { to: '/turmas', label: 'Calendário', icon: Calendar },
-      { to: '/notificacoes', label: 'Notificações', icon: Bell, badge: unreadCount },
-      { to: `/perfil/${usuario?.id}`, label: 'Perfil', icon: User },
-    ];
+    return (
+      <SidebarAluno 
+        unreadCount={unreadCount} 
+        usuario={usuario} 
+        perfil={perfil} 
+        handleLogout={handleLogout} 
+        onLinkClick={onLinkClick}
+      />
+    );
   };
 
   return (
     <div className="min-h-screen bg-[#fcfcfc] text-gray-900 flex relative font-sans">
       
       {/* SIDEBAR DESKTOP */}
-      <aside className="hidden md:flex w-64 border-r border-gray-100 bg-white flex-col justify-between p-6 h-screen sticky top-0 select-none flex-shrink-0">
-        <div className="space-y-6">
-          {/* Logo e Nome */}
-          <div className="flex items-center gap-2.5 px-3 py-1 cursor-pointer" onClick={() => navigate('/feed')}>
-            <img src={logoEduconnect} alt="EduConnect" className="w-7 h-7 object-contain" />
-            <span className="font-bold text-[16px] text-gray-950 tracking-tight">EduConnect</span>
-          </div>
-
-          {/* Links Dinâmicos por Papel */}
-          <nav className="space-y-1">
-            {getSidebarLinks().map((link, idx) => {
-              const Icone = link.icon;
-              return (
-                <NavLink 
-                  key={idx}
-                  to={link.to} 
-                  className={({ isActive }) => {
-                    if (link.isHome) {
-                      const isHomeActive = perfil?.papel === 'administrador' 
-                        ? location.pathname.startsWith('/admin')
-                        : perfil?.papel === 'professor' 
-                          ? location.pathname.startsWith('/professor')
-                          : location.pathname === '/feed' && !location.search;
-                      return isHomeActive ? activeLinkClass : inactiveLinkClass;
-                    }
-                    if (link.to === '/feed' && !link.isHome) {
-                      return location.pathname === '/feed' ? activeLinkClass : inactiveLinkClass;
-                    }
-                    return isActive ? activeLinkClass : inactiveLinkClass;
-                  }}
-                >
-                  <Icone size={18} strokeWidth={1.8} />
-                  <span>{link.label}</span>
-                  {link.badge !== undefined && link.badge > 0 && (
-                    <span className="ml-auto bg-violet-100 text-violet-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
-                      {link.badge}
-                    </span>
-                  )}
-                </NavLink>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Card Promocional Rodapé */}
-        <div className="bg-gradient-to-br from-violet-50 to-indigo-50/50 rounded-2xl p-4 border border-violet-100/50 text-center relative overflow-hidden mt-6">
-          <div className="absolute -top-6 -right-6 w-16 h-16 bg-white/40 rounded-full blur-xl" />
-          {sidebarGirl && (
-            <img src={sidebarGirl} alt="Illustration" className="w-16 h-16 object-contain mx-auto mb-2 opacity-90" />
-          )}
-          <p className="text-[11px] text-gray-700 leading-normal mb-3 font-medium">
-            Conecte alunos, professores e ideias em um só lugar.
-          </p>
-          <button 
-            onClick={() => navigate('/busca')} 
-            className="w-full bg-[#6366f1] hover:bg-[#5053e1] text-white font-bold text-[11px] py-2 rounded-xl transition-all cursor-pointer shadow-sm shadow-indigo-500/10"
-          >
-            Saiba mais
-          </button>
-        </div>
+      <aside className="hidden md:flex w-64 border-r border-gray-100 bg-white flex-col justify-between p-0 h-screen sticky top-0 select-none flex-shrink-0 relative overflow-hidden">
+        {renderSidebar()}
       </aside>
 
       {/* ÁREA PRINCIPAL */}
@@ -391,73 +327,17 @@ export function AdminLayout({ children }) {
       {mobileMenuOpen && (
         <>
           <div className="fixed inset-0 bg-black/35 z-40 md:hidden animate-in fade-in duration-300" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="fixed top-0 left-0 bottom-0 w-64 bg-white z-50 p-6 flex flex-col justify-between h-full border-r border-gray-100 md:hidden animate-in slide-in-from-left duration-300">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <img src={logoEduconnect} alt="EduConnect" className="w-7 h-7 object-contain" />
-                  <span className="font-bold text-[16px] text-gray-950 tracking-tight">EduConnect</span>
-                </div>
-                <button 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-black cursor-pointer"
-                >
-                  <X size={18} />
-                </button>
-              </div>
+          <aside className="fixed top-0 left-0 bottom-0 w-64 bg-white z-50 p-0 flex flex-col justify-between h-full border-r border-gray-100 md:hidden animate-in slide-in-from-left duration-300 relative overflow-hidden">
+            
+            {/* Botão de Fechar Mobile */}
+            <button 
+              onClick={() => setMobileMenuOpen(false)}
+              className="absolute top-2.5 right-2.5 p-1 bg-black/15 hover:bg-black/25 rounded-full text-white cursor-pointer z-50 transition-colors flex items-center justify-center"
+            >
+              <X size={14} />
+            </button>
 
-              {/* Links Dinâmicos por Papel Mobile */}
-              <nav className="space-y-1">
-                {getSidebarLinks().map((link, idx) => {
-                  const Icone = link.icon;
-                  return (
-                    <NavLink 
-                      key={idx}
-                      to={link.to} 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={({ isActive }) => {
-                        if (link.isHome) {
-                          const isHomeActive = perfil?.papel === 'administrador' 
-                            ? location.pathname.startsWith('/admin')
-                            : perfil?.papel === 'professor' 
-                              ? location.pathname.startsWith('/professor')
-                              : location.pathname === '/feed' && !location.search;
-                          return isHomeActive ? activeLinkClass : inactiveLinkClass;
-                        }
-                        if (link.to === '/feed' && !link.isHome) {
-                          return location.pathname === '/feed' ? activeLinkClass : inactiveLinkClass;
-                        }
-                        return isActive ? activeLinkClass : inactiveLinkClass;
-                      }}
-                    >
-                      <Icone size={18} strokeWidth={1.8} />
-                      <span>{link.label}</span>
-                      {link.badge !== undefined && link.badge > 0 && (
-                        <span className="ml-auto bg-violet-100 text-violet-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
-                          {link.badge}
-                        </span>
-                      )}
-                    </NavLink>
-                  );
-                })}
-              </nav>
-            </div>
-
-            {/* Rodapé Mobile */}
-            <div className="bg-gradient-to-br from-violet-50 to-indigo-50 rounded-2xl p-4 border border-violet-100 text-center relative overflow-hidden mt-6">
-              <p className="text-[11px] text-gray-700 leading-normal mb-3 font-medium">
-                Conecte alunos, professores e ideias em um só lugar.
-              </p>
-              <button 
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate('/busca');
-                }} 
-                className="w-full bg-[#6366f1] text-white font-bold text-[11px] py-2 rounded-xl transition-all cursor-pointer shadow-sm"
-              >
-                Saiba mais
-              </button>
-            </div>
+            {renderSidebar(() => setMobileMenuOpen(false))}
           </aside>
         </>
       )}
