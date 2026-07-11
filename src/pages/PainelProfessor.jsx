@@ -95,7 +95,7 @@ export default function PainelProfessor() {
       let turmasFiltradas = dataTurmas || [];
       if (perfil?.papel === 'professor') {
         const classesProf = perfil.turma ? perfil.turma.split(',').map(s => s.trim().toLowerCase()) : [];
-        turmasFiltradas = turmasFiltradas.filter(t => classesProf.includes(t.nome.trim().toLowerCase()));
+        turmasFiltradas = turmasFiltradas.filter(t => classesProf.includes((t.nome || '').trim().toLowerCase()));
       }
       setTurmas(turmasFiltradas);
 
@@ -104,9 +104,9 @@ export default function PainelProfessor() {
       if (errPerfis) throw errPerfis;
       
       // Filtrar apenas perfis que são alunos e pertencem a turmas administradas
-      const turmasNomes = turmasFiltradas.map(t => t.nome.toLowerCase());
+      const turmasNomes = turmasFiltradas.map(t => (t.nome || '').toLowerCase());
       const alunosFiltrados = (dataPerfis || []).filter(p => 
-        p.papel === 'aluno' && p.turma && turmasNomes.includes(p.turma.trim().toLowerCase())
+        p.papel === 'aluno' && p.turma && turmasNomes.includes((p.turma || '').trim().toLowerCase())
       );
       setAlunos(alunosFiltrados);
 
@@ -179,14 +179,14 @@ export default function PainelProfessor() {
       // Enviar notificação para todos os alunos dessa turma
       const alunosDaTurma = alunos.filter(a => {
         const t = turmas.find(turma => turma.id === avisoForm.turma_id);
-        return a.turma && t && a.turma.toLowerCase() === t.nome.toLowerCase();
+        return a.turma && t && a.turma.toLowerCase() === (t.nome || '').toLowerCase();
       });
 
       for (const aluno of alunosDaTurma) {
         await supabase.from('notifications').insert({
           user_id: aluno.id,
           actor_id: usuario.id,
-          actor_handle: `@${perfil?.nome.toLowerCase().replace(/\s+/g, '') || 'professor'}`,
+          actor_handle: `@${(perfil?.nome || 'professor').toLowerCase().replace(/\s+/g, '')}`,
           content: `publicou um novo aviso da turma: "${avisoForm.title}"`,
           type: 'announcement'
         });
@@ -237,16 +237,16 @@ export default function PainelProfessor() {
       if (error) throw error;
 
       // Notificar alunos
-      const alunosDaTurma = alunos.filter(a => {
+      const alunosDaTurmaAtiv = alunos.filter(a => {
         const t = turmas.find(turma => turma.id === atividadeForm.turma_id);
-        return a.turma && t && a.turma.toLowerCase() === t.nome.toLowerCase();
+        return a.turma && t && a.turma.toLowerCase() === (t.nome || '').toLowerCase();
       });
 
-      for (const aluno of alunosDaTurma) {
+      for (const aluno of alunosDaTurmaAtiv) {
         await supabase.from('notifications').insert({
           user_id: aluno.id,
           actor_id: usuario.id,
-          actor_handle: `@${perfil?.nome.toLowerCase().replace(/\s+/g, '') || 'professor'}`,
+          actor_handle: `@${(perfil?.nome || 'professor').toLowerCase().replace(/\s+/g, '')}`,
           content: `criou uma nova atividade: "${atividadeForm.title}"`,
           type: 'activity'
         });
@@ -481,20 +481,20 @@ export default function PainelProfessor() {
   // Alunos filtrados e ordenados
   const alunosOrdenados = [...alunos].filter(a => {
     if (!filtroAlunosBusca.trim()) return true;
-    return a.nome.toLowerCase().includes(filtroAlunosBusca.toLowerCase());
+    return (a.nome || '').toLowerCase().includes(filtroAlunosBusca.toLowerCase());
   }).sort((a, b) => {
-    if (ordemAlunos === 'nome') return a.nome.localeCompare(b.nome);
+    if (ordemAlunos === 'nome') return (a.nome || '').localeCompare(b.nome || '');
     
     // Obter métricas de participação
-    const ativA = submissoes.filter(s => s.student_id === a.id).length;
-    const ativB = submissoes.filter(s => s.student_id === b.id).length;
+    const ativA = (submissoes || []).filter(s => s.student_id === a.id).length;
+    const ativB = (submissoes || []).filter(s => s.student_id === b.id).length;
     
     if (ordemAlunos === 'participativos') return ativB - ativA;
     return ativA - ativB;
   });
 
   const getTurmaAlunosCount = (turmaNome) => {
-    return alunos.filter(a => a.turma && a.turma.toLowerCase() === turmaNome.toLowerCase()).length;
+    return alunos.filter(a => a.turma && a.turma.toLowerCase() === (turmaNome || '').toLowerCase()).length;
   };
 
   // Formatar data em string bonita
@@ -1002,7 +1002,7 @@ export default function PainelProfessor() {
           {!turmaSelecionada ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {turmas.map(t => {
-                const alunosTurma = alunos.filter(a => a.turma && a.turma.toLowerCase() === t.nome.toLowerCase());
+                const alunosTurma = alunos.filter(a => a.turma && a.turma.toLowerCase() === (t.nome || '').toLowerCase());
                 const atividadesTurma = atividades.filter(a => a.turma_id === t.id);
                 return (
                   <div 
@@ -1254,7 +1254,7 @@ export default function PainelProfessor() {
           {/* Grid de Alunos */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {alunosOrdenados.map(a => {
-              const entregasCount = submissoes.filter(s => s.student_id === a.id).length;
+              const entregasCount = (submissoes || []).filter(s => s.student_id === a.id).length;
               return (
                 <div key={a.id} className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all space-y-4">
                   <div className="flex items-center gap-3">
