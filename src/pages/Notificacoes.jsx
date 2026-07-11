@@ -255,15 +255,15 @@ export default function Notificacoes() {
   const totalNotifs = notificacoes.length;
   const totalNaoLidas = notificacoes.filter(n => !n.is_read).length;
   const nomeLimpo = perfil?.nome ? perfil.nome.toLowerCase().replace(/\s+/g, '') : '';
-  const totalMencoes = notificacoes.filter(n => n.content?.toLowerCase().includes(`@${nomeLimpo}`)).length;
+  const totalMencoes = notificacoes.filter(n => n.content && n.content.toLowerCase().includes(`@${nomeLimpo}`)).length;
   const totalSistema = notificacoes.filter(n => n.type === 'system').length;
 
   // Filtragem da lista principal
   const notificacoesFiltradas = notificacoes.filter(n => {
-    const bateBusca = !busca.trim() || n.content.toLowerCase().includes(busca.toLowerCase());
+    const bateBusca = !busca.trim() || (n.content && n.content.toLowerCase().includes(busca.toLowerCase()));
     
     if (tabAtiva === 'nao_lidas') return bateBusca && !n.is_read;
-    if (tabAtiva === 'mencoes') return bateBusca && n.content?.toLowerCase().includes(`@${nomeLimpo}`);
+    if (tabAtiva === 'mencoes') return bateBusca && n.content && n.content.toLowerCase().includes(`@${nomeLimpo}`);
     if (tabAtiva === 'sistema') return bateBusca && n.type === 'system';
     
     return bateBusca;

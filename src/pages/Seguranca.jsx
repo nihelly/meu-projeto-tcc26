@@ -4,7 +4,7 @@ import {
   Key, 
   Mail, 
   ShieldCheck, 
-  FileLock2, 
+  FileLock, 
   History, 
   Loader2, 
   X, 
@@ -16,7 +16,8 @@ import {
   Download,
   Upload,
   UserCheck,
-  Globe
+  Globe,
+  ChevronRight
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -267,7 +268,7 @@ export default function Seguranca() {
           className="bg-white border border-gray-100 hover:border-gray-250 transition-all rounded-[2rem] p-6 shadow-sm flex items-start gap-4 cursor-pointer relative group"
         >
           <div className="w-11 h-11 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center flex-shrink-0">
-            <FileLock2 size={20} />
+            <FileLock size={20} />
           </div>
           <div className="space-y-1 flex-1 pr-6">
             <h3 className="text-[14px] font-bold text-gray-950">Registro de ações</h3>
