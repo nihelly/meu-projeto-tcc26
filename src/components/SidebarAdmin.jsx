@@ -17,7 +17,7 @@ import logoEduconnect from '../assets/logo-educonnect.png';
 
 export default function SidebarAdmin({ unreadCount, reportCount, usuario, perfil, handleLogout, onLinkClick }) {
   return (
-    <div className="flex flex-col h-full w-full select-none">
+    <div className="flex flex-col h-full w-full select-none bg-[#0d0c13] text-white">
       
       {/* Banner Superior Roxo */}
       <div className="w-full bg-gradient-to-r from-violet-600 to-indigo-650 text-white font-extrabold text-[9.5px] tracking-wider uppercase py-2.5 text-center flex items-center justify-center shadow-inner">
@@ -30,8 +30,8 @@ export default function SidebarAdmin({ unreadCount, reportCount, usuario, perfil
         <div className="space-y-6">
           {/* Logo e Nome */}
           <div className="flex items-center gap-2.5 px-3 py-1">
-            <img src={logoEduconnect} alt="EduConnect" className="w-7 h-7 object-contain" />
-            <span className="font-bold text-[16px] text-gray-950 tracking-tight">EduConnect</span>
+            <img src={logoEduconnect} alt="EduConnect" className="w-7 h-7 object-contain animate-pulse" />
+            <span className="font-bold text-[16px] text-white tracking-tight">EduConnect</span>
           </div>
 
           {/* Lista de Navegação */}

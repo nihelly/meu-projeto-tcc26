@@ -3,7 +3,7 @@ import UserProfileCard from './UserProfileCard';
 
 export default function SidebarFooter({ usuario, perfil, handleLogout }) {
   return (
-    <div className="space-y-3 mt-auto pt-4 border-t border-gray-100">
+    <div className="space-y-3 mt-auto pt-4 border-t border-white/10">
       <UserProfileCard usuario={usuario} perfil={perfil} />
       <button 
         onClick={handleLogout}

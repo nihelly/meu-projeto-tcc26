@@ -46,22 +46,22 @@ export default function UserProfileCard({ usuario, perfil }) {
       {/* Card principal do Perfil */}
       <div 
         onClick={irParaPerfil}
-        className="flex items-center gap-3 p-3 bg-gray-50/50 hover:bg-gray-50 border border-gray-100 rounded-2xl cursor-pointer transition-all duration-200"
+        className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl cursor-pointer transition-all duration-200"
       >
-        <div className="w-8.5 h-8.5 rounded-full overflow-hidden bg-gray-100 border border-gray-200 flex-shrink-0">
+        <div className="w-8.5 h-8.5 rounded-full overflow-hidden bg-white/10 border border-white/10 flex-shrink-0">
           {perfil?.avatar_url ? (
             <img src={perfil.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-[#f3f4f6] text-[#9ca3af] flex items-center justify-center text-[12.5px] font-bold">
+            <div className="w-full h-full bg-[#f3f4f6]/10 text-white/70 flex items-center justify-center text-[12.5px] font-bold">
               {perfil?.nome ? perfil.nome.substring(0, 1).toUpperCase() : 'U'}
             </div>
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <span className="text-[12px] font-bold text-gray-950 leading-tight block truncate">{perfil?.nome || 'Usuário'}</span>
-          <span className="text-[10px] text-gray-400 font-medium block">{getRoleLabel()}</span>
+          <span className="text-[12px] font-bold text-white leading-tight block truncate">{perfil?.nome || 'Usuário'}</span>
+          <span className="text-[10px] text-[#8e8d97] font-medium block">{getRoleLabel()}</span>
         </div>
-        <ChevronRight size={14} className="text-gray-400" />
+        <ChevronRight size={14} className="text-white/45" />
       </div>
 
       {/* Selo flutuante de papel (RBAC) */}
