@@ -7,7 +7,7 @@ import logoEduconnect from '../assets/logo-educonnect.png';
 
 export default function Sidebar() {
   const [userId, setUserId] = useState(null);
-  const [ehAdminOuProfessor, setEhAdminOuProfessor] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const { translate } = useLanguage();
 
   // Busca o ID do usuário logado para montar a rota dinâmica do perfil e verificar papel
@@ -23,8 +23,8 @@ export default function Sidebar() {
           .eq('id', user.id)
           .single();
           
-        if (perfil?.papel === 'administrador' || perfil?.papel === 'professor') {
-          setEhAdminOuProfessor(true);
+        if (perfil?.papel) {
+          setUserRole(perfil.papel);
         }
       }
     }
@@ -71,9 +71,13 @@ export default function Sidebar() {
             </div>
           )}
 
-          {/* LINK DE ADMINISTRAÇÃO (APENAS PROFESSORES E ADMINS) */}
-          {ehAdminOuProfessor && (
-            <NavLink to="/gerenciar-usuarios" className={linkStyle} title="Administração">
+          {/* LINK DE ADMINISTRAÇÃO/PAINEL (APENAS PROFESSORES E ADMINS) */}
+          {userRole && (userRole === 'administrador' || userRole === 'professor') && (
+            <NavLink 
+              to={userRole === 'administrador' ? '/admin' : '/professor'} 
+              className={linkStyle} 
+              title={userRole === 'administrador' ? 'Administração' : 'Painel do Professor'}
+            >
               <Users size={20} strokeWidth={1.8} />
             </NavLink>
           )}
