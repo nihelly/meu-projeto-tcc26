@@ -31,9 +31,6 @@ import {
   MessageCircle,
   ThumbsUp,
   UserCheck,
-  FileCheck2,
-  CalendarCheck,
-  FileClock,
   Printer,
   Loader2
 } from 'lucide-react';
@@ -1273,7 +1270,7 @@ export default function PainelProfessor() {
 
                   <div className="grid grid-cols-2 gap-3 border-t border-gray-50 pt-4 text-[11.5px] font-medium text-gray-500">
                     <div className="flex items-center gap-1.5">
-                      <FileCheck2 size={13} className="text-gray-400" />
+                      <FileText size={13} className="text-gray-400" />
                       <span>Tarefas: <b className="text-gray-800">{entregasCount}</b></span>
                     </div>
                     <div className="flex items-center gap-1.5">
