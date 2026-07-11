@@ -711,10 +711,10 @@ export default function Perfil() {
             color: #ffffff;
           }
           .dark-dashboard-teacher .bg-white {
-            background-color: #12111a !important;
+            background-color: #000000 !important;
           }
           .dark-dashboard-teacher .bg-gray-50 {
-            background-color: #0a090f !important;
+            background-color: #000000 !important;
           }
           .dark-dashboard-teacher .border-gray-100,
           .dark-dashboard-teacher .border-gray-50,
@@ -749,7 +749,7 @@ export default function Perfil() {
             color: #ffffff !important;
           }
           .dark-dashboard-teacher select option {
-            background-color: #12111a !important;
+            background-color: #000000 !important;
             color: #ffffff !important;
           }
           .dark-dashboard-teacher .bg-violet-50 {
@@ -806,7 +806,7 @@ export default function Perfil() {
           .dark-dashboard-teacher .bg-white.rounded-\[2\.5rem\],
           .dark-dashboard-teacher .bg-white.rounded-\[2rem\],
           .dark-dashboard-teacher .bg-white\/80 {
-            background-color: #12111a !important;
+            background-color: #000000 !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
           }
         `}</style>
