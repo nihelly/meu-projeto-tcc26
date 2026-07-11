@@ -818,28 +818,56 @@ export default function Perfil() {
         <style>{`
           div:has(> main .student-profile-theme),
           main:has(.student-profile-theme) {
-            background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.07), transparent 500px),
-                              radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.07), transparent 500px) !important;
-            background-color: #f8fafc !important;
+            background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08), transparent 500px),
+                              radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08), transparent 500px) !important;
+            background-color: #08070d !important;
           }
           header:has(+ main .student-profile-theme),
           header:has(+ div main .student-profile-theme) {
-            background-color: rgba(255, 255, 255, 0.75) !important;
+            background-color: #0d0c13 !important;
+            border-color: rgba(255, 255, 255, 0.06) !important;
             backdrop-filter: blur(12px) !important;
-            border-color: rgba(59, 130, 246, 0.08) !important;
+          }
+          header:has(+ main .student-profile-theme) *,
+          header:has(+ div main .student-profile-theme) * {
+            color: #ffffff !important;
+          }
+          .student-profile-theme {
+            color: #ffffff !important;
           }
           .student-profile-theme .bg-white,
           .student-profile-theme .bg-white\/80 {
-            background-color: rgba(255, 255, 255, 0.7) !important;
-            backdrop-filter: blur(16px) !important;
-            border-color: rgba(59, 130, 246, 0.08) !important;
-            box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.04) !important;
+            background-color: #12111a !important;
+            border-color: rgba(255, 255, 255, 0.06) !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3) !important;
           }
           .student-profile-theme .text-gray-950,
-          .student-profile-theme .text-gray-900 {
-            color: #1e293b !important;
+          .student-profile-theme .text-gray-900,
+          .student-profile-theme .text-gray-850,
+          .student-profile-theme .text-gray-800 {
+            color: #ffffff !important;
           }
-          /* Botões gradientes personalizados Aluno */
+          .student-profile-theme .text-gray-700,
+          .student-profile-theme .text-gray-600,
+          .student-profile-theme .text-gray-505,
+          .student-profile-theme .text-gray-655,
+          .student-profile-theme .text-gray-605 {
+            color: #8e8d97 !important;
+          }
+          .student-profile-theme .text-gray-400,
+          .student-profile-theme .text-gray-450 {
+            color: #6c6b75 !important;
+          }
+          .student-profile-theme .border-gray-50,
+          .student-profile-theme .border-gray-100,
+          .student-profile-theme .border-gray-150 {
+            border-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          /* Custom back/exit button hover style */
+          .student-profile-theme .hover\:bg-gray-50:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+          }
+          /* Custom gradient button Aluno */
           .student-profile-theme button.bg-violet-600 {
             background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%) !important;
             border: none !important;
@@ -850,7 +878,7 @@ export default function Perfil() {
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
           }
           .student-profile-theme .text-violet-600 {
-            color: #2563eb !important;
+            color: #3b82f6 !important;
           }
           /* Custom active tab override */
           .student-profile-theme .border-violet-600 {

@@ -2,7 +2,7 @@ import { LogOut } from 'lucide-react';
 import UserProfileCard from './UserProfileCard';
 
 export default function SidebarFooter({ usuario, perfil, handleLogout }) {
-  const isDark = perfil?.papel === 'professor' || perfil?.papel === 'administrador';
+  const isDark = !!perfil?.papel;
 
   return (
     <div className="space-y-3 mt-auto pt-4 border-t border-white/10">
