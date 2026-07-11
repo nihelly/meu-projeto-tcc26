@@ -25,6 +25,7 @@ import {
   Download, 
   Check, 
   X, 
+  Search,
   HelpCircle,
   TrendingUp,
   Award,
