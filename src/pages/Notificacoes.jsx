@@ -20,7 +20,8 @@ import {
   Eye,
   Shield,
   Loader2,
-  CheckCircle
+  CheckCircle,
+  Users
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
