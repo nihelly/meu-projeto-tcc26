@@ -503,6 +503,26 @@ export default function PainelProfessor() {
     return new Date(dataIso).toLocaleDateString('pt-BR');
   };
 
+  // Formatar tempo relativo (ex: Há 2 horas)
+  const formatarTempoRelativo = (dataIso) => {
+    if (!dataIso) return '';
+    try {
+      const date = new Date(dataIso);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffMins < 1) return 'Agora mesmo';
+      if (diffMins < 60) return `Há ${diffMins} min`;
+      if (diffHours < 24) return `Há ${diffHours} h`;
+      return `Há ${diffDays} d`;
+    } catch (e) {
+      return '';
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white border border-gray-100 rounded-[2.5rem] p-16 flex flex-col items-center justify-center gap-4">
