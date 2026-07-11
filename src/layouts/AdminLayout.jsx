@@ -165,35 +165,35 @@ export function AdminLayout({ children }) {
         onLinkClick={onLinkClick}
       />
     );
-  };
+  };  const isDarkTheme = perfil?.papel === 'professor' || perfil?.papel === 'administrador';
 
   return (
-    <div className="min-h-screen bg-[#fcfcfc] text-gray-900 flex relative font-sans">
+    <div className={`min-h-screen flex relative font-sans transition-colors duration-300 ${isDarkTheme ? 'dark-dashboard-teacher bg-[#08070d] text-white' : 'bg-[#fcfcfc] text-gray-900'}`}>
       
       {/* SIDEBAR DESKTOP */}
-      <aside className="hidden md:flex w-64 border-r border-gray-100 bg-white flex-col justify-between p-0 h-screen sticky top-0 select-none flex-shrink-0 relative overflow-hidden">
+      <aside className={`hidden md:flex w-64 border-r flex-col justify-between p-0 h-screen sticky top-0 select-none flex-shrink-0 relative overflow-hidden transition-colors duration-300 ${isDarkTheme ? 'border-white/5 bg-[#0d0c13]' : 'border-gray-100 bg-white'}`}>
         {renderSidebar()}
       </aside>
 
       {/* ÁREA PRINCIPAL */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={`flex-1 flex flex-col min-w-0 transition-colors duration-300 ${isDarkTheme ? 'bg-[#08070d]' : ''}`}>
         
         {/* BARRA SUPERIOR */}
-        <header className="h-16 border-b border-gray-100 bg-white sticky top-0 z-20 flex items-center justify-between px-6">
+        <header className={`h-16 border-b sticky top-0 z-20 flex items-center justify-between px-6 transition-all duration-300 ${isDarkTheme ? 'border-white/5 bg-[#0d0c13] text-white' : 'border-gray-100 bg-white'}`}>
           {/* Busca no EduConnect */}
           <div className="flex items-center gap-4 flex-1">
             <button 
-              className="md:hidden p-2 text-gray-500 hover:text-black hover:bg-gray-50 rounded-lg cursor-pointer"
+              className={`md:hidden p-2 rounded-lg cursor-pointer transition-colors ${isDarkTheme ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-500 hover:text-black hover:bg-gray-50'}`}
               onClick={() => setMobileMenuOpen(true)}
             >
               <Menu size={20} />
             </button>
-            <div className="hidden sm:flex items-center gap-2 bg-[#f9fafb] border border-gray-100 rounded-xl px-3 py-1.5 w-64 text-gray-400 focus-within:border-gray-200 transition-all">
+            <div className={`hidden sm:flex items-center gap-2 border rounded-xl px-3 py-1.5 w-64 transition-all ${isDarkTheme ? 'bg-[#08070d] border-white/10 text-[#8e8d97] focus-within:border-white/20' : 'bg-[#f9fafb] border-gray-100 text-gray-400 focus-within:border-gray-200'}`}>
               <Search size={15} />
               <input 
                 type="text" 
                 placeholder="Buscar no EduConnect..." 
-                className="bg-transparent outline-none border-none text-[12px] text-gray-700 placeholder-gray-400 w-full"
+                className={`bg-transparent outline-none border-none text-[12px] w-full ${isDarkTheme ? 'text-white placeholder-gray-500' : 'text-gray-700 placeholder-gray-400'}`}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') navigate('/busca');
                 }}
@@ -207,7 +207,7 @@ export function AdminLayout({ children }) {
             <div className="relative">
               <button 
                 onClick={() => setBellDropdownOpen(!bellDropdownOpen)}
-                className="p-2 text-gray-500 hover:text-black hover:bg-gray-50 rounded-xl relative transition-all cursor-pointer"
+                className={`p-2 rounded-xl relative transition-all cursor-pointer ${isDarkTheme ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-500 hover:text-black hover:bg-gray-50'}`}
               >
                 <Bell size={18} strokeWidth={1.8} />
                 {unreadCount > 0 && (
@@ -220,9 +220,9 @@ export function AdminLayout({ children }) {
               {bellDropdownOpen && (
                 <>
                   <div className="fixed inset-0 z-30" onClick={() => setBellDropdownOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-100 rounded-2xl shadow-lg p-4 z-45 animate-in fade-in duration-200 space-y-3">
-                    <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-                      <span className="font-bold text-[12px] text-gray-900 font-sans">Notificações Recentes</span>
+                  <div className={`absolute right-0 mt-2 w-80 border rounded-2xl shadow-lg p-4 z-45 animate-in fade-in duration-200 space-y-3 ${isDarkTheme ? 'bg-[#12111a] border-white/10 text-white' : 'bg-white border-gray-100'}`}>
+                    <div className={`flex items-center justify-between border-b pb-2 ${isDarkTheme ? 'border-white/5' : 'border-gray-50'}`}>
+                      <span className={`font-bold text-[12px] font-sans ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Notificações Recentes</span>
                       <button 
                         onClick={() => {
                           setBellDropdownOpen(false);
@@ -234,7 +234,7 @@ export function AdminLayout({ children }) {
                       </button>
                     </div>
 
-                    <div className="divide-y divide-gray-55 space-y-2 max-h-60 overflow-y-auto">
+                    <div className={`divide-y space-y-2 max-h-60 overflow-y-auto ${isDarkTheme ? 'divide-white/5' : 'divide-gray-55'}`}>
                       {recentNotifications.map(n => (
                         <div 
                           key={n.id} 
@@ -243,7 +243,7 @@ export function AdminLayout({ children }) {
                             await supabase.from('notifications').update({ is_read: true }).eq('id', n.id);
                             navigate('/notificacoes');
                           }}
-                          className={`pt-2 text-[11px] text-gray-605 hover:text-black cursor-pointer ${!n.is_read ? 'font-extrabold text-gray-900' : ''}`}
+                          className={`pt-2 text-[11px] cursor-pointer ${isDarkTheme ? (n.is_read ? 'text-[#8e8d97] hover:text-white' : 'text-white font-black') : (n.is_read ? 'text-gray-655 hover:text-black' : 'text-gray-900 font-extrabold')}`}
                         >
                           <p className="line-clamp-2">{n.content}</p>
                           <span className="text-[9px] text-gray-400 font-light block mt-0.5">{new Date(n.created_at).toLocaleDateString('pt-BR')}</span>
@@ -262,34 +262,34 @@ export function AdminLayout({ children }) {
             <div className="relative">
               <button 
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2.5 text-left p-1 hover:bg-gray-50 rounded-xl transition-all cursor-pointer"
+                className={`flex items-center gap-2.5 text-left p-1 rounded-xl transition-all cursor-pointer ${isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-gray-50'}`}
               >
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 border border-gray-100 flex-shrink-0">
+                <div className={`w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border ${isDarkTheme ? 'bg-white/10 border-white/10' : 'bg-gray-100 border-gray-100'}`}>
                   {perfil?.avatar_url ? (
                     <img src={perfil.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-[#f3f4f6] text-[#9ca3af] flex items-center justify-center text-[13px] font-bold">
+                    <div className={`w-full h-full flex items-center justify-center text-[13px] font-bold ${isDarkTheme ? 'bg-white/5 text-white/70' : 'bg-[#f3f4f6] text-[#9ca3af]'}`}>
                       {perfil?.nome ? perfil.nome.substring(0, 1).toUpperCase() : 'U'}
                     </div>
                   )}
                 </div>
                 <div className="hidden md:block">
-                  <div className="text-[12px] font-bold text-gray-950 leading-tight">{perfil?.nome || 'Usuário'}</div>
-                  <div className="text-[10px] text-gray-400 leading-tight font-medium">{currentRoleLabel()}</div>
+                  <div className={`text-[12px] font-bold leading-tight ${isDarkTheme ? 'text-white' : 'text-gray-950'}`}>{perfil?.nome || 'Usuário'}</div>
+                  <div className={`text-[10px] leading-tight font-medium ${isDarkTheme ? 'text-[#8e8d97]' : 'text-gray-400'}`}>{currentRoleLabel()}</div>
                 </div>
-                <ChevronDown size={14} className="text-gray-400 hidden md:block" />
+                <ChevronDown size={14} className={`${isDarkTheme ? 'text-white/50' : 'text-gray-400'} hidden md:block`} />
               </button>
 
               {profileDropdownOpen && (
                 <>
                   <div className="fixed inset-0 z-30" onClick={() => setProfileDropdownOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-lg p-2 z-45 animate-in fade-in duration-200">
+                  <div className={`absolute right-0 mt-2 w-48 border rounded-2xl shadow-lg p-2 z-45 animate-in fade-in duration-200 ${isDarkTheme ? 'bg-[#12111a] border-white/10 text-white' : 'bg-white border-gray-100'}`}>
                     <button 
                       onClick={() => {
                         setProfileDropdownOpen(false);
                         navigate(`/perfil/${usuario?.id}`);
                       }}
-                      className="w-full text-left px-4 py-2 text-[12px] text-gray-700 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer"
+                      className={`w-full text-left px-4 py-2 text-[12px] rounded-xl transition-colors cursor-pointer ${isDarkTheme ? 'text-gray-300 hover:bg-white/5 hover:text-white' : 'text-gray-700 hover:bg-gray-50'}`}
                     >
                       Meu Perfil
                     </button>
@@ -298,14 +298,14 @@ export function AdminLayout({ children }) {
                         setProfileDropdownOpen(false);
                         navigate('/configuracoes');
                       }}
-                      className="w-full text-left px-4 py-2 text-[12px] text-gray-700 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer"
+                      className={`w-full text-left px-4 py-2 text-[12px] rounded-xl transition-colors cursor-pointer ${isDarkTheme ? 'text-gray-300 hover:bg-white/5 hover:text-white' : 'text-gray-700 hover:bg-gray-50'}`}
                     >
                       Configurações
                     </button>
-                    <div className="border-t border-gray-100 my-1"></div>
+                    <div className={`border-t my-1 ${isDarkTheme ? 'border-white/5' : 'border-gray-100'}`}></div>
                     <button 
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-[12px] text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer flex items-center gap-2"
+                      className="w-full text-left px-4 py-2 text-[12px] text-red-650 hover:bg-red-50/5 rounded-xl transition-colors cursor-pointer flex items-center gap-2"
                     >
                       <LogOut size={13} />
                       Sair
@@ -318,7 +318,7 @@ export function AdminLayout({ children }) {
         </header>
 
         {/* CONTEÚDO PRINCIPAL */}
-        <main className="flex-1 p-6 sm:p-8 md:p-10 overflow-y-auto max-w-[1200px] w-full mx-auto animate-in fade-in duration-300">
+        <main className="flex-1 p-6 sm:p-8 md:p-8 overflow-y-auto max-w-[1200px] w-full mx-auto animate-in fade-in duration-300">
           {children}
         </main>
       </div>
@@ -327,7 +327,7 @@ export function AdminLayout({ children }) {
       {mobileMenuOpen && (
         <>
           <div className="fixed inset-0 bg-black/35 z-40 md:hidden animate-in fade-in duration-300" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="fixed top-0 left-0 bottom-0 w-64 bg-white z-50 p-0 flex flex-col justify-between h-full border-r border-gray-100 md:hidden animate-in slide-in-from-left duration-300 relative overflow-hidden">
+          <aside className={`fixed top-0 left-0 bottom-0 w-64 z-50 p-0 flex flex-col justify-between h-full border-r md:hidden animate-in slide-in-from-left duration-300 relative overflow-hidden ${isDarkTheme ? 'bg-[#0d0c13] border-white/5' : 'bg-white border-gray-100'}`}>
             
             {/* Botão de Fechar Mobile */}
             <button 

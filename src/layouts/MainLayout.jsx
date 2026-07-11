@@ -127,7 +127,6 @@ export function MainLayout({ children }) {
         usuario={usuario} 
         perfil={perfil} 
         handleLogout={handleLogout} 
-        onLinkClick={onLinkClick}
       />
     );
   };
@@ -141,12 +140,14 @@ export function MainLayout({ children }) {
 
   const tituloAtual = getTituloAtual();
 
+  const isDarkTheme = perfil?.papel === 'professor' || perfil?.papel === 'administrador';
+
   return (
-    <div className="flex min-h-screen w-full bg-[#fcfcfc] text-gray-900 antialiased selection:bg-gray-100 relative z-[1]">
+    <div className={`flex min-h-screen w-full antialiased selection:bg-gray-100 relative z-[1] transition-colors duration-300 ${isDarkTheme ? 'dark-dashboard-teacher bg-[#08070d] text-white' : 'bg-[#fcfcfc] text-gray-900'}`}>
       <GeometricBackground />
       
       {/* 1. Sidebar Dinâmica Completa (Desktop) */}
-      <aside className="hidden md:flex w-64 border-r border-gray-100 bg-[#0d0c13] flex-col justify-between p-0 h-screen sticky top-0 select-none flex-shrink-0 relative overflow-hidden">
+      <aside className={`hidden md:flex w-64 border-r flex-col justify-between p-0 h-screen sticky top-0 select-none flex-shrink-0 relative overflow-hidden transition-colors duration-300 ${isDarkTheme ? 'border-white/5 bg-[#0d0c13]' : 'border-gray-100 bg-white'}`}>
         {renderSidebar()}
       </aside>
  
@@ -154,18 +155,18 @@ export function MainLayout({ children }) {
       <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         
         {/* HEADER SUPERIOR — Título + Ícones de ação */}
-        <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <header className={`sticky top-0 z-20 backdrop-blur-md border-b transition-all duration-300 ${isDarkTheme ? 'bg-[#0d0c13]/80 border-white/5 text-white' : 'bg-white/80 border-gray-100'}`}>
           <div className="w-full max-w-[1200px] mx-auto px-6 sm:px-8 md:px-12 h-14 flex items-center justify-between">
             
             {/* Título da página + Menu hambúrguer no celular */}
             <div className="flex items-center gap-2.5">
               <button 
                 onClick={() => setMobileMenuOpen(true)}
-                className="md:hidden p-1.5 text-gray-500 hover:text-black hover:bg-gray-55 rounded-lg cursor-pointer flex items-center justify-center transition-colors"
+                className={`md:hidden p-1.5 rounded-lg cursor-pointer flex items-center justify-center transition-colors ${isDarkTheme ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-500 hover:text-black hover:bg-gray-55'}`}
               >
                 <Menu size={18} />
               </button>
-              <h1 className="text-[14px] font-bold text-gray-950 tracking-[0.2em] uppercase">
+              <h1 className={`text-[14px] font-bold tracking-[0.2em] uppercase ${isDarkTheme ? 'text-white' : 'text-gray-950'}`}>
                 {tituloAtual}
               </h1>
             </div>
@@ -174,7 +175,7 @@ export function MainLayout({ children }) {
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => navigate('/notificacoes')} 
-                className="p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-gray-600 cursor-pointer relative"
+                className={`p-2.5 rounded-xl transition-colors cursor-pointer relative ${isDarkTheme ? 'text-gray-400 hover:bg-white/5 hover:text-white' : 'hover:bg-gray-50 text-gray-600'}`}
                 title={translate('notificationsTitle')}
               >
                 <Bell size={18} strokeWidth={1.8} />
@@ -186,14 +187,14 @@ export function MainLayout({ children }) {
               </button>
               <button 
                 onClick={() => navigate('/mensagens')} 
-                className="p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-gray-600 cursor-pointer"
+                className={`p-2.5 rounded-xl transition-colors cursor-pointer ${isDarkTheme ? 'text-gray-400 hover:bg-white/5 hover:text-white' : 'hover:bg-gray-50 text-gray-600'}`}
                 title={translate('messagesTitle')}
               >
                 <Mail size={18} strokeWidth={1.8} />
               </button>
               <button 
                 onClick={() => navigate('/criar-post')} 
-                className="p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-gray-600 cursor-pointer"
+                className={`p-2.5 rounded-xl transition-colors cursor-pointer ${isDarkTheme ? 'text-gray-400 hover:bg-white/5 hover:text-white' : 'hover:bg-gray-50 text-gray-600'}`}
                 title={translate('newPostTitle')}
               >
                 <Plus size={18} strokeWidth={1.8} />
@@ -203,7 +204,7 @@ export function MainLayout({ children }) {
         </header>
 
         {/* Conteúdo da página — padding inferior responsivo para acomodar bottom bar no celular */}
-        <main className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-6 sm:px-8 sm:py-8 md:px-12 md:py-8 pb-20 md:pb-8 animate-in fade-in duration-300">
+        <main className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-6 sm:px-8 sm:py-8 md:px-8 md:py-8 pb-20 md:pb-8 animate-in fade-in duration-300">
           {children}
         </main>
         
@@ -213,7 +214,7 @@ export function MainLayout({ children }) {
       {mobileMenuOpen && (
         <>
           <div className="fixed inset-0 bg-black/35 z-40 md:hidden animate-in fade-in duration-300" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="fixed top-0 left-0 bottom-0 w-64 bg-white z-50 p-0 flex flex-col justify-between h-full border-r border-gray-100 md:hidden animate-in slide-in-from-left duration-300 relative overflow-hidden">
+          <aside className={`fixed top-0 left-0 bottom-0 w-64 z-50 p-0 flex flex-col justify-between h-full border-r md:hidden animate-in slide-in-from-left duration-300 relative overflow-hidden ${isDarkTheme ? 'bg-[#0d0c13] border-white/5' : 'bg-white border-gray-100'}`}>
             
             {/* Botão de Fechar Mobile */}
             <button 

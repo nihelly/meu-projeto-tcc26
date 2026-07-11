@@ -533,10 +533,10 @@ export default function PainelProfessor() {
           color: #ffffff;
         }
         .dark-dashboard-teacher .bg-white {
-          background-color: #000000 !important;
+          background-color: #12111a !important;
         }
         .dark-dashboard-teacher .bg-gray-50 {
-          background-color: #000000 !important;
+          background-color: #0a090f !important;
         }
         .dark-dashboard-teacher .border-gray-100,
         .dark-dashboard-teacher .border-gray-50,
@@ -570,7 +570,7 @@ export default function PainelProfessor() {
           color: #ffffff !important;
         }
         .dark-dashboard-teacher select option {
-          background-color: #000000 !important;
+          background-color: #12111a !important;
           color: #ffffff !important;
         }
         .dark-dashboard-teacher .bg-violet-50 {
@@ -626,7 +626,7 @@ export default function PainelProfessor() {
         /* Custom modal/card override */
         .dark-dashboard-teacher .bg-white.rounded-\[2\.5rem\],
         .dark-dashboard-teacher .bg-white.rounded-\[2rem\] {
-          background-color: #000000 !important;
+          background-color: #12111a !important;
           border-color: rgba(255, 255, 255, 0.08) !important;
         }
       `}</style>
