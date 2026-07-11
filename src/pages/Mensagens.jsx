@@ -29,6 +29,7 @@ import { toast } from 'sonner';
 
 export default function Mensagens() {
   const { usuario, perfil } = useAuth();
+  const isDarkTheme = !!perfil?.papel;
   
   // Estados de layout
   const [loading, setLoading] = useState(true);
@@ -377,7 +378,117 @@ export default function Mensagens() {
   });
 
   return (
-    <div className="h-[calc(100vh-130px)] flex bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-sm">
+    <div className={`h-[calc(100vh-130px)] flex bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-sm ${isDarkTheme ? 'dark-chat-theme' : ''}`}>
+      {isDarkTheme && (
+        <style>{`
+          .dark-chat-theme {
+            background-color: #08070d !important;
+            border-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          /* Coluna esquerda (Lista de Conversas) */
+          .dark-chat-theme .w-\[340px\].bg-white {
+            background-color: #0c0b12 !important;
+            border-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          .dark-chat-theme .text-gray-950,
+          .dark-chat-theme .text-gray-900,
+          .dark-chat-theme .text-gray-850,
+          .dark-chat-theme .text-gray-800 {
+            color: #ffffff !important;
+          }
+          .dark-chat-theme .text-gray-400 {
+            color: #8e8d97 !important;
+          }
+          .dark-chat-theme .divide-gray-50\/50 > * {
+            border-color: rgba(255, 255, 255, 0.04) !important;
+          }
+          .dark-chat-theme .hover\:bg-gray-50\/50:hover {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+          }
+          .dark-chat-theme .bg-violet-50\/40 {
+            background-color: rgba(139, 92, 246, 0.12) !important;
+          }
+          /* Campo Busca */
+          .dark-chat-theme .bg-gray-50.border.border-gray-100 {
+            background-color: #07060a !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+          }
+          /* Cabeçalho do Chat */
+          .dark-chat-theme .h-16.border-b.border-gray-100.bg-white {
+            background-color: #0c0b12 !important;
+            border-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          /* Área de Histórico (Fundo cinza vira roxo escuro premium) */
+          .dark-chat-theme .bg-gray-50\/30 {
+            background-color: #12101e !important;
+            background-image: radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15), transparent 450px),
+                              radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.08), transparent 450px) !important;
+            border-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          /* Balões de Mensagem Recebida (Preto) */
+          .dark-chat-theme .bg-white.text-gray-900 {
+            background-color: #07060a !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          /* Balões de Mensagem Enviada (Gradiente Roxo/Azul) */
+          .dark-chat-theme .bg-violet-100 {
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%) !important;
+            color: #ffffff !important;
+          }
+          /* Barra de digitação inferior */
+          .dark-chat-theme .p-4.bg-white.border-t.border-gray-100 {
+            background-color: #0c0b12 !important;
+            border-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          .dark-chat-theme .bg-gray-50.border.border-gray-100 {
+            background-color: #07060a !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+          }
+          /* Painel Lateral Direito */
+          .dark-chat-theme .w-\[300px\].bg-white {
+            background-color: #0c0b12 !important;
+            border-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          .dark-chat-theme .border-gray-50,
+          .dark-chat-theme .border-gray-55 {
+            border-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          .dark-chat-theme .bg-violet-50 {
+            background-color: rgba(139, 92, 246, 0.12) !important;
+            color: #a78bfa !important;
+          }
+          .dark-chat-theme .bg-gray-50.hover\:bg-gray-100 {
+            background-color: #07060a !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+          }
+          .dark-chat-theme .bg-gray-50.hover\:bg-gray-100:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+          }
+          /* Ícones e Checks */
+          .dark-chat-theme .text-violet-600 {
+            color: #a78bfa !important;
+          }
+          .dark-chat-theme .text-gray-450 {
+            color: #8e8d97 !important;
+          }
+          .dark-chat-theme .text-gray-450:hover {
+            color: #ffffff !important;
+          }
+          /* Reações e popovers */
+          .dark-chat-theme .absolute.bg-white.border.border-gray-100 {
+            background-color: #0c0b12 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          .dark-chat-theme .bg-gray-50.border.border-gray-150 {
+            background-color: #0c0b12 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+          }
+        `}</style>
+      )}
       
       {/* COLUNA ESQUERDA: LISTA DE CONVERSAS */}
       <div className="w-[340px] border-r border-gray-100 flex flex-col flex-shrink-0 bg-white">
