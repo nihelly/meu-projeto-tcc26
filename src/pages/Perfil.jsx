@@ -687,8 +687,130 @@ export default function Perfil() {
 
   const userHandleName = perfil?.nome?.toLowerCase().replace(/\s+/g, '') || 'usuario';
 
+  const isProfessor = perfil?.papel === 'professor';
+
   return (
-    <div className="w-full max-w-[620px] mx-auto md:pt-2">
+    <div className={`w-full max-w-[620px] mx-auto md:pt-2 ${isProfessor ? 'dark-dashboard-teacher text-white' : ''}`}>
+      {isProfessor && (
+        <style>{`
+          div:has(> main .dark-dashboard-teacher),
+          main:has(.dark-dashboard-teacher) {
+            background-color: #08070d !important;
+          }
+          header:has(+ main .dark-dashboard-teacher),
+          header:has(+ div main .dark-dashboard-teacher) {
+            background-color: #0d0c13 !important;
+            border-color: rgba(255, 255, 255, 0.06) !important;
+            backdrop-filter: blur(12px) !important;
+          }
+          header:has(+ main .dark-dashboard-teacher) *,
+          header:has(+ div main .dark-dashboard-teacher) * {
+            color: #ffffff !important;
+          }
+          .dark-dashboard-teacher {
+            color: #ffffff;
+          }
+          .dark-dashboard-teacher .bg-white {
+            background-color: #12111a !important;
+          }
+          .dark-dashboard-teacher .bg-gray-50 {
+            background-color: #0a090f !important;
+          }
+          .dark-dashboard-teacher .border-gray-100,
+          .dark-dashboard-teacher .border-gray-50,
+          .dark-dashboard-teacher .border-gray-150,
+          .dark-dashboard-teacher .border-gray-200,
+          .dark-dashboard-teacher .border-gray-250,
+          .dark-dashboard-teacher .border-gray-255 {
+            border-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          .dark-dashboard-teacher .text-gray-950,
+          .dark-dashboard-teacher .text-gray-900,
+          .dark-dashboard-teacher .text-gray-850,
+          .dark-dashboard-teacher .text-gray-800 {
+            color: #ffffff !important;
+          }
+          .dark-dashboard-teacher .text-gray-700,
+          .dark-dashboard-teacher .text-gray-600,
+          .dark-dashboard-teacher .text-gray-505,
+          .dark-dashboard-teacher .text-gray-655,
+          .dark-dashboard-teacher .text-gray-605 {
+            color: #8e8d97 !important;
+          }
+          .dark-dashboard-teacher .text-gray-400,
+          .dark-dashboard-teacher .text-gray-450 {
+            color: #6c6b75 !important;
+          }
+          .dark-dashboard-teacher input,
+          .dark-dashboard-teacher select,
+          .dark-dashboard-teacher textarea {
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+          }
+          .dark-dashboard-teacher select option {
+            background-color: #12111a !important;
+            color: #ffffff !important;
+          }
+          .dark-dashboard-teacher .bg-violet-50 {
+            background-color: rgba(139, 92, 246, 0.12) !important;
+            color: #a78bfa !important;
+          }
+          .dark-dashboard-teacher .text-violet-600 {
+            color: #a78bfa !important;
+          }
+          .dark-dashboard-teacher .bg-violet-600 {
+            background-color: #8b5cf6 !important;
+          }
+          .dark-dashboard-teacher .bg-green-50 {
+            background-color: rgba(59, 130, 246, 0.12) !important;
+            color: #60a5fa !important;
+          }
+          .dark-dashboard-teacher .text-green-600 {
+            color: #60a5fa !important;
+          }
+          .dark-dashboard-teacher .bg-green-600 {
+            background-color: #3b82f6 !important;
+          }
+          .dark-dashboard-teacher .bg-blue-50 {
+            background-color: rgba(59, 130, 246, 0.12) !important;
+            color: #60a5fa !important;
+          }
+          .dark-dashboard-teacher .text-blue-600 {
+            color: #60a5fa !important;
+          }
+          .dark-dashboard-teacher .bg-blue-600 {
+            background-color: #3b82f6 !important;
+          }
+          .dark-dashboard-teacher .bg-amber-50 {
+            background-color: rgba(139, 92, 246, 0.12) !important;
+            color: #a78bfa !important;
+          }
+          .dark-dashboard-teacher .text-amber-600 {
+            color: #a78bfa !important;
+          }
+          .dark-dashboard-teacher .bg-amber-600 {
+            background-color: #8b5cf6 !important;
+          }
+          .dark-dashboard-teacher .bg-purple-50 {
+            background-color: rgba(59, 130, 246, 0.12) !important;
+            color: #60a5fa !important;
+          }
+          .dark-dashboard-teacher .text-purple-600 {
+            color: #60a5fa !important;
+          }
+          .dark-dashboard-teacher .bg-purple-600 {
+            background-color: #3b82f6 !important;
+          }
+          /* Custom modal/card override */
+          .dark-dashboard-teacher .bg-white.rounded-\[2\.5rem\],
+          .dark-dashboard-teacher .bg-white.rounded-\[2rem\],
+          .dark-dashboard-teacher .bg-white\/80 {
+            background-color: #12111a !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+          }
+        `}</style>
+      )}
       
       {/* TOP BAR — só aparece se NÃO for o dono (visitante) */}
       {!isDono && (
