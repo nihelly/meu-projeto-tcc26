@@ -487,6 +487,17 @@ export default function Mensagens() {
             background-color: #0c0b12 !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
           }
+          /* Botão bloquear conversa (Roxo) */
+          .dark-chat-theme .bg-red-50 {
+            background-color: rgba(139, 92, 246, 0.15) !important;
+            border-color: rgba(139, 92, 246, 0.3) !important;
+            color: #a78bfa !important;
+          }
+          .dark-chat-theme .bg-red-50:hover {
+            background-color: #8b5cf6 !important;
+            color: #ffffff !important;
+            border-color: #8b5cf6 !important;
+          }
         `}</style>
       )}
       
