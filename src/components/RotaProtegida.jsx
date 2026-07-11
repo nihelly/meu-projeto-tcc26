@@ -1,5 +1,19 @@
-import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { toast } from 'sonner';
+
+/**
+ * Componente interno para redirecionar com aviso via toast de forma limpa e segura.
+ */
+const RedirecionarComMensagem = ({ to, mensagem }) => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    toast.error(mensagem);
+    navigate(to, { replace: true });
+  }, [navigate, to, mensagem]);
+  return null;
+};
 
 /**
  * Componente de Ordem Superior (HOC) para proteger rotas.
@@ -8,7 +22,7 @@ import { useAuth } from '../hooks/useAuth';
 export const RotaProtegida = ({ children, apenasProfessor = false, apenasAdmin = false }) => {
   const { usuario, carregando, ehProfessor, ehAdmin } = useAuth();
 
-  // 1. Enquanto o Supabase verifica a sessão, mostramos uma tela de carregamento limpa
+  // 1. Enquanto o Supabase verifica a sessão, mostra um loader limpo
   if (carregando) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -19,24 +33,19 @@ export const RotaProtegida = ({ children, apenasProfessor = false, apenasAdmin =
 
   // 2. Se não estiver logado, manda para o Login
   if (!usuario) {
-    return <Navigate to="/login" replace />;
+    return <RedirecionarComMensagem to="/login" mensagem="Por favor, faça login para acessar esta área." />;
   }
 
-  // 3. Regra de Negócio: Se for primeiro acesso, você pode forçar a troca de senha
-  // Descomente a linha abaixo quando criar a página de trocar senha
-  // if (perfil?.primeiro_acesso) return <Navigate to="/trocar-senha" />;
-
-  // 4. Proteção por Papel (Role-Based Access Control)
-  // Se a rota exige ser professor e o usuário não é professor nem admin, manda para o feed comum
+  // 3. Proteção por Papel (Role-Based Access Control)
+  // Se exige ser professor/admin e não possui o papel, bloqueia
   if (apenasProfessor && !ehProfessor && !ehAdmin) {
-    return <Navigate to="/feed" replace />;
+    return <RedirecionarComMensagem to="/feed" mensagem="Você não possui permissão para acessar esta área." />;
   }
 
-  // Se a rota exige ser admin e o usuário não é admin, manda para o feed comum
+  // Se exige ser admin e não possui o papel, bloqueia
   if (apenasAdmin && !ehAdmin) {
-    return <Navigate to="/feed" replace />;
+    return <RedirecionarComMensagem to="/feed" mensagem="Você não possui permissão para acessar esta área." />;
   }
 
-  // Se passou por tudo, renderiza o conteúdo da página
   return children;
 };

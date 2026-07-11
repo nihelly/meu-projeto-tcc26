@@ -19,7 +19,8 @@ import {
   Shield,
   User,
   Lock,
-  SlidersHorizontal
+  SlidersHorizontal,
+  AlertTriangle
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -127,6 +128,51 @@ export function AdminLayout({ children }) {
     return 'Aluno';
   };
 
+  const getSidebarLinks = () => {
+    const papel = perfil?.papel || 'aluno';
+
+    if (papel === 'administrador') {
+      return [
+        { to: '/admin', label: 'Início', icon: Home, isHome: true },
+        { to: '/feed', label: 'Feed', icon: FileText },
+        { to: '/mensagens', label: 'Mensagens', icon: MessageSquare, badge: 3 },
+        { to: '/turmas', label: 'Turmas', icon: GraduationCap },
+        { to: '/turmas', label: 'Calendário', icon: Calendar },
+        { to: '/gerenciar-usuarios', label: 'Gerenciar Usuários', icon: Users },
+        { to: '/admin?aba=moderacao', label: 'Moderação', icon: AlertTriangle, badge: reportCount },
+        { to: '/professor', label: 'Painel do Professor', icon: LayoutDashboard },
+        { to: '/admin', label: 'Painel do Administrador', icon: LayoutDashboard },
+        { to: '/notificacoes', label: 'Notificações', icon: Bell, badge: unreadCount },
+        { to: '/seguranca', label: 'Segurança', icon: Shield },
+        { to: '/privacidade', label: 'Configurações', icon: Settings },
+      ];
+    }
+
+    if (papel === 'professor') {
+      return [
+        { to: '/professor', label: 'Início', icon: Home, isHome: true },
+        { to: '/feed', label: 'Feed', icon: FileText },
+        { to: '/mensagens', label: 'Mensagens', icon: MessageSquare, badge: 3 },
+        { to: '/turmas', label: 'Turmas', icon: GraduationCap },
+        { to: '/turmas', label: 'Calendário', icon: Calendar },
+        { to: '/professor', label: 'Painel do Professor', icon: LayoutDashboard },
+        { to: '/notificacoes', label: 'Notificações', icon: Bell, badge: unreadCount },
+        { to: `/perfil/${usuario?.id}`, label: 'Perfil', icon: User },
+      ];
+    }
+
+    // Default/Aluno
+    return [
+      { to: '/feed', label: 'Início', icon: Home, isHome: true },
+      { to: '/feed', label: 'Feed', icon: FileText },
+      { to: '/mensagens', label: 'Mensagens', icon: MessageSquare, badge: 3 },
+      { to: '/turmas', label: 'Turma', icon: GraduationCap },
+      { to: '/turmas', label: 'Calendário', icon: Calendar },
+      { to: '/notificacoes', label: 'Notificações', icon: Bell, badge: unreadCount },
+      { to: `/perfil/${usuario?.id}`, label: 'Perfil', icon: User },
+    ];
+  };
+
   return (
     <div className="min-h-screen bg-[#fcfcfc] text-gray-900 flex relative font-sans">
       
@@ -139,295 +185,40 @@ export function AdminLayout({ children }) {
             <span className="font-bold text-[16px] text-gray-950 tracking-tight">EduConnect</span>
           </div>
 
-          {/* Links Principais */}
+          {/* Links Dinâmicos por Papel */}
           <nav className="space-y-1">
-            <NavLink 
-              to={perfil?.papel === 'administrador' ? '/admin' : perfil?.papel === 'professor' ? '/professor' : '/feed'} 
-              className={() => {
-                const isHomeActive = perfil?.papel === 'administrador' 
-                  ? location.pathname.startsWith('/admin')
-                  : perfil?.papel === 'professor' 
-                    ? location.pathname.startsWith('/professor')
-                    : location.pathname === '/feed' && !location.search;
-                return isHomeActive ? activeLinkClass : inactiveLinkClass;
-              }}
-            >
-              <Home size={18} strokeWidth={1.8} />
-              <span>Início</span>
-            </NavLink>
-            <NavLink 
-              to="/feed" 
-              className={() => {
-                const isFeedActive = location.pathname === '/feed';
-                return isFeedActive ? activeLinkClass : inactiveLinkClass;
-              }}
-            >
-              <FileText size={18} strokeWidth={1.8} />
-              <span>Feed</span>
-            </NavLink>
-            <NavLink to="/mensagens" className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}>
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-3">
-                  <MessageSquare size={18} strokeWidth={1.8} />
-                  <span>Mensagens</span>
-                </div>
-                <span className="bg-violet-100 text-violet-750 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
-                  3
-                </span>
-              </div>
-            </NavLink>
-            <NavLink to="/turmas" className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}>
-              <GraduationCap size={18} strokeWidth={1.8} />
-              <span>Turmas</span>
-            </NavLink>
-            <div className={`${inactiveLinkClass} cursor-not-allowed opacity-60`}>
-              <Bell size={18} strokeWidth={1.8} />
-              <span>Avisos</span>
-            </div>
-            <div className={`${inactiveLinkClass} cursor-not-allowed opacity-60`}>
-              <Calendar size={18} strokeWidth={1.8} />
-              <span>Eventos</span>
-            </div>
-            <NavLink to="/notificacoes" className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}>
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-3">
-                  <Bell size={18} strokeWidth={1.8} />
-                  <span>Notificações</span>
-                </div>
-                {unreadCount > 0 && (
-                  <span className="bg-violet-100 text-violet-750 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
-                    {unreadCount}
-                  </span>
-                )}
-              </div>
-            </NavLink>
+            {getSidebarLinks().map((link, idx) => {
+              const Icone = link.icon;
+              return (
+                <NavLink 
+                  key={idx}
+                  to={link.to} 
+                  className={({ isActive }) => {
+                    if (link.isHome) {
+                      const isHomeActive = perfil?.papel === 'administrador' 
+                        ? location.pathname.startsWith('/admin')
+                        : perfil?.papel === 'professor' 
+                          ? location.pathname.startsWith('/professor')
+                          : location.pathname === '/feed' && !location.search;
+                      return isHomeActive ? activeLinkClass : inactiveLinkClass;
+                    }
+                    if (link.to === '/feed' && !link.isHome) {
+                      return location.pathname === '/feed' ? activeLinkClass : inactiveLinkClass;
+                    }
+                    return isActive ? activeLinkClass : inactiveLinkClass;
+                  }}
+                >
+                  <Icone size={18} strokeWidth={1.8} />
+                  <span>{link.label}</span>
+                  {link.badge !== undefined && link.badge > 0 && (
+                    <span className="ml-auto bg-violet-100 text-violet-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
+                      {link.badge}
+                    </span>
+                  )}
+                </NavLink>
+              );
+            })}
           </nav>
-
-          {/* Seção Painel do Professor (Apenas Professores) */}
-          {perfil?.papel === 'professor' && (
-            <div className="pt-2">
-              <div className="px-4 text-[10px] font-bold text-violet-600 uppercase tracking-widest mb-2">
-                Painel do Professor
-              </div>
-              <nav className="space-y-1">
-                <NavLink 
-                  to="/professor?aba=dashboard" 
-                  className={isAbaActive('dashboard', '/professor') ? activeLinkClass : inactiveLinkClass}
-                >
-                  <LayoutDashboard size={18} strokeWidth={1.8} />
-                  <span>Dashboard</span>
-                </NavLink>
-                <NavLink 
-                  to="/professor?aba=turmas" 
-                  className={isAbaActive('turmas', '/professor') ? activeLinkClass : inactiveLinkClass}
-                >
-                  <GraduationCap size={18} strokeWidth={1.8} />
-                  <span>Minhas turmas</span>
-                </NavLink>
-                <NavLink 
-                  to="/professor?aba=postagens" 
-                  className={isAbaActive('postagens', '/professor') ? activeLinkClass : inactiveLinkClass}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3">
-                      <FileText size={18} strokeWidth={1.8} />
-                      <span>Postagens para revisão</span>
-                    </div>
-                    {pendingPostsCount > 0 && (
-                      <span className="bg-violet-100 text-violet-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
-                        {pendingPostsCount}
-                      </span>
-                    )}
-                  </div>
-                </NavLink>
-                <NavLink 
-                  to="/professor?aba=alunos" 
-                  className={isAbaActive('alunos', '/professor') ? activeLinkClass : inactiveLinkClass}
-                >
-                  <Users size={18} strokeWidth={1.8} />
-                  <span>Alunos</span>
-                </NavLink>
-                <NavLink 
-                  to="/professor?aba=avisos" 
-                  className={isAbaActive('avisos', '/professor') ? activeLinkClass : inactiveLinkClass}
-                >
-                  <Bell size={18} strokeWidth={1.8} />
-                  <span>Avisos da turma</span>
-                </NavLink>
-                <NavLink 
-                  to="/professor?aba=relatorios" 
-                  className={isAbaActive('relatorios', '/professor') ? activeLinkClass : inactiveLinkClass}
-                >
-                  <BarChart3 size={18} strokeWidth={1.8} />
-                  <span>Relatórios</span>
-                </NavLink>
-              </nav>
-            </div>
-          )}
-
-          {/* Seção Painel do Administrador (Apenas Admins) */}
-          {perfil?.papel === 'administrador' && (
-            <div className="space-y-4 pt-2">
-              <div>
-                <div className="px-4 text-[10px] font-bold text-violet-600 uppercase tracking-widest mb-2">
-                  Painel do Administrador
-                </div>
-                <nav className="space-y-1">
-                  <NavLink 
-                    to="/admin?aba=dashboard" 
-                    className={isAbaActive('dashboard', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <LayoutDashboard size={18} strokeWidth={1.8} />
-                    <span>Dashboard</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=usuarios" 
-                    className={isAbaActive('usuarios', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <Users size={18} strokeWidth={1.8} />
-                    <span>Usuários</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=professores" 
-                    className={isAbaActive('professores', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <GraduationCap size={18} strokeWidth={1.8} />
-                    <span>Professores</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=alunos" 
-                    className={isAbaActive('alunos', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <Users size={18} strokeWidth={1.8} />
-                    <span>Alunos</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=turmas" 
-                    className={isAbaActive('turmas', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <GraduationCap size={18} strokeWidth={1.8} />
-                    <span>Turmas</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=postagens" 
-                    className={isAbaActive('postagens', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <FileText size={18} strokeWidth={1.8} />
-                    <span>Postagens</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=moderacao" 
-                    className={isAbaActive('moderacao', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <div className="flex items-center gap-3">
-                        <AlertTriangle size={18} strokeWidth={1.8} />
-                        <span>Moderação</span>
-                      </div>
-                      {reportCount > 0 && (
-                        <span className="bg-violet-100 text-violet-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
-                          {reportCount}
-                        </span>
-                      )}
-                    </div>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=relatorios" 
-                    className={isAbaActive('relatorios', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <BarChart3 size={18} strokeWidth={1.8} />
-                    <span>Relatórios</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=atividades" 
-                    className={isAbaActive('atividades', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <FileText size={18} strokeWidth={1.8} />
-                    <span>Atividades do sistema</span>
-                  </NavLink>
-                </nav>
-              </div>
-
-              <div>
-                <div className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-                  Gerenciamento
-                </div>
-                <nav className="space-y-1">
-                  <NavLink 
-                    to="/admin?aba=avisos" 
-                    className={isAbaActive('avisos', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <Bell size={18} strokeWidth={1.8} />
-                    <span>Avisos</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=configuracoes" 
-                    className={isAbaActive('configuracoes', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <Settings size={18} strokeWidth={1.8} />
-                    <span>Configurações</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=permissoes" 
-                    className={isAbaActive('permissoes', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <Settings size={18} strokeWidth={1.8} />
-                    <span>Permissões</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=seguranca" 
-                    className={isAbaActive('seguranca', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <Settings size={18} strokeWidth={1.8} />
-                    <span>Segurança</span>
-                  </NavLink>
-                  <NavLink 
-                    to="/admin?aba=backup" 
-                    className={isAbaActive('backup', '/admin') ? activeLinkClass : inactiveLinkClass}
-                  >
-                    <Settings size={18} strokeWidth={1.8} />
-                    <span>Backup</span>
-                  </NavLink>
-                </nav>
-              </div>
-            </div>
-          )}
-          {/* Seção Configurações (Acessível a todos) */}
-          <div className="pt-4 border-t border-gray-50 mt-4">
-            <div className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-              Configurações
-            </div>
-            <nav className="space-y-1">
-              <NavLink 
-                to="/seguranca" 
-                className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
-              >
-                <Shield size={18} strokeWidth={1.8} />
-                <span>Segurança</span>
-              </NavLink>
-              <NavLink 
-                to={`/perfil/${usuario?.id}`} 
-                className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
-              >
-                <User size={18} strokeWidth={1.8} />
-                <span>Perfil</span>
-              </NavLink>
-              <NavLink 
-                to="/privacidade" 
-                className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
-              >
-                <Lock size={18} strokeWidth={1.8} />
-                <span>Privacidade</span>
-              </NavLink>
-              <NavLink 
-                to="/notificacoes" 
-                className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
-              >
-                <SlidersHorizontal size={18} strokeWidth={1.8} />
-                <span>Preferências</span>
-              </NavLink>
-            </nav>
-          </div>
         </div>
 
         {/* Card Promocional Rodapé */}
@@ -615,325 +406,40 @@ export function AdminLayout({ children }) {
                 </button>
               </div>
 
-              {/* Links Principais Mobile */}
+              {/* Links Dinâmicos por Papel Mobile */}
               <nav className="space-y-1">
-                <NavLink 
-                  to={perfil?.papel === 'administrador' ? '/admin' : perfil?.papel === 'professor' ? '/professor' : '/feed'} 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={() => {
-                    const isHomeActive = perfil?.papel === 'administrador' 
-                      ? location.pathname.startsWith('/admin')
-                      : perfil?.papel === 'professor' 
-                        ? location.pathname.startsWith('/professor')
-                        : location.pathname === '/feed' && !location.search;
-                    return isHomeActive ? activeLinkClass : inactiveLinkClass;
-                  }}
-                >
-                  <Home size={18} strokeWidth={1.8} />
-                  <span>Início</span>
-                </NavLink>
-                <NavLink 
-                  to="/feed" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={() => {
-                    const isFeedActive = location.pathname === '/feed';
-                    return isFeedActive ? activeLinkClass : inactiveLinkClass;
-                  }}
-                >
-                  <FileText size={18} strokeWidth={1.8} />
-                  <span>Feed</span>
-                </NavLink>
-                <NavLink 
-                  to="/mensagens" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
-                >
-                  <MessageSquare size={18} strokeWidth={1.8} />
-                  <span>Mensagens</span>
-                </NavLink>
-                <NavLink 
-                  to="/turmas" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
-                >
-                  <GraduationCap size={18} strokeWidth={1.8} />
-                  <span>Turmas</span>
-                </NavLink>
-                <div className={`${inactiveLinkClass} cursor-not-allowed opacity-60`}>
-                  <Bell size={18} strokeWidth={1.8} />
-                  <span>Avisos</span>
-                </div>
-                <div className={`${inactiveLinkClass} cursor-not-allowed opacity-60`}>
-                  <Calendar size={18} strokeWidth={1.8} />
-                  <span>Eventos</span>
-                </div>
-                <NavLink 
-                  to="/notificacoes" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3">
-                      <Bell size={18} strokeWidth={1.8} />
-                      <span>Notificações</span>
-                    </div>
-                    {unreadCount > 0 && (
-                      <span className="bg-violet-100 text-violet-750 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </div>
-                </NavLink>
-                
-                {/* Seção Painel do Professor Mobile (Apenas Professores) */}
-                {perfil?.papel === 'professor' && (
-                  <div className="pt-2">
-                    <div className="px-4 text-[10px] font-bold text-violet-600 uppercase tracking-widest mb-2">
-                      Painel do Professor
-                    </div>
-                    <nav className="space-y-1">
-                      <NavLink 
-                        to="/professor?aba=dashboard" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={isAbaActive('dashboard', '/professor') ? activeLinkClass : inactiveLinkClass}
-                      >
-                        <LayoutDashboard size={18} strokeWidth={1.8} />
-                        <span>Dashboard</span>
-                      </NavLink>
-                      <NavLink 
-                        to="/professor?aba=turmas" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={isAbaActive('turmas', '/professor') ? activeLinkClass : inactiveLinkClass}
-                      >
-                        <GraduationCap size={18} strokeWidth={1.8} />
-                        <span>Minhas turmas</span>
-                      </NavLink>
-                      <NavLink 
-                        to="/professor?aba=postagens" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={isAbaActive('postagens', '/professor') ? activeLinkClass : inactiveLinkClass}
-                      >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-3">
-                            <FileText size={18} strokeWidth={1.8} />
-                            <span>Postagens para revisão</span>
-                          </div>
-                          {pendingPostsCount > 0 && (
-                            <span className="bg-violet-100 text-violet-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
-                              {pendingPostsCount}
-                            </span>
-                          )}
-                        </div>
-                      </NavLink>
-                      <NavLink 
-                        to="/professor?aba=alunos" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={isAbaActive('alunos', '/professor') ? activeLinkClass : inactiveLinkClass}
-                      >
-                        <Users size={18} strokeWidth={1.8} />
-                        <span>Alunos</span>
-                      </NavLink>
-                      <NavLink 
-                        to="/professor?aba=avisos" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={isAbaActive('avisos', '/professor') ? activeLinkClass : inactiveLinkClass}
-                      >
-                        <Bell size={18} strokeWidth={1.8} />
-                        <span>Avisos da turma</span>
-                      </NavLink>
-                      <NavLink 
-                        to="/professor?aba=relatorios" 
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={isAbaActive('relatorios', '/professor') ? activeLinkClass : inactiveLinkClass}
-                      >
-                        <BarChart3 size={18} strokeWidth={1.8} />
-                        <span>Relatórios</span>
-                      </NavLink>
-                    </nav>
-                  </div>
-                )}
-
-                {/* Seção Painel do Administrador Mobile (Apenas Admins) */}
-                {perfil?.papel === 'administrador' && (
-                  <div className="space-y-4 pt-2">
-                    <div>
-                      <div className="px-4 text-[10px] font-bold text-violet-600 uppercase tracking-widest mb-2">
-                        Painel do Administrador
-                      </div>
-                      <nav className="space-y-1">
-                        <NavLink 
-                          to="/admin?aba=dashboard" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('dashboard', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <LayoutDashboard size={18} strokeWidth={1.8} />
-                          <span>Dashboard</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=usuarios" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('usuarios', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <Users size={18} strokeWidth={1.8} />
-                          <span>Usuários</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=professores" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('professores', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <GraduationCap size={18} strokeWidth={1.8} />
-                          <span>Professores</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=alunos" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('alunos', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <Users size={18} strokeWidth={1.8} />
-                          <span>Alunos</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=turmas" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('turmas', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <GraduationCap size={18} strokeWidth={1.8} />
-                          <span>Turmas</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=postagens" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('postagens', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <FileText size={18} strokeWidth={1.8} />
-                          <span>Postagens</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=moderacao" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('moderacao', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-3">
-                              <AlertTriangle size={18} strokeWidth={1.8} />
-                              <span>Moderação</span>
-                            </div>
-                            {reportCount > 0 && (
-                              <span className="bg-violet-100 text-violet-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
-                                {reportCount}
-                              </span>
-                            )}
-                          </div>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=relatorios" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('relatorios', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <BarChart3 size={18} strokeWidth={1.8} />
-                          <span>Relatórios</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=atividades" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('atividades', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <FileText size={18} strokeWidth={1.8} />
-                          <span>Atividades do sistema</span>
-                        </NavLink>
-                      </nav>
-                    </div>
-
-                    <div>
-                      <div className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-                        Gerenciamento
-                      </div>
-                      <nav className="space-y-1">
-                        <NavLink 
-                          to="/admin?aba=avisos" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('avisos', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <Bell size={18} strokeWidth={1.8} />
-                          <span>Avisos</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=configuracoes" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('configuracoes', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <Settings size={18} strokeWidth={1.8} />
-                          <span>Configurações</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=permissoes" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('permissoes', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <Settings size={18} strokeWidth={1.8} />
-                          <span>Permissões</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=seguranca" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('seguranca', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <Settings size={18} strokeWidth={1.8} />
-                          <span>Segurança</span>
-                        </NavLink>
-                        <NavLink 
-                          to="/admin?aba=backup" 
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={isAbaActive('backup', '/admin') ? activeLinkClass : inactiveLinkClass}
-                        >
-                          <Settings size={18} strokeWidth={1.8} />
-                          <span>Backup</span>
-                        </NavLink>
-                      </nav>
-                    </div>
-                  </div>
-                )}
-                {/* Seção Configurações Mobile */}
-                <div className="pt-4 border-t border-gray-50 mt-4">
-                  <div className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-                    Configurações
-                  </div>
-                  <nav className="space-y-1">
+                {getSidebarLinks().map((link, idx) => {
+                  const Icone = link.icon;
+                  return (
                     <NavLink 
-                      to="/seguranca" 
+                      key={idx}
+                      to={link.to} 
                       onClick={() => setMobileMenuOpen(false)}
-                      className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
+                      className={({ isActive }) => {
+                        if (link.isHome) {
+                          const isHomeActive = perfil?.papel === 'administrador' 
+                            ? location.pathname.startsWith('/admin')
+                            : perfil?.papel === 'professor' 
+                              ? location.pathname.startsWith('/professor')
+                              : location.pathname === '/feed' && !location.search;
+                          return isHomeActive ? activeLinkClass : inactiveLinkClass;
+                        }
+                        if (link.to === '/feed' && !link.isHome) {
+                          return location.pathname === '/feed' ? activeLinkClass : inactiveLinkClass;
+                        }
+                        return isActive ? activeLinkClass : inactiveLinkClass;
+                      }}
                     >
-                      <Shield size={18} strokeWidth={1.8} />
-                      <span>Segurança</span>
+                      <Icone size={18} strokeWidth={1.8} />
+                      <span>{link.label}</span>
+                      {link.badge !== undefined && link.badge > 0 && (
+                        <span className="ml-auto bg-violet-100 text-violet-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
+                          {link.badge}
+                        </span>
+                      )}
                     </NavLink>
-                    <NavLink 
-                      to={`/perfil/${usuario?.id}`} 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
-                    >
-                      <User size={18} strokeWidth={1.8} />
-                      <span>Perfil</span>
-                    </NavLink>
-                    <NavLink 
-                      to="/privacidade" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
-                    >
-                      <Lock size={18} strokeWidth={1.8} />
-                      <span>Privacidade</span>
-                    </NavLink>
-                    <NavLink 
-                      to="/notificacoes" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
-                    >
-                      <SlidersHorizontal size={18} strokeWidth={1.8} />
-                      <span>Preferências</span>
-                    </NavLink>
-                  </nav>
-                </div>
+                  );
+                })}
               </nav>
             </div>
 

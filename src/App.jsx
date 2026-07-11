@@ -146,7 +146,7 @@ export default function App() {
         <Route 
           path="/gerenciar-usuarios" 
           element={
-            <RotaProtegida apenasProfessor={true}>
+            <RotaProtegida apenasAdmin={true}>
               <AdminLayout><GerenciarUsuarios /></AdminLayout>
             </RotaProtegida>
           } 
@@ -210,7 +210,7 @@ export default function App() {
         <Route 
           path="/seguranca" 
           element={
-            <RotaProtegida>
+            <RotaProtegida apenasAdmin={true}>
               <AdminLayout><Seguranca /></AdminLayout>
             </RotaProtegida>
           } 
