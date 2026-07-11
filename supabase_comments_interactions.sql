@@ -1,84 +1,86 @@
 -- ============================================================
--- EDUCONNECT — SCRIPT PARA COMENTÁRIOS E INTERAÇÕES
+-- EDUCONNECT — COMENTÁRIOS E INTERAÇÕES (MIGRAÇÃO)
 -- Execute este script no SQL Editor do Supabase Dashboard
 -- ============================================================
 
--- 1. TABELA: comment_replies (Respostas aos comentários)
+-- 1. TABELA: comments (Comentários Principais nos Posts)
+CREATE TABLE IF NOT EXISTS public.comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  file_url TEXT,
+  filename TEXT,
+  is_pinned BOOLEAN DEFAULT FALSE,
+  is_highlighted BOOLEAN DEFAULT FALSE,
+  is_hidden BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "comments_select" ON public.comments;
+DROP POLICY IF EXISTS "comments_all_actions" ON public.comments;
+
+CREATE POLICY "comments_select" ON public.comments FOR SELECT USING (true);
+CREATE POLICY "comments_all_actions" ON public.comments FOR ALL USING (true);
+
+-- 2. TABELA: comment_replies (Respostas de Comentários / Threads)
 CREATE TABLE IF NOT EXISTS public.comment_replies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  comment_id UUID NOT NULL REFERENCES public.comments(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  comment_id UUID REFERENCES public.comments(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. TABELAS DE CURTIDAS (Likes)
-CREATE TABLE IF NOT EXISTS public.comment_likes (
+ALTER TABLE public.comment_replies ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "replies_select" ON public.comment_replies;
+DROP POLICY IF EXISTS "replies_all_actions" ON public.comment_replies;
+
+CREATE POLICY "replies_select" ON public.comment_replies FOR SELECT USING (true);
+CREATE POLICY "replies_all_actions" ON public.comment_replies FOR ALL USING (true);
+
+-- 3. TABELA: likes (Curtidas Unificadas para Posts, Comentários e Respostas)
+CREATE TABLE IF NOT EXISTS public.likes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  comment_id UUID NOT NULL REFERENCES public.comments(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE,
+  comment_id UUID REFERENCES public.comments(id) ON DELETE CASCADE,
+  reply_id UUID REFERENCES public.comment_replies(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(comment_id, user_id)
+  
+  -- Garantir que a curtida seja vinculada a exatamente um item
+  CONSTRAINT check_single_target CHECK (
+    (post_id IS NOT NULL AND comment_id IS NULL AND reply_id IS NULL) OR
+    (post_id IS NULL AND comment_id IS NOT NULL AND reply_id IS NULL) OR
+    (post_id IS NULL AND comment_id IS NULL AND reply_id IS NOT NULL)
+  )
 );
 
-CREATE TABLE IF NOT EXISTS public.reply_likes (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  reply_id UUID NOT NULL REFERENCES public.comment_replies(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(reply_id, user_id)
-);
+-- Índices e restrições únicas para evitar curtidas duplicadas do mesmo usuário
+CREATE UNIQUE INDEX IF NOT EXISTS likes_user_post_idx ON public.likes (user_id, post_id) WHERE post_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS likes_user_comment_idx ON public.likes (user_id, comment_id) WHERE comment_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS likes_user_reply_idx ON public.likes (user_id, reply_id) WHERE reply_id IS NOT NULL;
 
--- 3. TABELA: post_shares (Compartilhamentos)
-CREATE TABLE IF NOT EXISTS public.post_shares (
+ALTER TABLE public.likes ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "likes_select" ON public.likes;
+DROP POLICY IF EXISTS "likes_all_actions" ON public.likes;
+
+CREATE POLICY "likes_select" ON public.likes FOR SELECT USING (true);
+CREATE POLICY "likes_all_actions" ON public.likes FOR ALL USING (true);
+
+-- 4. TABELA: shares (Compartilhamentos)
+CREATE TABLE IF NOT EXISTS public.shares (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  post_id UUID NOT NULL REFERENCES public.posts(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  target_type TEXT NOT NULL, -- 'perfil', 'turma', 'destaques'
-  target_id UUID, -- ID da turma (se target_type for 'turma')
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE,
+  target_turma_id UUID REFERENCES public.turmas(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. COLUNAS EXTENDIDAS EM comments
-ALTER TABLE public.comments ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN DEFAULT FALSE;
-ALTER TABLE public.comments ADD COLUMN IF NOT EXISTS is_highlighted BOOLEAN DEFAULT FALSE;
-ALTER TABLE public.comments ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE;
-ALTER TABLE public.comments ADD COLUMN IF NOT EXISTS attachments JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.shares ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "shares_select" ON public.shares;
+DROP POLICY IF EXISTS "shares_all_actions" ON public.shares;
 
--- HABILITAR RLS E CRIAR POLÍTICAS
-ALTER TABLE public.comment_replies ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.comment_likes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.reply_likes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.post_shares ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "replies_select" ON public.comment_replies;
-DROP POLICY IF EXISTS "replies_insert" ON public.comment_replies;
-DROP POLICY IF EXISTS "replies_update" ON public.comment_replies;
-DROP POLICY IF EXISTS "replies_delete" ON public.comment_replies;
-
-CREATE POLICY "replies_select" ON public.comment_replies FOR SELECT USING (true);
-CREATE POLICY "replies_insert" ON public.comment_replies FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "replies_update" ON public.comment_replies FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "replies_delete" ON public.comment_replies FOR DELETE USING (true);
-
-DROP POLICY IF EXISTS "c_likes_select" ON public.comment_likes;
-DROP POLICY IF EXISTS "c_likes_insert" ON public.comment_likes;
-DROP POLICY IF EXISTS "c_likes_delete" ON public.comment_likes;
-
-CREATE POLICY "c_likes_select" ON public.comment_likes FOR SELECT USING (true);
-CREATE POLICY "c_likes_insert" ON public.comment_likes FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "c_likes_delete" ON public.comment_likes FOR DELETE USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "r_likes_select" ON public.reply_likes;
-DROP POLICY IF EXISTS "r_likes_insert" ON public.reply_likes;
-DROP POLICY IF EXISTS "r_likes_delete" ON public.reply_likes;
-
-CREATE POLICY "r_likes_select" ON public.reply_likes FOR SELECT USING (true);
-CREATE POLICY "r_likes_insert" ON public.reply_likes FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "r_likes_delete" ON public.reply_likes FOR DELETE USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "shares_select" ON public.post_shares;
-DROP POLICY IF EXISTS "shares_insert" ON public.post_shares;
-
-CREATE POLICY "shares_select" ON public.post_shares FOR SELECT USING (true);
-CREATE POLICY "shares_insert" ON public.post_shares FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "shares_select" ON public.shares FOR SELECT USING (true);
+CREATE POLICY "shares_all_actions" ON public.shares FOR ALL USING (true);
