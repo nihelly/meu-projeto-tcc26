@@ -141,11 +141,27 @@ export function AdminLayout({ children }) {
 
           {/* Links Principais */}
           <nav className="space-y-1">
-            <NavLink to="/feed" className={({ isActive }) => isActive && location.pathname === '/feed' ? activeLinkClass : inactiveLinkClass}>
+            <NavLink 
+              to={perfil?.papel === 'administrador' ? '/admin' : perfil?.papel === 'professor' ? '/professor' : '/feed'} 
+              className={() => {
+                const isHomeActive = perfil?.papel === 'administrador' 
+                  ? location.pathname.startsWith('/admin')
+                  : perfil?.papel === 'professor' 
+                    ? location.pathname.startsWith('/professor')
+                    : location.pathname === '/feed' && !location.search;
+                return isHomeActive ? activeLinkClass : inactiveLinkClass;
+              }}
+            >
               <Home size={18} strokeWidth={1.8} />
               <span>Início</span>
             </NavLink>
-            <NavLink to="/feed" className={inactiveLinkClass}>
+            <NavLink 
+              to="/feed" 
+              className={() => {
+                const isFeedActive = location.pathname === '/feed';
+                return isFeedActive ? activeLinkClass : inactiveLinkClass;
+              }}
+            >
               <FileText size={18} strokeWidth={1.8} />
               <span>Feed</span>
             </NavLink>
@@ -602,9 +618,16 @@ export function AdminLayout({ children }) {
               {/* Links Principais Mobile */}
               <nav className="space-y-1">
                 <NavLink 
-                  to="/feed" 
+                  to={perfil?.papel === 'administrador' ? '/admin' : perfil?.papel === 'professor' ? '/professor' : '/feed'} 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) => isActive && location.pathname === '/feed' ? activeLinkClass : inactiveLinkClass}
+                  className={() => {
+                    const isHomeActive = perfil?.papel === 'administrador' 
+                      ? location.pathname.startsWith('/admin')
+                      : perfil?.papel === 'professor' 
+                        ? location.pathname.startsWith('/professor')
+                        : location.pathname === '/feed' && !location.search;
+                    return isHomeActive ? activeLinkClass : inactiveLinkClass;
+                  }}
                 >
                   <Home size={18} strokeWidth={1.8} />
                   <span>Início</span>
@@ -612,7 +635,10 @@ export function AdminLayout({ children }) {
                 <NavLink 
                   to="/feed" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={inactiveLinkClass}
+                  className={() => {
+                    const isFeedActive = location.pathname === '/feed';
+                    return isFeedActive ? activeLinkClass : inactiveLinkClass;
+                  }}
                 >
                   <FileText size={18} strokeWidth={1.8} />
                   <span>Feed</span>
