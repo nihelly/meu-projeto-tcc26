@@ -275,6 +275,23 @@ export default function DetalhePost() {
         type: 'comment'
       });
 
+      // Enviar notificações de menções
+      const mencoes = novoComentario.match(/@[a-zA-Z0-9_À-ÿ]+/g) || [];
+      for (const mencao of mencoes) {
+        const nomeMencao = mencao.slice(1);
+        const profile = Object.values(perfisMap).find(p => 
+          p.nome && p.nome.toLowerCase().replace(/\s+/g, '') === nomeMencao.toLowerCase()
+        );
+        if (profile && profile.id !== usuario.id) {
+          await supabase.from('notifications').insert({
+            user_id: profile.id,
+            actor_id: usuario.id,
+            content: `${perfil.nome} mencionou você em um comentário`,
+            type: 'comment'
+          });
+        }
+      }
+
       setNovoComentario('');
       setAnexoSimulado(null);
       carregarDadosPost();
@@ -315,6 +332,23 @@ export default function DetalhePost() {
           content: `${perfil.nome} respondeu o seu comentário`,
           type: 'comment'
         });
+      }
+
+      // Enviar notificações de menções
+      const mencoes = novaRespostaContent.match(/@[a-zA-Z0-9_À-ÿ]+/g) || [];
+      for (const mencao of mencoes) {
+        const nomeMencao = mencao.slice(1);
+        const profile = Object.values(perfisMap).find(p => 
+          p.nome && p.nome.toLowerCase().replace(/\s+/g, '') === nomeMencao.toLowerCase()
+        );
+        if (profile && profile.id !== usuario.id) {
+          await supabase.from('notifications').insert({
+            user_id: profile.id,
+            actor_id: usuario.id,
+            content: `${perfil.nome} mencionou você em uma resposta`,
+            type: 'comment'
+          });
+        }
       }
 
       setNovaRespostaContent('');
@@ -431,6 +465,31 @@ export default function DetalhePost() {
     if (totalCurtidas === 1) return `${nomes[0]} curtiu`;
     if (totalCurtidas === 2) return `${nomes[0]} e ${nomes[1]} curtiram`;
     return `${nomes[0]}, ${nomes[1]} e outras ${totalCurtidas - 2} pessoas curtiram`;
+  };
+
+  const renderizarTextoComMencoes = (texto) => {
+    if (!texto) return '';
+    const partes = texto.split(/(@[a-zA-Z0-9_À-ÿ]+)/g);
+    return partes.map((parte, i) => {
+      if (parte.startsWith('@')) {
+        const nomeMencao = parte.slice(1);
+        const profile = Object.values(perfisMap).find(p => 
+          p.nome && p.nome.toLowerCase().replace(/\s+/g, '') === nomeMencao.toLowerCase()
+        );
+        if (profile) {
+          return (
+            <span 
+              key={i} 
+              onClick={() => navigate(`/perfil/${profile.id}`)}
+              className="text-violet-650 font-bold hover:underline cursor-pointer"
+            >
+              {parte}
+            </span>
+          );
+        }
+      }
+      return parte;
+    });
   };
 
   return (
@@ -692,7 +751,7 @@ export default function DetalhePost() {
                           </div>
                         </div>
 
-                        <p className="text-[12.5px] text-gray-700 font-light leading-relaxed">{comment.content}</p>
+                        <p className="text-[12.5px] text-gray-700 font-light leading-relaxed">{renderizarTextoComMencoes(comment.content)}</p>
 
                         {/* Anexo de comentário */}
                         {comment.file_url && (
@@ -760,7 +819,7 @@ export default function DetalhePost() {
                                   )}
                                 </div>
 
-                                <p className="text-[12px] text-gray-700 font-light leading-relaxed">{reply.content}</p>
+                                <p className="text-[12px] text-gray-700 font-light leading-relaxed">{renderizarTextoComMencoes(reply.content)}</p>
 
                                 <button 
                                   onClick={() => handleCurtidaResposta(reply.id)}
