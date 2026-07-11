@@ -27,6 +27,8 @@ import PainelAdministrador from './pages/PainelAdministrador';
 import Turmas from './pages/Turmas';
 import PaginaTurma from './pages/PaginaTurma';
 import DetalhePost from './pages/DetalhePost';
+import Seguranca from './pages/Seguranca';
+import Privacidade from './pages/Privacidade';
 
 export default function App() {
   return (
@@ -202,6 +204,22 @@ export default function App() {
           element={
             <RotaProtegida>
               <AdminLayout><DetalhePost /></AdminLayout>
+            </RotaProtegida>
+          } 
+        />
+        <Route 
+          path="/seguranca" 
+          element={
+            <RotaProtegida>
+              <AdminLayout><Seguranca /></AdminLayout>
+            </RotaProtegida>
+          } 
+        />
+        <Route 
+          path="/privacidade" 
+          element={
+            <RotaProtegida>
+              <AdminLayout><Privacidade /></AdminLayout>
             </RotaProtegida>
           } 
         />

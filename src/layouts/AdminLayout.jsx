@@ -15,7 +15,11 @@ import {
   ChevronDown,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Shield,
+  User,
+  Lock,
+  SlidersHorizontal
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -372,6 +376,42 @@ export function AdminLayout({ children }) {
               </div>
             </div>
           )}
+          {/* Seção Configurações (Acessível a todos) */}
+          <div className="pt-4 border-t border-gray-50 mt-4">
+            <div className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+              Configurações
+            </div>
+            <nav className="space-y-1">
+              <NavLink 
+                to="/seguranca" 
+                className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
+              >
+                <Shield size={18} strokeWidth={1.8} />
+                <span>Segurança</span>
+              </NavLink>
+              <NavLink 
+                to={`/perfil/${usuario?.id}`} 
+                className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
+              >
+                <User size={18} strokeWidth={1.8} />
+                <span>Perfil</span>
+              </NavLink>
+              <NavLink 
+                to="/privacidade" 
+                className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
+              >
+                <Lock size={18} strokeWidth={1.8} />
+                <span>Privacidade</span>
+              </NavLink>
+              <NavLink 
+                to="/notificacoes" 
+                className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
+              >
+                <SlidersHorizontal size={18} strokeWidth={1.8} />
+                <span>Preferências</span>
+              </NavLink>
+            </nav>
+          </div>
         </div>
 
         {/* Card Promocional Rodapé */}
@@ -828,6 +868,46 @@ export function AdminLayout({ children }) {
                     </div>
                   </div>
                 )}
+                {/* Seção Configurações Mobile */}
+                <div className="pt-4 border-t border-gray-50 mt-4">
+                  <div className="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                    Configurações
+                  </div>
+                  <nav className="space-y-1">
+                    <NavLink 
+                      to="/seguranca" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
+                    >
+                      <Shield size={18} strokeWidth={1.8} />
+                      <span>Segurança</span>
+                    </NavLink>
+                    <NavLink 
+                      to={`/perfil/${usuario?.id}`} 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
+                    >
+                      <User size={18} strokeWidth={1.8} />
+                      <span>Perfil</span>
+                    </NavLink>
+                    <NavLink 
+                      to="/privacidade" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
+                    >
+                      <Lock size={18} strokeWidth={1.8} />
+                      <span>Privacidade</span>
+                    </NavLink>
+                    <NavLink 
+                      to="/notificacoes" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}
+                    >
+                      <SlidersHorizontal size={18} strokeWidth={1.8} />
+                      <span>Preferências</span>
+                    </NavLink>
+                  </nav>
+                </div>
               </nav>
             </div>
 
