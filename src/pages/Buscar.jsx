@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, Megaphone, Hash, Clock, X, User, ChevronRight, Bell } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useLanguage } from '../hooks/useLanguage';
 
 export default function Buscar() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { lang, translate } = useLanguage();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [buscaAtivaTab, setBuscaAtivaTab] = useState('tudo'); // 'tudo' | 'pessoas' | 'posts' | 'anuncios'
   const [anuncioSelecionado, setAnuncioSelecionado] = useState(null);
   
@@ -365,6 +366,12 @@ export default function Buscar() {
 
     carregarDadosIniciais();
   }, []);
+
+  // Sincronizar termo de busca da URL reativamente
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    setSearchTerm(q);
+  }, [searchParams]);
 
   // 2. Sistema de Busca Dinâmica Multi-Tabelas
   useEffect(() => {

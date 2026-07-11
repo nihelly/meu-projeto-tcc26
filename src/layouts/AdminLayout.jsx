@@ -203,7 +203,7 @@ export function AdminLayout({ children }) {
                 placeholder="Buscar no EduConnect..." 
                 className={`bg-transparent outline-none border-none text-[12px] w-full ${isDarkTheme ? 'text-white placeholder-gray-500' : 'text-gray-700 placeholder-gray-400'}`}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') navigate('/busca');
+                  if (e.key === 'Enter') navigate(`/busca?q=${encodeURIComponent(e.target.value)}`);
                 }}
               />
             </div>
