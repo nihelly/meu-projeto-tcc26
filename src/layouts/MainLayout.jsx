@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bell, Mail, Plus, X, Menu } from 'lucide-react';
+import { Bell, Mail, Plus, X, Menu, ArrowLeft } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SidebarAdmin from '../components/SidebarAdmin';
 import SidebarProfessor from '../components/SidebarProfessor';
@@ -158,8 +158,15 @@ export function MainLayout({ children }) {
         <header className={`sticky top-0 z-20 backdrop-blur-md border-b transition-all duration-300 ${isDarkTheme ? 'bg-[#0d0c13]/80 border-white/5 text-white' : 'bg-white/80 border-gray-100'}`}>
           <div className="w-full max-w-[1200px] mx-auto px-6 sm:px-8 md:px-12 h-16 flex items-center justify-between">
             
-            {/* Título da página + Menu hambúrguer no celular */}
-            <div className="flex items-center gap-2.5">
+            {/* Título da página + Seta de voltar + Menu hambúrguer no celular */}
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => navigate(-1)}
+                className={`p-1.5 rounded-lg cursor-pointer flex items-center justify-center transition-colors ${isDarkTheme ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-500 hover:text-black hover:bg-gray-100'}`}
+                title="Voltar"
+              >
+                <ArrowLeft size={18} />
+              </button>
               <button 
                 onClick={() => setMobileMenuOpen(true)}
                 className={`md:hidden p-1.5 rounded-lg cursor-pointer flex items-center justify-center transition-colors ${isDarkTheme ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-500 hover:text-black hover:bg-gray-55'}`}

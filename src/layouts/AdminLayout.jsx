@@ -20,7 +20,8 @@ import {
   User,
   Lock,
   SlidersHorizontal,
-  AlertTriangle
+  AlertTriangle,
+  ArrowLeft
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -181,7 +182,14 @@ export function AdminLayout({ children }) {
         {/* BARRA SUPERIOR */}
         <header className={`h-16 border-b sticky top-0 z-20 flex items-center justify-between px-6 transition-all duration-300 ${isDarkTheme ? 'border-white/5 bg-[#0d0c13] text-white' : 'border-gray-100 bg-white'}`}>
           {/* Busca no EduConnect */}
-          <div className="flex items-center gap-4 flex-1">
+          <div className="flex items-center gap-2 flex-1">
+            <button 
+              onClick={() => navigate(-1)}
+              className={`p-1.5 rounded-lg cursor-pointer flex items-center justify-center transition-colors ${isDarkTheme ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-500 hover:text-black hover:bg-gray-100'}`}
+              title="Voltar"
+            >
+              <ArrowLeft size={18} />
+            </button>
             <button 
               className={`md:hidden p-2 rounded-lg cursor-pointer transition-colors ${isDarkTheme ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-500 hover:text-black hover:bg-gray-50'}`}
               onClick={() => setMobileMenuOpen(true)}
