@@ -46,6 +46,9 @@ export default function Mensagens() {
   const [novoTexto, setNovoTexto] = useState('');
   const [digitando, setDigitando] = useState(false);
   const [membrosOnline, setMembrosOnline] = useState(1);
+  const [modalNovoChatOpen, setModalNovoChatOpen] = useState(false);
+  const [todosPerfis, setTodosPerfis] = useState([]);
+  const [filtroNovoChatBusca, setFiltroNovoChatBusca] = useState('');
 
   // Estados de Mensagem (Responder/Editar/Fixar)
   const [mensagemRespondendo, setMensagemRespondendo] = useState(null);
@@ -327,6 +330,122 @@ export default function Mensagens() {
       setLoading(false);
     }
   }
+
+  const abrirModalNovoChat = async () => {
+    setModalNovoChatOpen(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, nome, avatar_url, papel')
+        .neq('id', usuario.id);
+      if (!error && data) {
+        setTodosPerfis(data);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar perfis:', err);
+    }
+  };
+
+  const iniciarConversaReal = async (outroPerfil) => {
+    try {
+      // 1. Verificar se já existe uma conversa privada entre ambos
+      const { data: minhasMembro } = await supabase
+        .from('conversation_members')
+        .select('conversation_id')
+        .eq('user_id', usuario.id);
+
+      const { data: outroMembro } = await supabase
+        .from('conversation_members')
+        .select('conversation_id')
+        .eq('user_id', outroPerfil.id);
+
+      const meusIds = (minhasMembro || []).map(m => m.conversation_id);
+      const outroIds = (outroMembro || []).map(m => m.conversation_id);
+
+      // Encontrar ID de conversa comum
+      const comumIds = meusIds.filter(id => outroIds.includes(id));
+
+      if (comumIds.length > 0) {
+        // Buscar se alguma dessas conversas comuns é privada (tipo 'private')
+        const { data: convComum } = await supabase
+          .from('conversations')
+          .select('id')
+          .in('id', comumIds)
+          .eq('type', 'private')
+          .limit(1);
+
+        if (convComum && convComum.length > 0) {
+          // A conversa já existe, apenas ativa ela!
+          const { data: convDetalhes } = await supabase
+            .from('conversations')
+            .select('*')
+            .eq('id', convComum[0].id)
+            .single();
+
+          if (convDetalhes) {
+            const formatada = {
+              id: convDetalhes.id,
+              nome: outroPerfil.nome,
+              type: 'private',
+              turma_id: null,
+              contato: outroPerfil,
+              ultima_mensagem: 'Conversa iniciada.',
+              hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              nao_lidas: 0
+            };
+            setConversas(prev => {
+              if (prev.some(c => c.id === formatada.id)) return prev;
+              return [formatada, ...prev];
+            });
+            setConversaAtiva(formatada);
+            setModalNovoChatOpen(false);
+            return;
+          }
+        }
+      }
+
+      // 2. Se não existir, criar uma nova conversa privada
+      const { data: novaConv, error: errConv } = await supabase
+        .from('conversations')
+        .insert({
+          type: 'private',
+          name: `${perfil?.nome} e ${outroPerfil.nome}`
+        })
+        .select()
+        .single();
+
+      if (errConv) throw errConv;
+
+      // 3. Adicionar membros
+      const { error: errMembros } = await supabase
+        .from('conversation_members')
+        .insert([
+          { conversation_id: novaConv.id, user_id: usuario.id },
+          { conversation_id: novaConv.id, user_id: outroPerfil.id }
+        ]);
+
+      if (errMembros) throw errMembros;
+
+      const novaFormatada = {
+        id: novaConv.id,
+        nome: outroPerfil.nome,
+        type: 'private',
+        turma_id: null,
+        contato: outroPerfil,
+        ultima_mensagem: 'Nenhuma mensagem ainda.',
+        hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        nao_lidas: 0
+      };
+
+      setConversas(prev => [novaFormatada, ...prev]);
+      setConversaAtiva(novaFormatada);
+      setModalNovoChatOpen(false);
+      toast.success(`Conversa com ${outroPerfil.nome} iniciada! 💬`);
+    } catch (err) {
+      console.error('Erro ao iniciar conversa:', err);
+      toast.error('Erro ao iniciar conversa.');
+    }
+  };
 
   async function carregarMensagens(conversaId) {
     if (conversaId.startsWith('mock-')) {
@@ -614,7 +733,7 @@ export default function Mensagens() {
           <div className="flex items-center justify-between">
             <h2 className="text-[18px] font-black text-gray-950 tracking-tight">Mensagens</h2>
             <button 
-              onClick={() => toast.info('Nova conversa privada ou grupo!')}
+              onClick={abrirModalNovoChat}
               className="w-8 h-8 bg-violet-600 hover:bg-violet-750 text-white rounded-xl flex items-center justify-center cursor-pointer transition-colors shadow-sm"
             >
               <Plus size={16} />
@@ -985,6 +1104,60 @@ export default function Mensagens() {
             </button>
           </div>
 
+        </div>
+      )}
+
+      {modalNovoChatOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className={`w-full max-w-md rounded-[2rem] border shadow-2xl overflow-hidden flex flex-col max-h-[500px] animate-in zoom-in-95 duration-200 ${isDarkTheme ? 'bg-[#0d0c13] border-white/10 text-white' : 'bg-white border-gray-100 text-gray-900'}`}>
+            {/* Header */}
+            <div className={`p-6 border-b flex items-center justify-between ${isDarkTheme ? 'border-white/5' : 'border-gray-50'}`}>
+              <h3 className="font-extrabold text-[15px]">Iniciar conversa real</h3>
+              <button 
+                onClick={() => setModalNovoChatOpen(false)}
+                className={`w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDarkTheme ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Busca */}
+            <div className={`p-4 border-b ${isDarkTheme ? 'border-white/5' : 'border-gray-50'}`}>
+              <input 
+                type="text" 
+                placeholder="Buscar usuário por nome..."
+                value={filtroNovoChatBusca}
+                onChange={(e) => setFiltroNovoChatBusca(e.target.value)}
+                className={`w-full border rounded-xl px-4 py-2.5 text-[12px] font-medium outline-none transition-colors ${isDarkTheme ? 'bg-[#07060a] border-white/10 focus:border-violet-500 text-white' : 'bg-gray-50 border-gray-100 focus:border-violet-600'}`}
+              />
+            </div>
+
+            {/* Lista */}
+            <div className="flex-1 overflow-y-auto divide-y divide-gray-50/50 p-2">
+              {todosPerfis
+                .filter(p => (p.nome || '').toLowerCase().includes(filtroNovoChatBusca.toLowerCase()))
+                .map(p => (
+                  <div 
+                    key={p.id}
+                    onClick={() => iniciarConversaReal(p)}
+                    className={`p-3.5 flex items-center gap-3 rounded-2xl cursor-pointer transition-colors ${isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-gray-50'}`}
+                  >
+                    <img 
+                      src={p.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} 
+                      alt={p.nome} 
+                      className="w-9 h-9 rounded-full object-cover border border-gray-100 flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[12.5px] font-bold block truncate">{p.nome || 'Sem nome'}</span>
+                      <span className="text-[9.5px] text-gray-400 font-medium block capitalize">{p.papel || 'Membro'}</span>
+                    </div>
+                  </div>
+                ))}
+              {todosPerfis.filter(p => (p.nome || '').toLowerCase().includes(filtroNovoChatBusca.toLowerCase())).length === 0 && (
+                <div className="p-8 text-center text-[12px] text-gray-400 font-medium">Nenhum usuário encontrado.</div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
