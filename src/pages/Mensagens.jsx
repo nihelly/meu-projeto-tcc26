@@ -56,6 +56,7 @@ export default function Mensagens() {
   const [buscaMensagem, setBuscaMensagem] = useState('');
   const [mostrarPainelDireito, setMostrarPainelDireito] = useState(true);
   const [mostrarEmojis, setMostrarEmojis] = useState(false);
+  const [chamadaAtiva, setChamadaAtiva] = useState(null); // null | { type: 'audio' | 'video', roomName: string }
 
   // Estados de dados
   const [conversas, setConversas] = useState([]);
@@ -476,6 +477,44 @@ export default function Mensagens() {
     if (!file) return;
     setArquivoSelecionado(file);
     setTipoArquivo(tipo);
+  };
+
+  const iniciarChamadaReal = async (tipo) => {
+    if (!conversaAtiva) return;
+    const roomName = `educonnect-call-${conversaAtiva.id}`;
+    setChamadaAtiva({ type: tipo, roomName });
+
+    // Opcionalmente enviar mensagem notificando o outro usuário no chat
+    if (conversaAtiva.id.startsWith('mock-')) {
+      const novaMsg = {
+        id: `local-${Math.random()}`,
+        sender_id: usuario?.id || 'me',
+        content: `📞 Iniciou uma chamada de ${tipo === 'video' ? 'vídeo' : 'áudio'}. Clique nos botões de ligação no topo da conversa para participar!`,
+        type: 'text',
+        created_at: new Date().toISOString()
+      };
+      setMensagens(prev => [...prev, novaMsg]);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: conversaAtiva.id,
+          sender_id: usuario.id,
+          content: `📞 Iniciou uma chamada de ${tipo === 'video' ? 'vídeo' : 'áudio'}. Clique nos botões de ligação no topo da conversa para participar!`,
+          type: 'text'
+        })
+        .select()
+        .single();
+      
+      if (!error && data) {
+        setMensagens(prev => [...prev, data]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   async function carregarMensagens(conversaId) {
@@ -950,8 +989,8 @@ export default function Mensagens() {
 
             {/* Ações Cabeçalho */}
             <div className="flex items-center gap-3.5 text-gray-450">
-              <button onClick={() => toast.info('Iniciando chamada de áudio...')} className="hover:text-black transition-colors cursor-pointer"><Phone size={17} /></button>
-              <button onClick={() => toast.info('Iniciando chamada de vídeo...')} className="hover:text-black transition-colors cursor-pointer"><Video size={17} /></button>
+              <button onClick={() => iniciarChamadaReal('audio')} className="hover:text-black transition-colors cursor-pointer" title="Chamada de Áudio"><Phone size={17} /></button>
+              <button onClick={() => iniciarChamadaReal('video')} className="hover:text-black transition-colors cursor-pointer" title="Chamada de Vídeo"><Video size={17} /></button>
               <button 
                 onClick={() => setMostrarPainelDireito(!mostrarPainelDireito)} 
                 className={`hover:text-black transition-colors cursor-pointer ${mostrarPainelDireito ? 'text-violet-650' : ''}`}
@@ -1332,6 +1371,39 @@ export default function Mensagens() {
               {todosPerfis.filter(p => (p.nome || '').toLowerCase().includes(filtroNovoChatBusca.toLowerCase())).length === 0 && (
                 <div className="p-8 text-center text-[12px] text-gray-400 font-medium">Nenhum usuário encontrado.</div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE CHAMADA DE VÍDEO/ÁUDIO (JITSI MEET) */}
+      {chamadaAtiva && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="w-full max-w-4xl h-[80vh] bg-[#0c0b12] rounded-[2.5rem] border border-white/10 overflow-hidden flex flex-col shadow-2xl relative">
+            {/* Header Chamada */}
+            <div className="p-5 px-8 bg-[#0d0c13] border-b border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-[12px] font-bold text-white uppercase tracking-wider">
+                  Chamada de {chamadaAtiva.type === 'video' ? 'Vídeo' : 'Áudio'} com {conversaAtiva?.nome}
+                </span>
+              </div>
+              
+              <button
+                onClick={() => setChamadaAtiva(null)}
+                className="bg-red-650 hover:bg-red-750 text-white font-bold text-[11px] px-5 py-2.5 rounded-full cursor-pointer transition-colors shadow-lg shadow-red-500/20"
+              >
+                Encerrar Chamada
+              </button>
+            </div>
+
+            {/* Iframe Jitsi */}
+            <div className="flex-1 bg-black relative">
+              <iframe
+                src={`https://meet.jit.si/${chamadaAtiva.roomName}#config.prejoinPageEnabled=false&userInfo.displayName="${encodeURIComponent(perfil?.nome || 'Usuário')}"${chamadaAtiva.type === 'audio' ? '&config.startAudioOnly=true' : ''}`}
+                className="w-full h-full border-0"
+                allow="camera; microphone; fullscreen; display-capture; autoplay"
+              ></iframe>
             </div>
           </div>
         </div>
