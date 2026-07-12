@@ -21,7 +21,11 @@ import {
   Edit, 
   Pin, 
   Plus,
-  Loader2
+  Loader2,
+  MicOff,
+  Grid,
+  Volume2,
+  UserPlus
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -57,6 +61,46 @@ export default function Mensagens() {
   const [mostrarPainelDireito, setMostrarPainelDireito] = useState(true);
   const [mostrarEmojis, setMostrarEmojis] = useState(false);
   const [chamadaAtiva, setChamadaAtiva] = useState(null); // null | { type: 'audio' | 'video', roomName: string }
+  const [duracaoChamada, setDuracaoChamada] = useState(0);
+  const [chamadaMutada, setChamadaMutada] = useState(false);
+  const [chamadaViva, setChamadaViva] = useState(false);
+  const [estadoChamada, setEstadoChamada] = useState('chamando'); // 'chamando' | 'conectado'
+
+  useEffect(() => {
+    if (chamadaAtiva) {
+      setEstadoChamada('chamando');
+      setDuracaoChamada(0);
+    }
+  }, [chamadaAtiva]);
+
+  useEffect(() => {
+    let timer = null;
+    if (chamadaAtiva && estadoChamada === 'conectado') {
+      timer = setInterval(() => {
+        setDuracaoChamada(prev => prev + 1);
+      }, 1000);
+    } else {
+      setDuracaoChamada(0);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [chamadaAtiva, estadoChamada]);
+
+  useEffect(() => {
+    if (chamadaAtiva && estadoChamada === 'chamando') {
+      const timeout = setTimeout(() => {
+        setEstadoChamada('conectado');
+      }, 3000); // 3 segundos tocando chamando
+      return () => clearTimeout(timeout);
+    }
+  }, [chamadaAtiva, estadoChamada]);
+
+  const formatarTempo = (segundos) => {
+    const min = Math.floor(segundos / 60).toString().padStart(2, '0');
+    const seg = (segundos % 60).toString().padStart(2, '0');
+    return `${min}:${seg}`;
+  };
 
   // Estados de dados
   const [conversas, setConversas] = useState([]);
@@ -1376,36 +1420,228 @@ export default function Mensagens() {
         </div>
       )}
 
-      {/* MODAL DE CHAMADA DE VÍDEO/ÁUDIO (JITSI MEET) */}
+      {/* MODAL DE CHAMADA DE VÍDEO/ÁUDIO NATIVO (COM BACKEND JITSI MEET OCULTO) */}
       {chamadaAtiva && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="w-full max-w-4xl h-[80vh] bg-[#0c0b12] rounded-[2.5rem] border border-white/10 overflow-hidden flex flex-col shadow-2xl relative">
-            {/* Header Chamada */}
-            <div className="p-5 px-8 bg-[#0d0c13] border-b border-white/5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-[12px] font-bold text-white uppercase tracking-wider">
-                  Chamada de {chamadaAtiva.type === 'video' ? 'Vídeo' : 'Áudio'} com {conversaAtiva?.nome}
+        <div className="fixed inset-0 z-50 bg-[#09080f] flex flex-col items-center justify-center p-4 animate-in fade-in duration-300">
+          
+          {/* Iframe Jitsi Oculto em Segundo Plano para Chamada de Áudio */}
+          <iframe
+            src={`https://meet.jit.si/${chamadaAtiva.roomName}#config.prejoinPageEnabled=false&config.prejoinConfig.enabled=false&userInfo.displayName="${encodeURIComponent(perfil?.nome || 'Usuário')}"${chamadaAtiva.type === 'audio' ? '&config.startAudioOnly=true' : ''}`}
+            className="w-0 h-0 absolute pointer-events-none"
+            allow="camera; microphone; fullscreen; display-capture; autoplay"
+          ></iframe>
+
+          {/* TELA DE CHAMANDO (RINGING) */}
+          {estadoChamada === 'chamando' && (
+            <div className="w-full max-w-sm flex flex-col items-center justify-between h-[80vh] py-12 text-center text-white">
+              
+              {/* Cabeçalho */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">EduConnect Call</span>
+                <span className="text-[12px] font-light text-violet-300 block">Chamando...</span>
+              </div>
+
+              {/* Centro: Avatar com Pulso */}
+              <div className="relative my-8">
+                <div className="absolute inset-0 rounded-full bg-violet-650/20 animate-ping opacity-75 scale-125"></div>
+                <div className="absolute -inset-4 rounded-full border border-violet-500/10 animate-pulse"></div>
+                <img 
+                  src={conversaAtiva?.contato?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} 
+                  alt={conversaAtiva?.nome}
+                  className="w-32 h-32 rounded-full object-cover border border-violet-500 relative z-10 shadow-2xl"
+                />
+              </div>
+
+              {/* Informações do Usuário */}
+              <div className="space-y-1">
+                <h2 className="text-2.5xl font-black tracking-tight">{conversaAtiva?.nome}</h2>
+                <span className="text-[11px] text-gray-450 uppercase font-bold tracking-wider block">
+                  {conversaAtiva?.contato?.papel || 'Membro'}
                 </span>
               </div>
-              
-              <button
-                onClick={() => setChamadaAtiva(null)}
-                className="bg-red-650 hover:bg-red-750 text-white font-bold text-[11px] px-5 py-2.5 rounded-full cursor-pointer transition-colors shadow-lg shadow-red-500/20"
-              >
-                Encerrar Chamada
-              </button>
-            </div>
 
-            {/* Iframe Jitsi */}
-            <div className="flex-1 bg-black relative">
-              <iframe
-                src={`https://meet.jit.si/${chamadaAtiva.roomName}#config.prejoinPageEnabled=false&userInfo.displayName="${encodeURIComponent(perfil?.nome || 'Usuário')}"${chamadaAtiva.type === 'audio' ? '&config.startAudioOnly=true' : ''}`}
-                className="w-full h-full border-0"
-                allow="camera; microphone; fullscreen; display-capture; autoplay"
-              ></iframe>
+              {/* Controles de chamada (Atender / Recusar) */}
+              <div className="flex items-center gap-12 pt-6">
+                {/* Cancelar/Recusar */}
+                <button
+                  onClick={() => setChamadaAtiva(null)}
+                  className="w-16 h-16 rounded-full bg-red-650 hover:bg-red-750 text-white flex items-center justify-center cursor-pointer transition-all shadow-lg shadow-red-500/20 hover:scale-110 active:scale-95"
+                  title="Recusar"
+                >
+                  <X size={26} strokeWidth={2.5} />
+                </button>
+
+                {/* Atender/Conectar Manual */}
+                <button
+                  onClick={() => setEstadoChamada('conectado')}
+                  className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-650 text-white flex items-center justify-center cursor-pointer transition-all shadow-lg shadow-green-500/20 hover:scale-110 active:scale-95"
+                  title="Atender"
+                >
+                  <Phone size={26} className="rotate-12 fill-white" />
+                </button>
+              </div>
+
             </div>
-          </div>
+          )}
+
+          {/* TELA DE CONECTADO (ACTIVE CALL) */}
+          {estadoChamada === 'conectado' && (
+            <>
+              {/* CHAMADA DE ÁUDIO (TELA CELULAR NATIVA) */}
+              {chamadaAtiva.type === 'audio' && (
+                <div className="w-full max-w-sm flex flex-col items-center justify-between h-[80vh] py-12 text-center text-white">
+                  
+                  {/* Tempo e cabeçalho */}
+                  <div className="space-y-1">
+                    <span className="text-[12px] font-bold text-green-405 font-mono tracking-wider block">
+                      {formatarTempo(duracaoChamada)}
+                    </span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Chamada de Áudio</span>
+                  </div>
+
+                  {/* Informações e Avatar */}
+                  <div className="space-y-4 my-6">
+                    <img 
+                      src={conversaAtiva?.contato?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} 
+                      alt={conversaAtiva?.nome}
+                      className="w-24 h-24 rounded-full object-cover border-2 border-white/10 mx-auto shadow-2xl"
+                    />
+                    <div>
+                      <h2 className="text-2xl font-black tracking-tight">{conversaAtiva?.nome}</h2>
+                      <span className="text-[10px] text-gray-450 uppercase font-bold tracking-wider block mt-1">
+                        {conversaAtiva?.contato?.papel || 'Membro'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Call Controls Grid */}
+                  <div className="grid grid-cols-3 gap-y-6 gap-x-10 max-w-xs mx-auto w-full pt-4">
+                    {/* Mute */}
+                    <div className="flex flex-col items-center gap-1.5">
+                      <button 
+                        onClick={() => {
+                          setChamadaMutada(!chamadaMutada);
+                          toast.success(chamadaMutada ? 'Microfone ativado' : 'Microfone mutado');
+                        }}
+                        className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
+                          chamadaMutada ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'
+                        }`}
+                      >
+                        <MicOff size={20} />
+                      </button>
+                      <span className="text-[10px] text-gray-400 font-medium">Mute</span>
+                    </div>
+
+                    {/* Keypad */}
+                    <div className="flex flex-col items-center gap-1.5">
+                      <button 
+                        onClick={() => toast.info('Teclado numérico ativo')}
+                        className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 text-white hover:bg-white/20 cursor-pointer transition-colors"
+                      >
+                        <Grid size={20} />
+                      </button>
+                      <span className="text-[10px] text-gray-400 font-medium">Teclado</span>
+                    </div>
+
+                    {/* Speaker */}
+                    <div className="flex flex-col items-center gap-1.5">
+                      <button 
+                        onClick={() => {
+                          setChamadaViva(!chamadaViva);
+                          toast.success(chamadaViva ? 'Alto-falante desativado' : 'Alto-falante ativado');
+                        }}
+                        className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
+                          chamadaViva ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'
+                        }`}
+                      >
+                        <Volume2 size={20} />
+                      </button>
+                      <span className="text-[10px] text-gray-400 font-medium">Alto-falante</span>
+                    </div>
+
+                    {/* Video Call */}
+                    <div className="flex flex-col items-center gap-1.5">
+                      <button 
+                        onClick={() => {
+                          setChamadaAtiva(prev => ({ ...prev, type: 'video' }));
+                          setEstadoChamada('conectado');
+                        }}
+                        className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 text-white hover:bg-white/20 cursor-pointer transition-colors"
+                      >
+                        <Video size={20} />
+                      </button>
+                      <span className="text-[10px] text-gray-400 font-medium">Vídeo</span>
+                    </div>
+
+                    {/* Add call */}
+                    <div className="flex flex-col items-center gap-1.5">
+                      <button 
+                        onClick={() => toast.info('Adicionar nova pessoa na chamada')}
+                        className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 text-white hover:bg-white/20 cursor-pointer transition-colors"
+                      >
+                        <UserPlus size={20} />
+                      </button>
+                      <span className="text-[10px] text-gray-400 font-medium">Adicionar</span>
+                    </div>
+
+                    {/* Contacts */}
+                    <div className="flex flex-col items-center gap-1.5">
+                      <button 
+                        onClick={() => toast.info('Lista de contatos')}
+                        className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 text-white hover:bg-white/20 cursor-pointer transition-colors"
+                      >
+                        <Users size={20} />
+                      </button>
+                      <span className="text-[10px] text-gray-400 font-medium">Contatos</span>
+                    </div>
+                  </div>
+
+                  {/* Red Hangup button */}
+                  <div className="pt-6">
+                    <button
+                      onClick={() => setChamadaAtiva(null)}
+                      className="w-16 h-16 rounded-full bg-red-650 hover:bg-red-750 text-white flex items-center justify-center cursor-pointer transition-all shadow-lg shadow-red-500/20 hover:scale-110 active:scale-95"
+                      title="Desligar"
+                    >
+                      <Phone size={24} className="rotate-[135deg] fill-white" />
+                    </button>
+                  </div>
+
+                </div>
+              )}
+
+              {/* CHAMADA DE VÍDEO (EMBUTINDO JITSI COMPARTILHADO COM BYPASS DO PREJOIN) */}
+              {chamadaAtiva.type === 'video' && (
+                <div className="w-full max-w-4xl h-[85vh] bg-[#0c0b12] rounded-[2.5rem] border border-white/10 overflow-hidden flex flex-col shadow-2xl relative">
+                  {/* Header Chamada */}
+                  <div className="p-5 px-8 bg-[#0d0c13] border-b border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-[12px] font-bold text-white uppercase tracking-wider">
+                        Vídeo Chamada com {conversaAtiva?.nome}
+                      </span>
+                    </div>
+                    
+                    <button
+                      onClick={() => setChamadaAtiva(null)}
+                      className="bg-red-650 hover:bg-red-750 text-white font-bold text-[11px] px-5 py-2.5 rounded-xl cursor-pointer transition-colors shadow-lg shadow-red-500/20"
+                    >
+                      Encerrar Chamada
+                    </button>
+                  </div>
+
+                  {/* Iframe Jitsi Visível para Chamada de Vídeo */}
+                  <div className="flex-1 bg-black relative">
+                    <iframe
+                      src={`https://meet.jit.si/${chamadaAtiva.roomName}#config.prejoinPageEnabled=false&config.prejoinConfig.enabled=false&userInfo.displayName="${encodeURIComponent(perfil?.nome || 'Usuário')}"`}
+                      className="w-full h-full border-0"
+                      allow="camera; microphone; fullscreen; display-capture; autoplay"
+                    ></iframe>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
 
