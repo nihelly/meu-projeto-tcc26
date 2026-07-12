@@ -13,6 +13,8 @@ import {
   Settings, 
   Search, 
   ChevronDown,
+  ChevronRight,
+  ChevronLeft,
   Menu,
   X,
   LogOut,
@@ -44,6 +46,7 @@ export function AdminLayout({ children }) {
   const [pendingPostsCount, setPendingPostsCount] = useState(0);
   const [reportCount, setReportCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [bellDropdownOpen, setBellDropdownOpen] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState([]);
@@ -183,7 +186,7 @@ export function AdminLayout({ children }) {
     return 'Aluno';
   };
 
-  const renderSidebar = (onLinkClick) => {
+  const renderSidebar = (onLinkClick, collapsed = sidebarCollapsed) => {
     const papel = perfil?.papel || 'aluno';
     if (papel === 'administrador') {
       return (
@@ -195,6 +198,7 @@ export function AdminLayout({ children }) {
           perfil={perfil} 
           handleLogout={handleLogout} 
           onLinkClick={onLinkClick}
+          collapsed={collapsed}
         />
       );
     }
@@ -207,6 +211,7 @@ export function AdminLayout({ children }) {
           perfil={perfil} 
           handleLogout={handleLogout} 
           onLinkClick={onLinkClick}
+          collapsed={collapsed}
         />
       );
     }
@@ -218,6 +223,7 @@ export function AdminLayout({ children }) {
         perfil={perfil} 
         handleLogout={handleLogout} 
         onLinkClick={onLinkClick}
+        collapsed={collapsed}
       />
     );
   };  const isDarkTheme = perfil?.papel === 'professor' || perfil?.papel === 'administrador';
@@ -226,8 +232,25 @@ export function AdminLayout({ children }) {
     <div className={`min-h-screen flex relative font-sans transition-colors duration-300 ${isDarkTheme ? 'dark-dashboard-teacher bg-[#08070d] text-white' : 'bg-[#fcfcfc] text-gray-900'}`}>
       
       {/* SIDEBAR DESKTOP */}
-      <aside className={`hidden md:flex w-64 border-r flex-col justify-between p-0 h-screen sticky top-0 select-none flex-shrink-0 relative overflow-hidden transition-colors duration-300 ${isDarkTheme ? 'border-white/5 bg-[#0d0c13]' : 'border-gray-100 bg-white'}`}>
+      <aside className={`hidden md:flex flex-col justify-between p-0 h-screen sticky top-0 select-none flex-shrink-0 relative overflow-visible transition-all duration-350 ${sidebarCollapsed ? 'w-20' : 'w-64'} ${isDarkTheme ? 'border-r border-white/5 bg-[#0d0c13]' : 'border-r border-gray-100 bg-white'}`}>
         {renderSidebar()}
+        
+        {/* Toggle Collapse Button */}
+        <button
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className={`absolute top-6 -right-3.5 z-30 w-7 h-7 rounded-full flex items-center justify-center border shadow-md cursor-pointer transition-all duration-300 hover:scale-110 ${
+            isDarkTheme 
+              ? 'bg-[#0d0c13] border-white/10 text-white hover:bg-violet-750' 
+              : 'bg-white border-gray-200 text-gray-700 hover:bg-violet-50'
+          }`}
+          title={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
+        >
+          {sidebarCollapsed ? (
+            <ChevronRight size={13} strokeWidth={2.5} />
+          ) : (
+            <ChevronLeft size={13} strokeWidth={2.5} />
+          )}
+        </button>
       </aside>
 
       {/* ÁREA PRINCIPAL */}
