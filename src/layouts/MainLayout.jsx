@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bell, Mail, Plus, X, Menu, ArrowLeft } from 'lucide-react';
+import { Bell, Mail, Plus, X, Menu, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SidebarAdmin from '../components/SidebarAdmin';
 import SidebarProfessor from '../components/SidebarProfessor';
@@ -16,8 +16,59 @@ export function MainLayout({ children }) {
   const { translate } = useLanguage();
   const { usuario, perfil } = useAuth();
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(() => {
+    const saved = localStorage.getItem('unreadMessagesCount');
+    return saved !== null ? Number(saved) : 3;
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [reportCount, setReportCount] = useState(0);
+
+  // Sincronizar unreadMessagesCount com localStorage
+  useEffect(() => {
+    localStorage.setItem('unreadMessagesCount', unreadMessagesCount);
+  }, [unreadMessagesCount]);
+
+  // Monitoramento de Mensagens não lidas
+  useEffect(() => {
+    if (location.pathname === '/mensagens') {
+      setUnreadMessagesCount(0);
+      return;
+    }
+
+    async function fetchUnreadMessages() {
+      if (!usuario) return;
+      try {
+        const { data: myMemberships } = await supabase
+          .from('conversation_members')
+          .select('conversation_id')
+          .eq('user_id', usuario.id);
+        
+        if (!myMemberships || myMemberships.length === 0) {
+          return;
+        }
+
+        const convIds = myMemberships.map(m => m.conversation_id);
+
+        const { data: unreadMsgs } = await supabase
+          .from('messages')
+          .select('id, read_by')
+          .in('conversation_id', convIds)
+          .neq('sender_id', usuario.id);
+
+        if (unreadMsgs) {
+          const count = unreadMsgs.filter(m => {
+            const readList = Array.isArray(m.read_by) ? m.read_by : [];
+            return !readList.includes(usuario.id);
+          }).length;
+          setUnreadMessagesCount(count);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchUnreadMessages();
+  }, [usuario, location.pathname]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -96,17 +147,19 @@ export function MainLayout({ children }) {
     '/criar-aviso': 'newAnnouncementTitle',
   };
 
-  const renderSidebar = (onLinkClick) => {
+  const renderSidebar = (onLinkClick, collapsed = sidebarCollapsed) => {
     const papel = perfil?.papel || 'aluno';
     if (papel === 'administrador') {
       return (
         <SidebarAdmin 
           unreadCount={unreadNotificationsCount} 
+          unreadMessagesCount={unreadMessagesCount}
           reportCount={reportCount} 
           usuario={usuario} 
           perfil={perfil} 
           handleLogout={handleLogout} 
           onLinkClick={onLinkClick}
+          collapsed={collapsed}
         />
       );
     }
@@ -114,19 +167,24 @@ export function MainLayout({ children }) {
       return (
         <SidebarProfessor 
           unreadCount={unreadNotificationsCount} 
+          unreadMessagesCount={unreadMessagesCount}
           usuario={usuario} 
           perfil={perfil} 
           handleLogout={handleLogout} 
           onLinkClick={onLinkClick}
+          collapsed={collapsed}
         />
       );
     }
     return (
       <SidebarAluno 
         unreadCount={unreadNotificationsCount} 
+        unreadMessagesCount={unreadMessagesCount}
         usuario={usuario} 
         perfil={perfil} 
         handleLogout={handleLogout} 
+        onLinkClick={onLinkClick}
+        collapsed={collapsed}
       />
     );
   };
@@ -147,8 +205,21 @@ export function MainLayout({ children }) {
       <GeometricBackground />
       
       {/* 1. Sidebar Dinâmica Completa (Desktop) */}
-      <aside className={`hidden md:flex w-64 border-r flex-col justify-between p-0 h-screen sticky top-0 select-none flex-shrink-0 relative overflow-hidden transition-colors duration-300 ${isDarkTheme ? 'border-white/5 bg-[#0d0c13]' : 'border-gray-100 bg-white'}`}>
+      <aside className={`hidden md:flex flex-col justify-between p-0 h-screen sticky top-0 select-none flex-shrink-0 relative overflow-visible transition-all duration-350 ${sidebarCollapsed ? 'w-20' : 'w-64'} ${isDarkTheme ? 'border-r border-white/5 bg-[#0d0c13]' : 'border-r border-gray-100 bg-white'}`}>
         {renderSidebar()}
+        
+        {/* Toggle Collapse Button */}
+        <button
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className="absolute top-6 -right-4.5 z-30 w-9 h-9 rounded-full flex items-center justify-center bg-violet-600 border border-violet-500 text-white shadow-lg cursor-pointer transition-all duration-300 hover:bg-violet-700 hover:scale-110"
+          title={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
+        >
+          {sidebarCollapsed ? (
+            <ChevronRight size={18} strokeWidth={3} />
+          ) : (
+            <ChevronLeft size={18} strokeWidth={3} />
+          )}
+        </button>
       </aside>
  
       {/* 2. Área principal */}
