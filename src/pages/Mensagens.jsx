@@ -1610,33 +1610,69 @@ export default function Mensagens() {
                 </div>
               )}
 
-              {/* CHAMADA DE VÍDEO (EMBUTINDO JITSI COMPARTILHADO COM BYPASS DO PREJOIN) */}
+              {/* CHAMADA DE VÍDEO (EMBUTINDO JITSI COMPARTILHADO COM CONTROLES FLUTUANTES) */}
               {chamadaAtiva.type === 'video' && (
                 <div className="w-full max-w-4xl h-[85vh] bg-[#0c0b12] rounded-[2.5rem] border border-white/10 overflow-hidden flex flex-col shadow-2xl relative">
-                  {/* Header Chamada */}
-                  <div className="p-5 px-8 bg-[#0d0c13] border-b border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-[12px] font-bold text-white uppercase tracking-wider">
-                        Vídeo Chamada com {conversaAtiva?.nome}
-                      </span>
-                    </div>
-                    
-                    <button
-                      onClick={() => setChamadaAtiva(null)}
-                      className="bg-red-650 hover:bg-red-750 text-white font-bold text-[11px] px-5 py-2.5 rounded-xl cursor-pointer transition-colors shadow-lg shadow-red-500/20"
-                    >
-                      Encerrar Chamada
-                    </button>
-                  </div>
-
-                  {/* Iframe Jitsi Visível para Chamada de Vídeo */}
-                  <div className="flex-1 bg-black relative">
+                  
+                  {/* Container Iframe com Controles Transparentes por Cima */}
+                  <div className="flex-1 bg-black relative w-full h-full">
                     <iframe
-                      src={`https://meet.jit.si/${chamadaAtiva.roomName}#config.prejoinPageEnabled=false&config.prejoinConfig.enabled=false&userInfo.displayName="${encodeURIComponent(perfil?.nome || 'Usuário')}"`}
+                      src={`https://meet.jit.si/${chamadaAtiva.roomName}#config.prejoinPageEnabled=false&config.prejoinConfig.enabled=false&config.toolbarButtons=[]&config.hideConferenceTimer=true&config.hideConferenceSubject=true&config.watermarkShowImage=false&interfaceConfig.SHOW_JITSI_WATERMARK=false&interfaceConfig.SHOW_BRAND_WATERMARK=false&interfaceConfig.SHOW_POWERED_BY=false&interfaceConfig.TOOLBAR_BUTTONS=[]&config.disableDeepLinking=true&userInfo.displayName="${encodeURIComponent(perfil?.nome || 'Usuário')}"`}
                       className="w-full h-full border-0"
                       allow="camera; microphone; fullscreen; display-capture; autoplay"
                     ></iframe>
+
+                    {/* Floating Call Control Overlay */}
+                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-black/40 backdrop-blur-md px-6 py-4 rounded-full border border-white/10 z-20">
+                      {/* Mute Mic */}
+                      <button 
+                        onClick={() => {
+                          setChamadaMutada(!chamadaMutada);
+                          toast.success(chamadaMutada ? 'Microfone ativado' : 'Microfone mutado');
+                        }}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95 ${
+                          chamadaMutada ? 'bg-red-650 text-white' : 'bg-white/20 text-white hover:bg-white/30'
+                        }`}
+                        title="Mutar Microfone"
+                      >
+                        <MicOff size={18} />
+                      </button>
+
+                      {/* Hang Up (Desligar) */}
+                      <button
+                        onClick={() => setChamadaAtiva(null)}
+                        className="w-14 h-14 rounded-full bg-red-600 hover:bg-red-750 text-white flex items-center justify-center cursor-pointer transition-all hover:scale-110 active:scale-95 shadow-lg shadow-red-500/30"
+                        title="Desligar Chamada"
+                      >
+                        <Phone size={22} className="rotate-[135deg] fill-white" />
+                      </button>
+
+                      {/* Toggle Camera/Audio mode */}
+                      <button 
+                        onClick={() => {
+                          setChamadaAtiva(prev => ({ ...prev, type: 'audio' }));
+                          toast.info('Mudado para chamada de áudio');
+                        }}
+                        className="w-12 h-12 rounded-full bg-white/20 text-white hover:bg-white/30 flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+                        title="Desativar Câmera"
+                      >
+                        <Video size={18} />
+                      </button>
+                    </div>
+
+                    {/* Floating Info Overlays */}
+                    <div className="absolute top-6 left-6 right-6 flex items-center justify-between pointer-events-none z-20">
+                      <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider font-mono">
+                          {formatarTempo(duracaoChamada)}
+                        </span>
+                      </div>
+                      <div className="bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-white text-[11px] font-bold">
+                        {conversaAtiva?.nome}
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               )}
