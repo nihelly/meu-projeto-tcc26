@@ -97,9 +97,15 @@ export default function Mensagens() {
       carregarMensagens(conversaAtiva.id);
 
       // Zerar não lidas localmente na lista do painel lateral
-      setConversas(prev => prev.map(c => 
-        c.id === conversaAtiva.id ? { ...c, nao_lidas: 0 } : c
-      ));
+      setConversas(prev => {
+        const atualizadas = prev.map(c => 
+          c.id === conversaAtiva.id ? { ...c, nao_lidas: 0 } : c
+        );
+        if (conversaAtiva.id.startsWith('mock-')) {
+          localStorage.setItem('mockConversas', JSON.stringify(atualizadas));
+        }
+        return atualizadas;
+      });
 
       // Banco de dados
       marcarMensagensComoLidas(conversaAtiva.id);
@@ -247,54 +253,71 @@ export default function Mensagens() {
           setConversaAtiva(listaFormatada[0]);
         }
       } else {
-        // Caso o banco esteja zerado, criamos dados mock idênticos ao do mockup para visualização premium
-        const mockConversas = [
-          {
-            id: 'mock-1',
-            nome: 'Lucas Ferreira',
-            type: 'private',
-            contato: { nome: 'Lucas Ferreira', papel: 'Aluno', avatar_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80' },
-            ultima_mensagem: 'Professor, posso tirar uma dúvida sobre a parte 2 do projeto?',
-            hora: '10:30',
-            nao_lidas: 2
-          },
-          {
-            id: 'mock-2',
-            nome: 'Turma 1º Ano A',
-            type: 'group',
-            ultima_mensagem: 'Mariana: Não esqueçam da atividade!',
-            hora: '09:15',
-            nao_lidas: 5
-          },
-          {
-            id: 'mock-3',
-            nome: 'Mariana Oliveira',
-            type: 'private',
-            contato: { nome: 'Mariana Oliveira', papel: 'Professora', avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80' },
-            ultima_mensagem: 'Obrigada pela explicação!',
-            hora: 'Ontem',
-            nao_lidas: 1
-          },
-          {
-            id: 'mock-4',
-            nome: 'João Pedro',
-            type: 'private',
-            contato: { nome: 'João Pedro', papel: 'Aluno', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' },
-            ultima_mensagem: 'Envio do trabalho final',
-            hora: 'Ontem',
-            nao_lidas: 0
-          },
-          {
-            id: 'mock-5',
-            nome: 'Projeto Sustentabilidade',
-            type: 'group',
-            ultima_mensagem: 'Lucas: Vou enviar os dados da pesquisa.',
-            hora: 'Ontem',
-            nao_lidas: 3
+        const savedMock = localStorage.getItem('mockConversas');
+        if (savedMock) {
+          try {
+            const parsed = JSON.parse(savedMock);
+            setConversas(parsed);
+            if (parsed.length > 0) {
+              setConversaAtiva(parsed[0]);
+            }
+          } catch (e) {
+            console.error('Erro ao ler mockConversas do localStorage:', e);
+            localStorage.removeItem('mockConversas');
           }
-        ];
-        setConversas(mockConversas);
-        setConversaAtiva(mockConversas[0]);
+        } else {
+          // Caso o banco esteja zerado, criamos dados mock idênticos ao do mockup para visualização premium
+          const mockConversas = [
+            {
+              id: 'mock-1',
+              nome: 'Lucas Ferreira',
+              type: 'private',
+              contato: { nome: 'Lucas Ferreira', papel: 'Aluno', avatar_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80' },
+              ultima_mensagem: 'Professor, posso tirar uma dúvida sobre a parte 2 do projeto?',
+              hora: '10:30',
+              nao_lidas: 2
+            },
+            {
+              id: 'mock-2',
+              nome: 'Turma 1º Ano A',
+              type: 'group',
+              ultima_mensagem: 'Mariana: Não esqueçam da atividade!',
+              hora: '09:15',
+              nao_lidas: 5
+            },
+            {
+              id: 'mock-3',
+              nome: 'Mariana Oliveira',
+              type: 'private',
+              contato: { nome: 'Mariana Oliveira', papel: 'Professora', avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80' },
+              ultima_mensagem: 'Obrigada pela explicação!',
+              hora: 'Ontem',
+              nao_lidas: 1
+            },
+            {
+              id: 'mock-4',
+              nome: 'João Pedro',
+              type: 'private',
+              contato: { nome: 'João Pedro', papel: 'Aluno', avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' },
+              ultima_mensagem: 'Envio do trabalho final',
+              hora: 'Ontem',
+              nao_lidas: 0
+            },
+            {
+              id: 'mock-5',
+              nome: 'Projeto Sustentabilidade',
+              type: 'group',
+              ultima_mensagem: 'Lucas: Vou enviar os dados da pesquisa.',
+              hora: 'Ontem',
+              nao_lidas: 3
+            }
+          ];
+          setConversas(mockConversas);
+          localStorage.setItem('mockConversas', JSON.stringify(mockConversas));
+          if (mockConversas.length > 0) {
+            setConversaAtiva(mockConversas[0]);
+          }
+        }
       }
 
     } catch (err) {

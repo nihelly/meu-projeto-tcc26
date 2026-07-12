@@ -37,13 +37,21 @@ export function AdminLayout({ children }) {
   const location = useLocation();
   const { usuario, perfil } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [unreadMessagesCount, setUnreadMessagesCount] = useState(3); // Inicializa com mock count
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(() => {
+    const saved = localStorage.getItem('unreadMessagesCount');
+    return saved !== null ? Number(saved) : 3;
+  });
   const [pendingPostsCount, setPendingPostsCount] = useState(0);
   const [reportCount, setReportCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [bellDropdownOpen, setBellDropdownOpen] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState([]);
+
+  // Sincronizar unreadMessagesCount com localStorage
+  useEffect(() => {
+    localStorage.setItem('unreadMessagesCount', unreadMessagesCount);
+  }, [unreadMessagesCount]);
 
   // Monitoramento de Mensagens não lidas
   useEffect(() => {
