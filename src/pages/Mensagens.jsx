@@ -58,6 +58,9 @@ export default function Mensagens() {
   // Dicionário de Perfis nos chats
   const [profilesMap, setProfilesMap] = useState({});
 
+  // Calcular total de mensagens não lidas
+  const totalNaoLidas = (conversas || []).reduce((acc, curr) => acc + (curr.nao_lidas || 0), 0);
+
   useEffect(() => {
     carregarConversas();
   }, [usuario]);
@@ -124,6 +127,50 @@ export default function Mensagens() {
       };
     }
   }, [conversaAtiva]);
+
+  // Subscrever a novas mensagens de QUALQUER conversa para exibir notificações e badges
+  useEffect(() => {
+    if (!usuario || conversas.length === 0) return;
+
+    const canalGlobal = supabase
+      .channel('global-messages-notifications')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        table: 'messages'
+      }, (payload) => {
+        const msg = payload.new;
+        
+        // Se a mensagem for de outro remetente
+        if (msg.sender_id !== usuario.id) {
+          // Verificar se pertence a alguma de nossas conversas
+          const conversa = conversas.find(c => c.id === msg.conversation_id);
+          if (conversa) {
+            // Se NÃO for a conversa ativa no momento, cria a notificação
+            if (!conversaAtiva || conversaAtiva.id !== msg.conversation_id) {
+              // 1. Enviar notificação toast
+              toast.info(`Nova mensagem de ${conversa.nome}: "${msg.content.substring(0, 30)}${msg.content.length > 30 ? '...' : ''}" 💬`);
+              
+              // 2. Incrementar a contagem de não lidas localmente para essa conversa
+              setConversas(prev => prev.map(c => 
+                c.id === msg.conversation_id 
+                  ? { 
+                      ...c, 
+                      nao_lidas: (c.nao_lidas || 0) + 1, 
+                      ultima_mensagem: msg.content, 
+                      hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                    } 
+                  : c
+              ));
+            }
+          }
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(canalGlobal);
+    };
+  }, [usuario, conversas, conversaAtiva]);
 
   // Rolar para o fim das mensagens
   useEffect(() => {
@@ -575,7 +622,7 @@ export default function Mensagens() {
               onClick={() => setTabAtiva('nao_lidas')}
               className={`pb-2 px-1 relative cursor-pointer flex items-center gap-1 ${tabAtiva === 'nao_lidas' ? 'text-violet-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-violet-650' : 'hover:text-gray-600'}`}
             >
-              Não lidas <span className="bg-violet-100 text-violet-750 text-[9px] font-black px-1.5 py-0.5 rounded-full">3</span>
+              Não lidas {totalNaoLidas > 0 && <span className="bg-violet-100 text-violet-750 text-[9px] font-black px-1.5 py-0.5 rounded-full">{totalNaoLidas}</span>}
             </button>
             <button 
               onClick={() => setTabAtiva('grupos')}
