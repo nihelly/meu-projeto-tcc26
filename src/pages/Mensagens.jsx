@@ -49,6 +49,9 @@ export default function Mensagens() {
   const [modalNovoChatOpen, setModalNovoChatOpen] = useState(false);
   const [todosPerfis, setTodosPerfis] = useState([]);
   const [filtroNovoChatBusca, setFiltroNovoChatBusca] = useState('');
+  const [arquivoSelecionado, setArquivoSelecionado] = useState(null);
+  const [tipoArquivo, setTipoArquivo] = useState(null); // 'image' | 'document'
+  const [uploading, setUploading] = useState(false);
 
   // Estados de Mensagem (Responder/Editar/Fixar)
   const [mensagemRespondendo, setMensagemRespondendo] = useState(null);
@@ -450,6 +453,13 @@ export default function Mensagens() {
     }
   };
 
+  const handleSelecionarArquivo = (e, tipo) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setArquivoSelecionado(file);
+    setTipoArquivo(tipo);
+  };
+
   async function carregarMensagens(conversaId) {
     if (conversaId.startsWith('mock-')) {
       // Mock mensagens
@@ -519,19 +529,73 @@ export default function Mensagens() {
   // --- ENVIAR MENSAGEM ---
   const handleEnviarMensagem = async (e) => {
     e.preventDefault();
-    if (!novoTexto.trim() || !conversaAtiva) return;
+    if (!novoTexto.trim() && !arquivoSelecionado) return;
+    if (!conversaAtiva) return;
 
     const textoLocal = novoTexto;
     setNovoTexto('');
     setMostrarEmojis(false);
+
+    let fileUrl = null;
+    let finalType = 'text';
+
+    if (arquivoSelecionado) {
+      setUploading(true);
+      try {
+        const fileId = Math.random().toString(36).substring(2, 10);
+        const cleanName = arquivoSelecionado.name.replace(/[^a-zA-Z0-9.]/g, '_');
+        const filePath = `${usuario.id}/${fileId}_${cleanName}`;
+
+        const { data, error } = await supabase.storage
+          .from('chat-attachments')
+          .upload(filePath, arquivoSelecionado);
+
+        if (error) {
+          console.warn('Erro ao subir para chat-attachments, tentando post-images:', error);
+          const { data: fallbackData, error: fallbackError } = await supabase.storage
+            .from('post-images')
+            .upload(filePath, arquivoSelecionado);
+
+          if (fallbackError) throw fallbackError;
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('post-images')
+            .getPublicUrl(filePath);
+          
+          fileUrl = publicUrl;
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('chat-attachments')
+            .getPublicUrl(filePath);
+          
+          fileUrl = publicUrl;
+        }
+
+        finalType = tipoArquivo;
+        if (arquivoSelecionado.name.toLowerCase().endsWith('.pdf')) {
+          finalType = 'pdf';
+        }
+      } catch (err) {
+        console.error('Erro no upload:', err);
+        toast.error('Erro ao fazer upload do arquivo.');
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+      setArquivoSelecionado(null);
+      setTipoArquivo(null);
+    }
+
+    const contentToSend = fileUrl || textoLocal;
+    const msgType = fileUrl ? finalType : 'text';
 
     if (conversaAtiva.id.startsWith('mock-')) {
       // Adicionar mock local
       const novaMsg = {
         id: `local-${Math.random()}`,
         sender_id: usuario?.id || 'me',
-        content: textoLocal,
-        type: 'text',
+        content: contentToSend,
+        type: msgType,
         created_at: new Date().toISOString()
       };
       setMensagens(prev => [...prev, novaMsg]);
@@ -544,8 +608,8 @@ export default function Mensagens() {
         .insert({
           conversation_id: conversaAtiva.id,
           sender_id: usuario.id,
-          content: textoLocal,
-          type: 'text',
+          content: contentToSend,
+          type: msgType,
           reply_to: mensagemRespondendo?.id || null
         })
         .select()
@@ -905,7 +969,37 @@ export default function Mensagens() {
                       ? 'bg-violet-100 text-gray-905 rounded-tr-sm' 
                       : 'bg-white text-gray-900 rounded-tl-sm border border-gray-100/60'
                   }`}>
-                    <p>{msg.content}</p>
+                    {msg.type === 'image' ? (
+                      <div className="relative rounded-lg overflow-hidden max-w-xs my-1 border border-gray-150/40">
+                        <img 
+                          src={msg.content} 
+                          alt="Anexo de Imagem" 
+                          className="w-full max-h-60 object-cover cursor-pointer hover:opacity-95 transition-opacity" 
+                          onClick={() => window.open(msg.content, '_blank')}
+                        />
+                      </div>
+                    ) : msg.type === 'pdf' || msg.type === 'document' ? (
+                      <a 
+                        href={msg.content} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className={`flex items-center gap-2.5 p-2.5 rounded-xl border transition-colors my-1 ${
+                          enviadaPorMim 
+                            ? 'bg-violet-200/50 border-violet-300 text-violet-950 hover:bg-violet-250/50' 
+                            : 'bg-gray-50 border-gray-150 text-gray-800 hover:bg-gray-100'
+                        }`}
+                      >
+                        <FileText size={18} className="text-violet-600 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[11.5px] font-bold block truncate">
+                            {msg.content.substring(msg.content.lastIndexOf('/') + 1).split('_').slice(1).join('_') || 'Documento Anexo'}
+                          </span>
+                          <span className="text-[9.5px] text-gray-400 block font-light">Clique para abrir</span>
+                        </div>
+                      </a>
+                    ) : (
+                      <p>{msg.content}</p>
+                    )}
 
                     {/* Reações de Emojis */}
                     {msg.reactions && msg.reactions.length > 0 && (
@@ -946,11 +1040,54 @@ export default function Mensagens() {
 
         {/* Barra de Entrada / Digitação */}
         <div className="p-4 bg-white border-t border-gray-100 space-y-2 flex-shrink-0">
+          
+          {/* Arquivo Selecionado Preview Banner */}
+          {arquivoSelecionado && (
+            <div className={`p-2.5 px-4 rounded-xl flex items-center justify-between text-[11px] font-bold ${
+              isDarkTheme ? 'bg-[#12111a] border border-white/5 text-white' : 'bg-violet-50 border border-violet-100 text-violet-950'
+            }`}>
+              <div className="flex items-center gap-2 min-w-0">
+                {tipoArquivo === 'image' ? (
+                  <ImageIcon size={15} className="text-violet-650 flex-shrink-0" />
+                ) : (
+                  <FileText size={15} className="text-violet-650 flex-shrink-0" />
+                )}
+                <span className="truncate">{arquivoSelecionado.name}</span>
+                <span className="text-gray-400 font-light font-sans">({(arquivoSelecionado.size / 1024).toFixed(1)} KB)</span>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setArquivoSelecionado(null);
+                  setTipoArquivo(null);
+                }}
+                className="text-gray-450 hover:text-red-500 cursor-pointer p-0.5"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+
           <form onSubmit={handleEnviarMensagem} className="flex items-center gap-3">
+            {/* Inputs ocultos */}
+            <input 
+              type="file" 
+              id="chat-file-input" 
+              className="hidden" 
+              onChange={(e) => handleSelecionarArquivo(e, 'document')}
+            />
+            <input 
+              type="file" 
+              id="chat-image-input" 
+              accept="image/*" 
+              className="hidden" 
+              onChange={(e) => handleSelecionarArquivo(e, 'image')}
+            />
+
             {/* Botão Anexar */}
             <button 
               type="button" 
-              onClick={() => toast.info('Upload de documentos ativado!')}
+              onClick={() => document.getElementById('chat-file-input').click()}
               className="text-gray-450 hover:text-black transition-colors cursor-pointer"
             >
               <Paperclip size={18} />
@@ -968,16 +1105,17 @@ export default function Mensagens() {
             {/* Input Campo */}
             <input 
               type="text" 
-              placeholder="Digite sua mensagem..."
+              placeholder={uploading ? "Enviando arquivo..." : "Digite sua mensagem..."}
               value={novoTexto}
               onChange={(e) => setNovoTexto(e.target.value)}
-              className="flex-1 bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 text-[12px] font-medium outline-none"
+              disabled={uploading}
+              className="flex-1 bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 text-[12px] font-medium outline-none disabled:opacity-50"
             />
 
             {/* Upload Imagem */}
             <button 
               type="button" 
-              onClick={() => toast.info('Selecione uma imagem de seus arquivos.')}
+              onClick={() => document.getElementById('chat-image-input').click()}
               className="text-gray-450 hover:text-black transition-colors cursor-pointer"
             >
               <ImageIcon size={18} />
@@ -986,9 +1124,17 @@ export default function Mensagens() {
             {/* Botão Enviar */}
             <button 
               type="submit"
-              className="bg-violet-600 hover:bg-violet-750 text-white font-bold text-[12px] px-5 py-2.5 rounded-xl cursor-pointer transition-colors shadow-sm shadow-indigo-500/10"
+              disabled={uploading}
+              className="bg-violet-600 hover:bg-violet-750 text-white font-bold text-[12px] px-5 py-2.5 rounded-xl cursor-pointer transition-colors shadow-sm shadow-indigo-500/10 flex items-center gap-1.5 disabled:opacity-50"
             >
-              Enviar
+              {uploading ? (
+                <>
+                  <Loader2 className="animate-spin" size={13} />
+                  Enviando...
+                </>
+              ) : (
+                'Enviar'
+              )}
             </button>
           </form>
 
