@@ -232,13 +232,13 @@ export function AdminLayout({ children }) {
     <div className={`min-h-screen flex relative font-sans transition-colors duration-300 ${isDarkTheme ? 'dark-dashboard-teacher bg-[#08070d] text-white' : 'bg-[#fcfcfc] text-gray-900'}`}>
       
       {/* SIDEBAR DESKTOP */}
-      <aside className={`hidden md:flex flex-col justify-between p-0 h-screen sticky top-0 select-none flex-shrink-0 relative overflow-visible transition-all duration-350 ${sidebarCollapsed ? 'w-20' : 'w-64'} ${isDarkTheme ? 'border-r border-white/5 bg-[#0d0c13]' : 'border-r border-gray-100 bg-white'}`}>
+      <aside className={`hidden md:flex flex-col justify-between p-0 h-screen sticky top-0 z-30 select-none flex-shrink-0 relative overflow-visible transition-all duration-350 ${sidebarCollapsed ? 'w-20' : 'w-64'} ${isDarkTheme ? 'border-r border-white/5 bg-[#0d0c13]' : 'border-r border-gray-100 bg-white'}`}>
         {renderSidebar()}
         
         {/* Toggle Collapse Button */}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="absolute top-6 -right-4.5 z-30 w-9 h-9 rounded-full flex items-center justify-center bg-violet-600 border border-violet-500 text-white shadow-lg cursor-pointer transition-all duration-300 hover:bg-violet-700 hover:scale-110"
+          className="absolute top-6 -right-4.5 z-40 w-9 h-9 rounded-full flex items-center justify-center bg-violet-600 border border-violet-500 text-white shadow-lg cursor-pointer transition-all duration-300 hover:bg-violet-700 hover:scale-110"
           title={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
         >
           {sidebarCollapsed ? (
