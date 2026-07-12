@@ -238,17 +238,13 @@ export function AdminLayout({ children }) {
         {/* Toggle Collapse Button */}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className={`absolute top-6 -right-3.5 z-30 w-7 h-7 rounded-full flex items-center justify-center border shadow-md cursor-pointer transition-all duration-300 hover:scale-110 ${
-            isDarkTheme 
-              ? 'bg-[#0d0c13] border-white/10 text-white hover:bg-violet-750' 
-              : 'bg-white border-gray-200 text-gray-700 hover:bg-violet-50'
-          }`}
+          className="absolute top-6 -right-4.5 z-30 w-9 h-9 rounded-full flex items-center justify-center bg-violet-600 border border-violet-500 text-white shadow-lg cursor-pointer transition-all duration-300 hover:bg-violet-700 hover:scale-110"
           title={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
         >
           {sidebarCollapsed ? (
-            <ChevronRight size={13} strokeWidth={2.5} />
+            <ChevronRight size={18} strokeWidth={3} />
           ) : (
-            <ChevronLeft size={13} strokeWidth={2.5} />
+            <ChevronLeft size={18} strokeWidth={3} />
           )}
         </button>
       </aside>
