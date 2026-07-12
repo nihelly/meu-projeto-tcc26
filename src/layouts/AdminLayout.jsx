@@ -226,7 +226,27 @@ export function AdminLayout({ children }) {
         collapsed={collapsed}
       />
     );
-  };  const isDarkTheme = perfil?.papel === 'professor' || perfil?.papel === 'administrador';
+  };
+
+  const [isDarkTheme, setIsDarkTheme] = useState(() => {
+    const papel = perfil?.papel || '';
+    const padraoEscuro = papel === 'professor' || papel === 'administrador';
+    const savedDark = localStorage.getItem('educonnect-dark-mode');
+    return savedDark !== null ? savedDark === 'true' : padraoEscuro;
+  });
+
+  useEffect(() => {
+    const handleThemeChange = () => {
+      const papel = perfil?.papel || '';
+      const padraoEscuro = papel === 'professor' || papel === 'administrador';
+      const savedDark = localStorage.getItem('educonnect-dark-mode');
+      setIsDarkTheme(savedDark !== null ? savedDark === 'true' : padraoEscuro);
+    };
+    window.addEventListener('theme-changed', handleThemeChange);
+    // Adicionalmente, atualiza o tema se o perfil do usuário carregar
+    handleThemeChange();
+    return () => window.removeEventListener('theme-changed', handleThemeChange);
+  }, [perfil]);
 
   return (
     <div className={`min-h-screen flex relative font-sans transition-colors duration-300 ${isDarkTheme ? 'dark-dashboard-teacher bg-[#08070d] text-white' : 'bg-[#fcfcfc] text-gray-900'}`}>

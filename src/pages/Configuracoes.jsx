@@ -97,6 +97,7 @@ export default function Configuracoes() {
       document.documentElement.classList.remove('dark');
     }
     localStorage.setItem('educonnect-dark-mode', String(modoNocturno));
+    window.dispatchEvent(new Event('theme-changed'));
   }, [modoNocturno]);
 
   // Efeito para aplicar Alto Contraste
