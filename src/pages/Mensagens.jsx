@@ -62,9 +62,44 @@ export default function Mensagens() {
     carregarConversas();
   }, [usuario]);
 
+  const marcarMensagensComoLidas = async (conversaId) => {
+    if (!usuario || !conversaId || conversaId.startsWith('mock-')) return;
+    try {
+      // Buscar mensagens dessa conversa onde o usuário não é o remetente
+      const { data: msgs } = await supabase
+        .from('messages')
+        .select('id, read_by')
+        .eq('conversation_id', conversaId)
+        .neq('sender_id', usuario.id);
+
+      if (msgs) {
+        for (const msg of msgs) {
+          const lidos = Array.isArray(msg.read_by) ? msg.read_by : [];
+          if (!lidos.includes(usuario.id)) {
+            const novosLidos = [...lidos, usuario.id];
+            await supabase
+              .from('messages')
+              .update({ read_by: novosLidos })
+              .eq('id', msg.id);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao marcar mensagens como lidas:', err);
+    }
+  };
+
   useEffect(() => {
     if (conversaAtiva) {
       carregarMensagens(conversaAtiva.id);
+
+      // Zerar não lidas localmente na lista do painel lateral
+      setConversas(prev => prev.map(c => 
+        c.id === conversaAtiva.id ? { ...c, nao_lidas: 0 } : c
+      ));
+
+      // Banco de dados
+      marcarMensagensComoLidas(conversaAtiva.id);
       
       // Subscrever a novas mensagens
       const canal = supabase

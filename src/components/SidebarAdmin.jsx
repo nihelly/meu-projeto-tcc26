@@ -15,7 +15,7 @@ import MenuItem from './MenuItem';
 import SidebarFooter from './SidebarFooter';
 import logoEduconnect from '../assets/logo-educonnect.png';
 
-export default function SidebarAdmin({ unreadCount, reportCount, usuario, perfil, handleLogout, onLinkClick }) {
+export default function SidebarAdmin({ unreadCount, unreadMessagesCount, reportCount, usuario, perfil, handleLogout, onLinkClick }) {
   return (
     <div className="flex flex-col h-full w-full select-none bg-[#0d0c13] text-white">
       
@@ -38,7 +38,7 @@ export default function SidebarAdmin({ unreadCount, reportCount, usuario, perfil
           <nav className="space-y-2">
             <MenuItem to="/admin" label="Início" icon={Home} isHome={true} papel="administrador" onClick={onLinkClick} />
             <MenuItem to="/feed" label="Feed" icon={FileText} papel="administrador" onClick={onLinkClick} />
-            <MenuItem to="/mensagens" label="Mensagens" icon={MessageSquare} badge={3} papel="administrador" onClick={onLinkClick} />
+            <MenuItem to="/mensagens" label="Mensagens" icon={MessageSquare} badge={unreadMessagesCount} papel="administrador" onClick={onLinkClick} />
             <MenuItem to="/turmas" label="Turmas" icon={GraduationCap} papel="administrador" onClick={onLinkClick} />
             <MenuItem to="/turmas" label="Calendário" icon={Calendar} papel="administrador" onClick={onLinkClick} />
             <MenuItem to="/gerenciar-usuarios" label="Gerenciar Usuários" icon={Users} papel="administrador" onClick={onLinkClick} />

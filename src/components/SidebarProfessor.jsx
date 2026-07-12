@@ -13,7 +13,7 @@ import MenuItem from './MenuItem';
 import SidebarFooter from './SidebarFooter';
 import logoEduconnect from '../assets/logo-educonnect.png';
 
-export default function SidebarProfessor({ unreadCount, usuario, perfil, handleLogout, onLinkClick }) {
+export default function SidebarProfessor({ unreadCount, unreadMessagesCount, usuario, perfil, handleLogout, onLinkClick }) {
   return (
     <div className="flex flex-col h-full w-full select-none bg-[#0d0c13] text-white">
       
@@ -36,7 +36,7 @@ export default function SidebarProfessor({ unreadCount, usuario, perfil, handleL
           <nav className="space-y-2">
             <MenuItem to="/professor" label="Início" icon={Home} isHome={true} papel="professor" onClick={onLinkClick} />
             <MenuItem to="/feed" label="Feed" icon={FileText} papel="professor" onClick={onLinkClick} />
-            <MenuItem to="/mensagens" label="Mensagens" icon={MessageSquare} badge={3} papel="professor" onClick={onLinkClick} />
+            <MenuItem to="/mensagens" label="Mensagens" icon={MessageSquare} badge={unreadMessagesCount} papel="professor" onClick={onLinkClick} />
             <MenuItem to="/turmas" label="Turmas" icon={GraduationCap} papel="professor" onClick={onLinkClick} />
             <MenuItem to="/turmas" label="Calendário" icon={Calendar} papel="professor" onClick={onLinkClick} />
             <MenuItem to="/professor" label="Painel do Professor" icon={LayoutDashboard} papel="professor" onClick={onLinkClick} />

@@ -37,12 +37,55 @@ export function AdminLayout({ children }) {
   const location = useLocation();
   const { usuario, perfil } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(3); // Inicializa com mock count
   const [pendingPostsCount, setPendingPostsCount] = useState(0);
   const [reportCount, setReportCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [bellDropdownOpen, setBellDropdownOpen] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState([]);
+
+  // Monitoramento de Mensagens não lidas
+  useEffect(() => {
+    if (location.pathname === '/mensagens') {
+      setUnreadMessagesCount(0);
+      return;
+    }
+
+    async function fetchUnreadMessages() {
+      if (!usuario) return;
+      try {
+        const { data: myMemberships } = await supabase
+          .from('conversation_members')
+          .select('conversation_id')
+          .eq('user_id', usuario.id);
+        
+        if (!myMemberships || myMemberships.length === 0) {
+          // Mantém 3 se não houver conversas no banco (modo mock ativo)
+          return;
+        }
+
+        const convIds = myMemberships.map(m => m.conversation_id);
+
+        const { data: unreadMsgs } = await supabase
+          .from('messages')
+          .select('id, read_by')
+          .in('conversation_id', convIds)
+          .neq('sender_id', usuario.id);
+
+        if (unreadMsgs) {
+          const count = unreadMsgs.filter(m => {
+            const readList = Array.isArray(m.read_by) ? m.read_by : [];
+            return !readList.includes(usuario.id);
+          }).length;
+          setUnreadMessagesCount(count);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchUnreadMessages();
+  }, [usuario, location.pathname]);
 
   useEffect(() => {
     async function fetchRecent() {
@@ -138,6 +181,7 @@ export function AdminLayout({ children }) {
       return (
         <SidebarAdmin 
           unreadCount={unreadCount} 
+          unreadMessagesCount={unreadMessagesCount}
           reportCount={reportCount} 
           usuario={usuario} 
           perfil={perfil} 
@@ -150,6 +194,7 @@ export function AdminLayout({ children }) {
       return (
         <SidebarProfessor 
           unreadCount={unreadCount} 
+          unreadMessagesCount={unreadMessagesCount}
           usuario={usuario} 
           perfil={perfil} 
           handleLogout={handleLogout} 
@@ -160,6 +205,7 @@ export function AdminLayout({ children }) {
     return (
       <SidebarAluno 
         unreadCount={unreadCount} 
+        unreadMessagesCount={unreadMessagesCount}
         usuario={usuario} 
         perfil={perfil} 
         handleLogout={handleLogout} 

@@ -12,7 +12,7 @@ import MenuItem from './MenuItem';
 import SidebarFooter from './SidebarFooter';
 import logoEduconnect from '../assets/logo-educonnect.png';
 
-export default function SidebarAluno({ unreadCount, usuario, perfil, handleLogout, onLinkClick }) {
+export default function SidebarAluno({ unreadCount, unreadMessagesCount, usuario, perfil, handleLogout, onLinkClick }) {
   return (
     <div className="flex flex-col h-full w-full select-none bg-[#0d0c13] text-white">
       
@@ -35,7 +35,7 @@ export default function SidebarAluno({ unreadCount, usuario, perfil, handleLogou
           <nav className="space-y-2">
             <MenuItem to="/feed" label="Início" icon={Home} isHome={true} papel="aluno" onClick={onLinkClick} />
             <MenuItem to="/feed" label="Feed" icon={FileText} papel="aluno" onClick={onLinkClick} />
-            <MenuItem to="/mensagens" label="Mensagens" icon={MessageSquare} badge={3} papel="aluno" onClick={onLinkClick} />
+            <MenuItem to="/mensagens" label="Mensagens" icon={MessageSquare} badge={unreadMessagesCount} papel="aluno" onClick={onLinkClick} />
             <MenuItem to="/turmas" label="Turma" icon={GraduationCap} papel="aluno" onClick={onLinkClick} />
             <MenuItem to="/turmas" label="Calendário" icon={Calendar} papel="aluno" onClick={onLinkClick} />
             <MenuItem to="/notificacoes" label="Notificações" icon={Bell} badge={unreadCount} papel="aluno" onClick={onLinkClick} />
