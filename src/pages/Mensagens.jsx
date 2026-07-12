@@ -122,7 +122,10 @@ export default function Mensagens() {
           filter: `conversation_id=eq.${conversaAtiva.id}`
         }, (payload) => {
           if (payload.eventType === 'INSERT') {
-            setMensagens(prev => [...prev, payload.new]);
+            setMensagens(prev => {
+              if (prev.some(m => m.id === payload.new.id)) return prev;
+              return [...prev, payload.new];
+            });
           } else if (payload.eventType === 'UPDATE') {
             setMensagens(prev => prev.map(m => m.id === payload.new.id ? payload.new : m));
           } else if (payload.eventType === 'DELETE') {
@@ -536,7 +539,7 @@ export default function Mensagens() {
     }
 
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('messages')
         .insert({
           conversation_id: conversaAtiva.id,
@@ -544,9 +547,18 @@ export default function Mensagens() {
           content: textoLocal,
           type: 'text',
           reply_to: mensagemRespondendo?.id || null
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Adicionar a mensagem enviada localmente na lista imediatamente
+      setMensagens(prev => {
+        if (prev.some(m => m.id === data.id)) return prev;
+        return [...prev, data];
+      });
+
       setMensagemRespondendo(null);
 
       // Registrar log de auditoria
