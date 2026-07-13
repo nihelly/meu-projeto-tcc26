@@ -547,38 +547,38 @@ html.dark .dark\:border-purple-950\/20 {
 
 /* ─── Overrides Semânticos de Status e Badges para o Tema Escuro ─── */
 html.dark .bg-green-50,
-html.dark .bg-emerald-50 {
-  background-color: rgba(16, 185, 129, 0.1) !important; /* Emerald translúcido */
+html.dark .bg-emerald-50,
+html.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.12) !important; /* Blue translúcido */
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
 }
 html.dark .text-green-700,
 html.dark .text-green-600,
-html.dark .text-emerald-600 {
-  color: #10b981 !important; /* Emerald vibrante */
-}
-
-html.dark .bg-red-50 {
-  background-color: rgba(239, 68, 68, 0.1) !important; /* Red translúcido */
-}
-html.dark .text-red-700,
-html.dark .text-red-650,
-html.dark .text-red-600 {
-  color: #ef4444 !important; /* Red vibrante */
-}
-
-html.dark .bg-amber-50,
-html.dark .bg-yellow-500\/10 {
-  background-color: rgba(245, 158, 11, 0.1) !important; /* Amber translúcido */
-}
-html.dark .text-amber-700,
-html.dark .text-amber-600,
-html.dark .text-yellow-600 {
-  color: #f59e0b !important; /* Amber vibrante */
-}
-
-html.dark .bg-blue-50 {
-  background-color: rgba(59, 130, 246, 0.1) !important; /* Blue translúcido */
-}
+html.dark .text-emerald-600,
 html.dark .text-blue-700,
 html.dark .text-blue-600 {
   color: #3b82f6 !important; /* Blue vibrante */
+}
+
+html.dark .bg-red-50,
+html.dark .bg-rose-50,
+html.dark .bg-amber-50,
+html.dark .bg-yellow-50,
+html.dark .bg-violet-50,
+html.dark .bg-purple-50,
+html.dark .bg-yellow-500\/10 {
+  background-color: rgba(139, 92, 246, 0.12) !important; /* Purple translúcido */
+  border: 1px solid rgba(139, 92, 246, 0.2) !important;
+}
+html.dark .text-red-700,
+html.dark .text-red-650,
+html.dark .text-red-600,
+html.dark .text-rose-600,
+html.dark .text-amber-700,
+html.dark .text-amber-600,
+html.dark .text-yellow-600,
+html.dark .text-violet-600,
+html.dark .text-purple-650,
+html.dark .text-purple-600 {
+  color: #8b5cf6 !important; /* Purple vibrante */
 }
