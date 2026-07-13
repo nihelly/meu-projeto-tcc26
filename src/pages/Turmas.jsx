@@ -97,7 +97,7 @@ export default function Turmas() {
     }
   }
 
-  const ehAdmin = () => perfil?.papel === 'administrador';
+  const ehAdmin = () => perfil?.papel === 'professor' || perfil?.papel === 'administrador';
   const ehProfessor = () => perfil?.papel === 'professor';
 
   // Verificar se o usuário atual é professor ou está vinculado a essa turma

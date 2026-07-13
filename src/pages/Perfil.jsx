@@ -818,8 +818,6 @@ export default function Perfil() {
         <style>{`
           div:has(> main .student-profile-theme),
           main:has(.student-profile-theme) {
-            background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08), transparent 500px),
-                              radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08), transparent 500px) !important;
             background-color: #08070d !important;
           }
           header:has(+ main .student-profile-theme),

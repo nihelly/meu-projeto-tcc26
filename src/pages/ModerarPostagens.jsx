@@ -410,8 +410,8 @@ export default function ModerarPostagens() {
   const postsFiltradosPapel = posts.filter(post => {
     const autorPerfil = getPerfilUsuario(post.user_id);
     
-    // Admins veem tudo
-    if (perfil?.papel === 'administrador') return true;
+    // Admins/Professores veem tudo
+    if (perfil?.papel === 'professor' || perfil?.papel === 'administrador') return true;
     
     // Professores veem apenas alunos de suas turmas lecionadas
     if (perfil?.papel === 'professor') {
@@ -519,7 +519,7 @@ export default function ModerarPostagens() {
   };
 
   const ehProfessor = perfil?.papel === 'professor';
-  const ehAdmin = perfil?.papel === 'administrador';
+  const ehAdmin = perfil?.papel === 'professor' || perfil?.papel === 'administrador';
 
   return (
     <div className="space-y-6">

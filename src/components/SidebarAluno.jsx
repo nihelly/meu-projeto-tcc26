@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { 
   Home, 
   FileText, 
@@ -13,6 +14,19 @@ import SidebarFooter from './SidebarFooter';
 import logoEduconnect from '../assets/logo-educonnect.png';
 
 export default function SidebarAluno({ unreadCount, unreadMessagesCount, usuario, perfil, handleLogout, onLinkClick, collapsed }) {
+  const scrollContainerRef = useRef(null);
+
+  useEffect(() => {
+    const savedScroll = localStorage.getItem('sidebar-aluno-scroll');
+    if (savedScroll && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = parseInt(savedScroll, 10);
+    }
+  }, []);
+
+  const handleScroll = (e) => {
+    localStorage.setItem('sidebar-aluno-scroll', e.target.scrollTop);
+  };
+
   return (
     <div className="flex flex-col h-full w-full select-none bg-[#0d0c13] text-white">
       
@@ -24,7 +38,11 @@ export default function SidebarAluno({ unreadCount, unreadMessagesCount, usuario
       )}
 
       {/* Área Interna com Rolagem se necessário */}
-      <div className={`flex-1 flex flex-col justify-between overflow-y-auto min-h-0 space-y-6 ${collapsed ? 'p-3' : 'p-5'}`}>
+      <div 
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className={`flex-1 flex flex-col justify-between overflow-y-auto min-h-0 space-y-6 ${collapsed ? 'p-3' : 'p-5'}`}
+      >
         
         <div className="space-y-6">
           {/* Logo e Nome */}

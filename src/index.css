@@ -45,13 +45,68 @@ html.dark .mesh-dot {
    BASE — Estilo do body
    ═══════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════
+   BASE — Estilo do body
+   ═══════════════════════════════════════════════════ */
+
 body {
-  @apply bg-white antialiased text-gray-900;
-  transition: background-color 0.35s ease, color 0.35s ease;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Modo Claro - Alinhamento com a nova diretriz (Fundo Totalmente Branco) */
+.bg-\[\#fcfcfc\],
+.bg-\[\#f9fafb\],
+.bg-gray-50 {
+  background-color: #ffffff !important; /* Fundo principal 100% branco */
+}
+
+.bg-white {
+  background-color: #ffffff !important; /* Cards 100% brancos */
+}
+
+.bg-gray-100,
+.bg-gray-55,
+.bg-\[\#f5f5f5\] {
+  background-color: #f9f9f9 !important; /* Containers/sub-cards em cinza muito claro */
+}
+
+/* Tipografia e Textos Modo Claro */
+.text-gray-950,
+.text-black {
+  color: #000000 !important;
+}
+
+.text-gray-900 {
+  color: #111111 !important;
+}
+
+.text-gray-800,
+.text-gray-700 {
+  color: #2a2a2a !important;
+}
+
+.text-gray-600,
+.text-gray-500 {
+  color: #555555 !important;
+}
+
+/* Bordas Modo Claro */
+.border-gray-50,
+.border-gray-100 {
+  border-color: #f0f0f0 !important;
+}
+.border-gray-150,
+.border-gray-200 {
+  border-color: #e5e5e5 !important;
 }
 
 /* ═══════════════════════════════════════════════════
-   MODO ESCURO — Overrides globais estilo Deep Space Violet
+   MODO ESCURO — Overrides globais estilo Minimalista Preto Absoluto
    ═══════════════════════════════════════════════════ */
 
 html.dark {
@@ -59,130 +114,150 @@ html.dark {
 }
 
 html.dark body {
-  background-color: #06050a !important; /* Deep dark blue-purple black */
-  color: #f1f1f6 !important;
+  background-color: #08070d !important; /* Fundo principal original profundo e azul-arroxeado */
+  color: #ffffff !important;
 }
 
-/* ─── Fundos estruturais ─── */
-html.dark .bg-white { background-color: #0c0b12 !important; }
-html.dark .bg-\[\#fcfcfc\] { background-color: #08070d !important; }
-html.dark .bg-gray-50 { background-color: #12101b !important; }
-html.dark .bg-gray-50\/50 { background-color: rgba(18, 16, 27, 0.5) !important; }
-html.dark .bg-gray-50\/70 { background-color: rgba(18, 16, 27, 0.7) !important; }
-html.dark .bg-gray-100 { background-color: #191629 !important; }
-html.dark .bg-\[\#f5f5f5\] { background-color: #12101b !important; }
+/* ─── Fundos estruturais no escuro ─── */
+html.dark .bg-white { background-color: #0c0b12 !important; } /* Cards no tom original da imagem */
+html.dark .bg-\[\#fcfcfc\],
+html.dark .bg-gray-50 {
+  background-color: #08070d !important; /* Fundo estrutural original */
+}
+html.dark .bg-gray-50\/50 { background-color: rgba(15, 15, 15, 0.5) !important; }
+html.dark .bg-gray-50\/70 { background-color: rgba(15, 15, 15, 0.7) !important; }
+html.dark .bg-gray-100,
+html.dark .bg-gray-55,
+html.dark .bg-\[\#f5f5f5\],
+html.dark .bg-\[\#12101b\],
+html.dark .bg-\[\#191629\] {
+  background-color: #161616 !important; /* Sub-cards/elementos internos em cinza grafite */
+}
 
-/* ─── Bordas com tonalidade roxa ─── */
-html.dark .border-gray-100 { border-color: rgba(139, 92, 246, 0.08) !important; }
-html.dark .border-gray-50 { border-color: rgba(139, 92, 246, 0.05) !important; }
-html.dark .border-gray-200 { border-color: rgba(139, 92, 246, 0.15) !important; }
-html.dark .border-r-gray-100 { border-right-color: rgba(139, 92, 246, 0.08) !important; }
+/* ─── Bordas no escuro ─── */
+html.dark .border,
+html.dark .border-gray-50,
+html.dark .border-gray-100,
+html.dark .border-gray-150,
+html.dark .border-gray-200,
+html.dark .border-r-gray-100,
+html.dark .border-white\/5,
+html.dark .border-white\/10 {
+  border-color: #242424 !important; /* Bordas discretas e minimalistas */
+}
 
 /* ─── Tipografia em Modo Escuro ─── */
-html.dark .text-gray-950 { color: #fafafa !important; }
-html.dark .text-gray-900 { color: #f4f4f5 !important; }
-html.dark .text-gray-800 { color: #e4e4e7 !important; }
-html.dark .text-gray-700 { color: #d4d4d8 !important; }
-html.dark .text-gray-600 { color: #a1a1aa !important; }
-html.dark .text-gray-500 { color: #71717a !important; }
-html.dark .text-gray-400 { color: #71717a !important; }
-html.dark .text-gray-300 { color: #52525b !important; }
-html.dark .text-black { color: #fafafa !important; }
+html.dark .text-gray-950,
+html.dark .text-gray-900,
+html.dark .text-black {
+  color: #ffffff !important; /* Textos de alta importância em branco puro */
+}
+html.dark .text-gray-850,
+html.dark .text-gray-800,
+html.dark .text-gray-700 {
+  color: #e5e5e5 !important;
+}
+html.dark .text-gray-650,
+html.dark .text-gray-600,
+html.dark .text-gray-500 {
+  color: #a3a3a3 !important;
+}
+html.dark .text-gray-450,
+html.dark .text-gray-400 {
+  color: #737373 !important;
+}
+html.dark .text-gray-350,
+html.dark .text-gray-300 {
+  color: #404040 !important;
+}
 
 /* ─── Inputs e formulários ─── */
 select option {
   background-color: #ffffff;
-  color: #1f2937;
+  color: #000000;
 }
 
 html.dark select option {
-  background-color: #12101b !important;
-  color: #f1f1f6 !important;
+  background-color: #161616 !important;
+  color: #ffffff !important;
 }
 
 html.dark input,
 html.dark textarea,
 html.dark select {
-  background-color: #12101b !important;
-  border-color: rgba(139, 92, 246, 0.15) !important;
-  color: #f1f1f6 !important;
+  background-color: #0f0f0f !important;
+  border-color: #242424 !important;
+  color: #ffffff !important;
 }
 
 html.dark input:focus,
 html.dark textarea:focus {
-  background-color: #0c0b12 !important;
-  border-color: #8b5cf6 !important;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25) !important;
+  background-color: #000000 !important;
+  border-color: #3b82f6 !important; /* Foco azul */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
 }
 
 html.dark input::placeholder,
 html.dark textarea::placeholder {
-  color: #52525b !important;
+  color: #555555 !important;
 }
 
 /* ─── Sombras atenuadas ─── */
 html.dark [class*="shadow-\["] {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7) !important;
 }
 html.dark .shadow-sm {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* ─── Botão com borda preta → borda roxa ─── */
+/* ─── Botões e divisores ─── */
 html.dark .border-black {
-  border-color: #8b5cf6 !important;
+  border-color: #ffffff !important;
 }
 
-/* ─── Divisores ─── */
 html.dark .divide-gray-100 > :not(:first-child),
 html.dark .divide-gray-50 > :not(:first-child) {
-  border-color: rgba(139, 92, 246, 0.08) !important;
+  border-color: #242424 !important;
 }
 
 /* ─── Hovers em modo escuro ─── */
-html.dark .hover\:bg-gray-50:hover { background-color: #12101b !important; }
-html.dark .hover\:bg-gray-50\/30:hover { background-color: rgba(18, 16, 27, 0.3) !important; }
-html.dark .hover\:bg-gray-50\/60:hover { background-color: rgba(18, 16, 27, 0.6) !important; }
-html.dark .hover\:bg-gray-100:hover { background-color: #191629 !important; }
-html.dark .hover\:bg-gray-200:hover { background-color: #231f3a !important; }
-html.dark .hover\:bg-gray-200\/80:hover { background-color: rgba(35, 31, 58, 0.8) !important; }
+html.dark .hover\:bg-gray-50:hover { background-color: #161616 !important; }
+html.dark .hover\:bg-gray-50\/30:hover { background-color: rgba(22, 22, 22, 0.3) !important; }
+html.dark .hover\:bg-gray-50\/60:hover { background-color: rgba(22, 22, 22, 0.6) !important; }
+html.dark .hover\:bg-gray-100:hover { background-color: #1e1e1e !important; }
+html.dark .hover\:bg-gray-200:hover { background-color: #262626 !important; }
 
 /* ─── Scrollbar Global (Claro e Escuro) ─── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f3f4f6; /* cinza bem claro */
-  border-radius: 9999px;
+  background: #ffffff;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db; /* cinza claro */
+  background: #d4d4d8;
   border-radius: 9999px;
-  border: 2px solid #f3f4f6;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #a1a1aa;
 }
 
 /* Scrollbar no escuro */
 html.dark ::-webkit-scrollbar-track {
-  background: #0c0b12;
+  background: #000000;
 }
 
 html.dark ::-webkit-scrollbar-thumb {
-  background: #3b3754;
-  border-color: #0c0b12;
+  background: #242424;
   border-radius: 9999px;
-  border-width: 2px;
-  border-style: solid;
 }
 
 html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #4e496e;
+  background: #404040;
 }
 
 /* Scrollbar no Alto Contraste Claro */
@@ -371,4 +446,78 @@ html.overflow-hidden-page main {
     padding-top: 1.5rem !important;
     padding-bottom: 1.5rem !important;
   }
+}
+
+/* ─── Overrides das classes de cor do dashboard/configurações/busca para o novo Tema Escuro ─── */
+html.dark .bg-\[\#fafbfc\],
+html.dark tr.bg-\[\#fafbfc\],
+html.dark tr.bg-\[\#fafbfc\] th {
+  background-color: #08070d !important; /* Mapeado para o fundo principal da imagem */
+}
+
+html.dark .bg-\[\#f9fafb\] {
+  background-color: #12111a !important; /* Mapeado para o input da caixa de busca */
+}
+
+html.dark .dark\:bg-\[\#161424\],
+html.dark .dark\:bg-\[\#07060c\],
+html.dark .dark\:bg-\[\#1f1d2e\],
+html.dark .dark\:bg-gray-800\/50 {
+  background-color: #161616 !important; /* Elementos internos adicionais */
+}
+
+html.dark .bg-\[\#151322\]\/20,
+html.dark .bg-\[\#151322\]\/10,
+html.dark .dark\:bg-\[\#151322\]\/20,
+html.dark .dark\:bg-\[\#151322\]\/10,
+html.dark .dark\:bg-\[\#151322\]\/5 {
+  background-color: rgba(22, 22, 22, 0.4) !important;
+}
+
+html.dark .dark\:hover\:bg-\[\#151322\]\/10:hover {
+  background-color: rgba(22, 22, 22, 0.6) !important;
+}
+
+html.dark .dark\:border-purple-500\/10,
+html.dark .dark\:border-purple-500\/5,
+html.dark .dark\:border-purple-950\/20 {
+  border-color: #242424 !important;
+}
+
+/* ─── Overrides Semânticos de Status e Badges para o Tema Escuro ─── */
+html.dark .bg-green-50,
+html.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.1) !important; /* Emerald translúcido */
+}
+html.dark .text-green-700,
+html.dark .text-green-600,
+html.dark .text-emerald-600 {
+  color: #10b981 !important; /* Emerald vibrante */
+}
+
+html.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.1) !important; /* Red translúcido */
+}
+html.dark .text-red-700,
+html.dark .text-red-650,
+html.dark .text-red-600 {
+  color: #ef4444 !important; /* Red vibrante */
+}
+
+html.dark .bg-amber-50,
+html.dark .bg-yellow-500\/10 {
+  background-color: rgba(245, 158, 11, 0.1) !important; /* Amber translúcido */
+}
+html.dark .text-amber-700,
+html.dark .text-amber-600,
+html.dark .text-yellow-600 {
+  color: #f59e0b !important; /* Amber vibrante */
+}
+
+html.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.1) !important; /* Blue translúcido */
+}
+html.dark .text-blue-700,
+html.dark .text-blue-600 {
+  color: #3b82f6 !important; /* Blue vibrante */
 }

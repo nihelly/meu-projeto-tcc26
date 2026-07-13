@@ -32,12 +32,14 @@ import logoEduconnect from '../assets/logo-educonnect.png';
 import sidebarGirl from '../assets/globo.png';
 import SidebarAdmin from '../components/SidebarAdmin';
 import SidebarProfessor from '../components/SidebarProfessor';
-import SidebarAluno from '../components/SidebarAluno'; // We have globo.png in assets, or we can use it or a placeholder/generated illustration
+import SidebarAluno from '../components/SidebarAluno';
+import GeometricBackground from '../components/GeometricBackground'; // We have globo.png in assets, or we can use it or a placeholder/generated illustration
 
 export function AdminLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { usuario, perfil } = useAuth();
+  const { usuario, perfil, carregando } = useAuth();
+
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(() => {
     const saved = localStorage.getItem('unreadMessagesCount');
@@ -153,7 +155,7 @@ export function AdminLayout({ children }) {
 
   useEffect(() => {
     async function fetchReportCount() {
-      if (!usuario || perfil?.papel !== 'administrador') return;
+      if (!usuario || perfil?.papel !== 'professor') return;
       try {
         const { count } = await supabase
           .from('reports')
@@ -181,32 +183,25 @@ export function AdminLayout({ children }) {
   };
 
   const currentRoleLabel = () => {
-    if (perfil?.papel === 'administrador') return 'Administrador';
-    if (perfil?.papel === 'professor') return 'Professor';
+    if (perfil?.papel === 'professor' || perfil?.papel === 'administrador') return 'Professor';
     return 'Aluno';
   };
 
   const renderSidebar = (onLinkClick, collapsed = sidebarCollapsed) => {
-    const papel = perfil?.papel || 'aluno';
-    if (papel === 'administrador') {
+    if (carregando) {
       return (
-        <SidebarAdmin 
-          unreadCount={unreadCount} 
-          unreadMessagesCount={unreadMessagesCount}
-          reportCount={reportCount} 
-          usuario={usuario} 
-          perfil={perfil} 
-          handleLogout={handleLogout} 
-          onLinkClick={onLinkClick}
-          collapsed={collapsed}
-        />
+        <div className="flex-grow flex items-center justify-center p-8">
+          <div className="w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+        </div>
       );
     }
-    if (papel === 'professor') {
+    const papel = perfil?.papel || 'aluno';
+    if (papel === 'professor' || papel === 'administrador') {
       return (
         <SidebarProfessor 
           unreadCount={unreadCount} 
           unreadMessagesCount={unreadMessagesCount}
+          reportCount={reportCount}
           usuario={usuario} 
           perfil={perfil} 
           handleLogout={handleLogout} 
@@ -248,8 +243,17 @@ export function AdminLayout({ children }) {
     return () => window.removeEventListener('theme-changed', handleThemeChange);
   }, [perfil]);
 
+  useEffect(() => {
+    if (isDarkTheme) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkTheme]);
+
   return (
-    <div className={`min-h-screen flex relative font-sans transition-colors duration-300 ${isDarkTheme ? 'dark-dashboard-teacher bg-[#08070d] text-white' : 'bg-[#fcfcfc] text-gray-900'}`}>
+    <div className={`min-h-screen flex relative z-[1] font-sans transition-colors duration-300 ${isDarkTheme ? 'dark-dashboard-teacher bg-[#08070d] text-white' : 'bg-[#fcfcfc] text-gray-900'}`}>
+      <GeometricBackground />
       
       {/* SIDEBAR DESKTOP */}
       <aside className={`hidden md:flex flex-col justify-between p-0 h-screen sticky top-0 z-30 select-none flex-shrink-0 relative overflow-visible transition-all duration-350 ${sidebarCollapsed ? 'w-20' : 'w-64'} ${isDarkTheme ? 'border-r border-white/5 bg-[#0d0c13]' : 'border-r border-gray-100 bg-white'}`}>
@@ -258,7 +262,7 @@ export function AdminLayout({ children }) {
         {/* Toggle Collapse Button */}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="absolute top-6 -right-4.5 z-40 w-9 h-9 rounded-full flex items-center justify-center bg-violet-600 border border-violet-500 text-white shadow-lg cursor-pointer transition-all duration-300 hover:bg-violet-700 hover:scale-110"
+          className={`absolute top-6 -right-4.5 z-40 w-9 h-9 rounded-full flex items-center justify-center border shadow-md cursor-pointer transition-all duration-300 hover:scale-115 ${isDarkTheme ? 'bg-[#0d0c13] border-white/10 text-gray-400 hover:bg-[#12111a] hover:text-white' : 'bg-white border-gray-250 text-gray-600 hover:bg-gray-50 hover:text-black'}`}
           title={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
         >
           {sidebarCollapsed ? (

@@ -74,9 +74,9 @@ export default function Sidebar() {
           {/* LINK DE ADMINISTRAÇÃO/PAINEL (APENAS PROFESSORES E ADMINS) */}
           {userRole && (userRole === 'administrador' || userRole === 'professor') && (
             <NavLink 
-              to={userRole === 'administrador' ? '/admin' : '/professor'} 
+              to="/professor" 
               className={linkStyle} 
-              title={userRole === 'administrador' ? 'Administração' : 'Painel do Professor'}
+              title="Painel do Professor"
             >
               <Users size={20} strokeWidth={1.8} />
             </NavLink>

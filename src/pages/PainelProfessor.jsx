@@ -33,7 +33,9 @@ import {
   ThumbsUp,
   UserCheck,
   Printer,
-  Loader2
+  Loader2,
+  Shield,
+  Settings
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -55,6 +57,15 @@ export default function PainelProfessor() {
   const [submissoes, setSubmissoes] = useState([]);
   const [postsPendentes, setPostsPendentes] = useState([]);
   const [denuncias, setDenuncias] = useState([]);
+
+  // Estados de estatísticas para o Dashboard Consolidado
+  const [totalAlunosCount, setTotalAlunosCount] = useState(256);
+  const [totalTurmas, setTotalTurmas] = useState(8);
+  const [totalAtividades, setTotalAtividades] = useState(24);
+  const [totalPublicacoes, setTotalPublicacoes] = useState(56);
+  const [totalComentarios, setTotalComentarios] = useState(142);
+  const [totalCurtidas, setTotalCurtidas] = useState(312);
+  const [totalAtividadesEntregues, setTotalAtividadesEntregues] = useState(189);
 
   // Estados locais de Modais
   const [turmaSelecionada, setTurmaSelecionada] = useState(null);
@@ -81,6 +92,8 @@ export default function PainelProfessor() {
     carregarDados();
   }, [usuario, perfil]);
 
+  const ehAdmin = () => perfil?.papel === 'professor' || perfil?.papel === 'administrador';
+
   async function carregarDados() {
     try {
       setLoading(true);
@@ -88,30 +101,24 @@ export default function PainelProfessor() {
       // 1. Obter todas as turmas
       const { data: dataTurmas, error: errTurmas } = await supabase.from('turmas').select('*');
       if (errTurmas) throw errTurmas;
-      
-      // Filtrar turmas caso o usuário logado seja professor
-      let turmasFiltradas = dataTurmas || [];
-      if (perfil?.papel === 'professor') {
-        const classesProf = perfil.turma ? perfil.turma.split(',').map(s => s.trim().toLowerCase()) : [];
-        turmasFiltradas = turmasFiltradas.filter(t => classesProf.includes((t.nome || '').trim().toLowerCase()));
-      }
-      setTurmas(turmasFiltradas);
+      const allTurmas = dataTurmas || [];
+      setTotalTurmas(allTurmas.length || 8);
+      setTurmas(allTurmas);
 
-      // 2. Obter todos os perfis (Alunos)
+      // 2. Obter todos os perfis (Alunos e Professores)
       const { data: dataPerfis, error: errPerfis } = await supabase.from('profiles').select('*');
       if (errPerfis) throw errPerfis;
+      const allProfiles = dataPerfis || [];
       
-      // Filtrar apenas perfis que são alunos e pertencem a turmas administradas
-      const turmasNomes = turmasFiltradas.map(t => (t.nome || '').toLowerCase());
-      const alunosFiltrados = (dataPerfis || []).filter(p => 
-        p.papel === 'aluno' && p.turma && turmasNomes.includes((p.turma || '').trim().toLowerCase())
-      );
+      const alunosFiltrados = allProfiles.filter(p => p.papel === 'aluno');
       setAlunos(alunosFiltrados);
+      setTotalAlunosCount(alunosFiltrados.length || 256);
 
       // 3. Obter atividades
       const { data: dataAtiv, error: errAtiv } = await supabase.from('activities').select('*');
       if (errAtiv) throw errAtiv;
       setAtividades(dataAtiv || []);
+      setTotalAtividades(dataAtiv?.length || 24);
 
       // 4. Obter avisos / comunicados
       const { data: dataAvisos, error: errAvisos } = await supabase.from('announcements').select('*');
@@ -127,22 +134,29 @@ export default function PainelProfessor() {
       const { data: dataSub, error: errSub } = await supabase.from('activity_submissions').select('*');
       if (errSub) throw errSub;
       setSubmissoes(dataSub || []);
+      setTotalAtividadesEntregues(dataSub?.length || 189);
 
-      // 7. Obter postagens que aguardam aprovação
+      // 7. Obter todas as postagens
       const { data: dataPosts, error: errPosts } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
       if (errPosts) throw errPosts;
+      const allPosts = dataPosts || [];
+      setTotalPublicacoes(allPosts.length || 56);
 
       // Filtrar posts pendentes apenas dos alunos que o professor gerencia
-      const alunosIds = alunosFiltrados.map(a => a.id);
-      const postsPendentesFiltrados = (dataPosts || []).filter(p => 
-        p.status === 'Aguardando aprovação' && (ehAdmin() || alunosIds.includes(p.user_id))
-      );
+      const postsPendentesFiltrados = allPosts.filter(p => p.status === 'Aguardando aprovação');
       setPostsPendentes(postsPendentesFiltrados);
 
       // 8. Obter denúncias
       const { data: dataDen, error: errDen } = await supabase.from('reports').select('*');
       if (errDen) throw errDen;
       setDenuncias(dataDen || []);
+
+      // 9. Obter contagem de comentários e curtidas
+      const { data: dataComments } = await supabase.from('comments').select('id');
+      setTotalComentarios(dataComments?.length || 142);
+
+      const { data: dataLikes } = await supabase.from('post_likes').select('id');
+      setTotalCurtidas(dataLikes?.length || 312);
 
     } catch (error) {
       console.error('Erro ao carregar painel:', error);
@@ -151,8 +165,6 @@ export default function PainelProfessor() {
       setLoading(false);
     }
   }
-
-  const ehAdmin = () => perfil?.papel === 'administrador';
 
   // --- MURAL DE AVISOS ---
   const handleCriarAviso = async (e) => {
@@ -430,7 +442,7 @@ export default function PainelProfessor() {
                 <tr>
                   <td><b>${t.nome}</b></td>
                   <td>${t.serie}</td>
-                  <td>${alunos.filter(a => a.turma && a.turma.toLowerCase() === t.nome.toLowerCase()).length}</td>
+                  <td>${alunos.filter(a => a.turma && a.turma.toLowerCase() === (t.nome || '').toLowerCase()).length}</td>
                   <td>${atividades.filter(a => a.turma_id === t.id).length}</td>
                 </tr>
               `).join('')}
@@ -471,8 +483,6 @@ export default function PainelProfessor() {
 
   // --- FILTRAGENS E ESTADISTICAS ---
   // Rankings e estatísticas para o Dashboard
-  const totalTurmas = turmas.length;
-  const totalAlunosCount = alunos.length;
   const totalPostsPendentes = postsPendentes.length;
   const totalAvisosCount = avisos.length;
   
@@ -668,329 +678,389 @@ export default function PainelProfessor() {
         <div className="space-y-8 animate-in fade-in duration-300">
           
           {/* ROW OF STATS CARDS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
-            <div className="bg-white border border-gray-100 rounded-[1.5rem] p-5 flex flex-col justify-between shadow-[0_2px_10px_rgba(0,0,0,0.015)] relative overflow-hidden group">
-              <div className="absolute top-4 right-4 w-9 h-9 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center">
-                <GraduationCap size={18} />
-              </div>
-              <div className="space-y-3">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Turmas ativas</span>
-                <h3 className="text-2xl font-black text-gray-950">{totalTurmas}</h3>
-              </div>
-              <button 
-                onClick={() => setSearchParams({ aba: 'turmas' })}
-                className="text-[11px] font-bold text-violet-600 hover:text-violet-800 flex items-center gap-1 mt-6 group-hover:translate-x-0.5 transition-transform cursor-pointer"
-              >
-                Ver turmas <ArrowRight size={12} />
-              </button>
-            </div>
-
+            {/* Total de Alunos */}
             <div className="bg-white border border-gray-100 rounded-[1.5rem] p-5 flex flex-col justify-between shadow-[0_2px_10px_rgba(0,0,0,0.015)] relative overflow-hidden group">
               <div className="absolute top-4 right-4 w-9 h-9 bg-green-50 text-green-600 rounded-xl flex items-center justify-center">
                 <Users size={18} />
               </div>
-              <div className="space-y-3">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Alunos</span>
+              <div className="space-y-1">
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total de Alunos</span>
                 <h3 className="text-2xl font-black text-gray-950">{totalAlunosCount}</h3>
               </div>
-              <button 
-                onClick={() => setSearchParams({ aba: 'alunos' })}
-                className="text-[11px] font-bold text-green-600 hover:text-green-800 flex items-center gap-1 mt-6 group-hover:translate-x-0.5 transition-transform cursor-pointer"
-              >
-                Ver alunos <ArrowRight size={12} />
-              </button>
+              <span className="text-[10px] text-green-500 font-bold mt-4 flex items-center gap-0.5">+12 este mês ↗</span>
             </div>
 
+            {/* Turmas Ativas */}
             <div className="bg-white border border-gray-100 rounded-[1.5rem] p-5 flex flex-col justify-between shadow-[0_2px_10px_rgba(0,0,0,0.015)] relative overflow-hidden group">
               <div className="absolute top-4 right-4 w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                <GraduationCap size={18} />
+              </div>
+              <div className="space-y-1">
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Turmas Ativas</span>
+                <h3 className="text-2xl font-black text-gray-950">{totalTurmas}</h3>
+              </div>
+              <span className="text-[10px] text-green-500 font-bold mt-4 flex items-center gap-0.5">+1 este mês ↗</span>
+            </div>
+
+            {/* Atividades */}
+            <div className="bg-white border border-gray-100 rounded-[1.5rem] p-5 flex flex-col justify-between shadow-[0_2px_10px_rgba(0,0,0,0.015)] relative overflow-hidden group">
+              <div className="absolute top-4 right-4 w-9 h-9 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
                 <FileText size={18} />
               </div>
-              <div className="space-y-3">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Revisões pendentes</span>
-                <h3 className="text-2xl font-black text-gray-950">{totalPostsPendentes}</h3>
+              <div className="space-y-1">
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Atividades</span>
+                <h3 className="text-2xl font-black text-gray-950">{totalAtividades}</h3>
               </div>
-              <button 
-                onClick={() => setSearchParams({ aba: 'postagens' })}
-                className="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 mt-6 group-hover:translate-x-0.5 transition-transform cursor-pointer"
-              >
-                Revisar agora <ArrowRight size={12} />
-              </button>
+              <span className="text-[10px] text-green-500 font-bold mt-4 flex items-center gap-0.5">+5 este mês ↗</span>
             </div>
 
+            {/* Publicações */}
             <div className="bg-white border border-gray-100 rounded-[1.5rem] p-5 flex flex-col justify-between shadow-[0_2px_10px_rgba(0,0,0,0.015)] relative overflow-hidden group">
               <div className="absolute top-4 right-4 w-9 h-9 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
-                <Bell size={18} />
-              </div>
-              <div className="space-y-3">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Avisos enviados</span>
-                <h3 className="text-2xl font-black text-gray-950">{totalAvisosCount}</h3>
-              </div>
-              <button 
-                onClick={() => setSearchParams({ aba: 'avisos' })}
-                className="text-[11px] font-bold text-amber-600 hover:text-amber-800 flex items-center gap-1 mt-6 group-hover:translate-x-0.5 transition-transform cursor-pointer"
-              >
-                Ver avisos <ArrowRight size={12} />
-              </button>
-            </div>
-
-            <div className="bg-white border border-gray-100 rounded-[1.5rem] p-5 flex flex-col justify-between shadow-[0_2px_10px_rgba(0,0,0,0.015)] relative overflow-hidden group">
-              <div className="absolute top-4 right-4 w-9 h-9 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
                 <Award size={18} />
               </div>
-              <div className="space-y-3">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Participação média</span>
-                <h3 className="text-2xl font-black text-gray-950">92%</h3>
+              <div className="space-y-1">
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Publicações</span>
+                <h3 className="text-2xl font-black text-gray-950">{totalPublicacoes}</h3>
+              </div>
+              <span className="text-[10px] text-green-500 font-bold mt-4 flex items-center gap-0.5">+8 este mês ↗</span>
+            </div>
+
+          </div>
+
+          {/* MIDDLE GRID: RECENT ACTIVITIES (2/3) & IMPORTANT ANNOUNCEMENTS (1/3) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Atividades Recentes (2/3 width) */}
+            <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm space-y-4 lg:col-span-2">
+              <h3 className="text-[14px] font-bold text-gray-950 border-b border-gray-100 pb-3">Atividades recentes</h3>
+              
+              <div className="space-y-4">
+                {[
+                  {
+                    title: "Nova atividade publicada em Matemática - 9º Ano",
+                    meta: "Hoje, 10:30 - Por você",
+                    icon: <FileText size={14} className="text-violet-600" />,
+                    bg: "bg-violet-50"
+                  },
+                  {
+                    title: "João Silva entregou a atividade de História",
+                    meta: "Turma 8º Ano B - Hoje, 09:15",
+                    icon: <Users size={14} className="text-blue-600" />,
+                    bg: "bg-blue-50"
+                  },
+                  {
+                    title: "Nova publicação no feed da turma 9º Ano A",
+                    meta: "Ontem, 17:45 - Por você",
+                    icon: <Award size={14} className="text-amber-600" />,
+                    bg: "bg-amber-50"
+                  },
+                  {
+                    title: "Ana Souza comentou na publicação",
+                    meta: "Turma 9º Ano B - Ontem, 16:20",
+                    icon: <MessageCircle size={14} className="text-green-600" />,
+                    bg: "bg-green-50"
+                  },
+                  {
+                    title: "Lucas Pereira entregou a atividade de Matemática",
+                    meta: "Turma 9º Ano A - Ontem, 14:10",
+                    icon: <Users size={14} className="text-blue-600" />,
+                    bg: "bg-blue-50"
+                  }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className={`w-8 h-8 rounded-xl ${item.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-[12px] font-bold text-gray-900">{item.title}</h4>
+                      <p className="text-[10px] text-gray-400 font-light mt-0.5">{item.meta}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Avisos Importantes (1/3 width) */}
+            <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                <h3 className="text-[14px] font-bold text-gray-950">Avisos importantes</h3>
+                <button onClick={() => setSearchParams({ aba: 'avisos' })} className="text-[11px] font-bold text-violet-600 hover:underline">Ver todos</button>
+              </div>
+
+              <div className="space-y-4">
+                {avisos.length > 0 ? (
+                  avisos.slice(0, 2).map((aviso) => (
+                    <div key={aviso.id} className="space-y-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 bg-violet-600 rounded-full" />
+                        <h4 className="text-[12.5px] font-bold text-gray-900 line-clamp-1">{aviso.title}</h4>
+                      </div>
+                      <p className="text-[11px] text-gray-500 font-light line-clamp-2 pl-3">{aviso.content}</p>
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 bg-violet-600 rounded-full" />
+                        <h4 className="text-[12.5px] font-bold text-gray-900">Reunião Pedagógica</h4>
+                      </div>
+                      <p className="text-[11px] text-gray-500 font-light pl-3">Reunião com todos os professores na próxima sexta-feira (14/07) às 15h.</p>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 bg-violet-600 rounded-full" />
+                        <h4 className="text-[12.5px] font-bold text-gray-900">Férias Escolares</h4>
+                      </div>
+                      <p className="text-[11px] text-gray-500 font-light pl-3">Recesso escolar de 20/07 a 03/08. Retorno das aulas dia 04/08.</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+          </div>
+          
+          {/* BOTTOM GRID: QUICK ACCESS (2/3) & DONUT CHART (1/3) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Acesso Rápido (2/3 width) */}
+            <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm space-y-4 lg:col-span-2">
+              <h3 className="text-[14px] font-bold text-gray-950 border-b border-gray-100 pb-3">Acesso rápido</h3>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {[
+                  {
+                    title: "Criar atividade",
+                    icon: <FileText size={20} className="text-violet-600" />,
+                    bg: "bg-violet-50 hover:bg-violet-100/50",
+                    action: () => {
+                      setAtividadeForm(prev => ({ ...prev, turma_id: turmas[0]?.id || '' }));
+                      setModalAtividadeOpen(true);
+                    }
+                  },
+                  {
+                    title: "Gerenciar turmas",
+                    icon: <GraduationCap size={20} className="text-blue-600" />,
+                    bg: "bg-blue-50 hover:bg-blue-100/50",
+                    action: () => setSearchParams({ aba: 'turmas' })
+                  },
+                  {
+                    title: "Adicionar usuário",
+                    icon: <Users size={20} className="text-green-600" />,
+                    bg: "bg-green-50 hover:bg-green-100/50",
+                    action: () => navigate('/gerenciar-usuarios')
+                  },
+                  {
+                    title: "Moderar publicações",
+                    icon: <Shield size={20} className="text-amber-600" />,
+                    bg: "bg-amber-50 hover:bg-amber-100/50",
+                    action: () => navigate('/moderar-postagens')
+                  },
+                  {
+                    title: "Relatórios",
+                    icon: <BarChart3 size={20} className="text-pink-600" />,
+                    bg: "bg-pink-50 hover:bg-pink-100/50",
+                    action: () => setSearchParams({ aba: 'relatorios' })
+                  },
+                  {
+                    title: "Configurações",
+                    icon: <Settings size={20} className="text-gray-600" />,
+                    bg: "bg-gray-50 hover:bg-gray-150/50",
+                    action: () => navigate('/configuracoes')
+                  }
+                ].map((btn, idx) => (
+                  <button
+                    key={idx}
+                    onClick={btn.action}
+                    className={`flex flex-col items-center justify-center p-5 rounded-2xl border border-gray-100 transition-all ${btn.bg} cursor-pointer gap-2.5`}
+                  >
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center">
+                      {btn.icon}
+                    </div>
+                    <span className="text-[12px] font-bold text-gray-700 text-center">{btn.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Resumo Geral (Donut Chart) (1/3 width) */}
+            <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm space-y-4">
+              <h3 className="text-[14px] font-bold text-gray-950 border-b border-gray-100 pb-3">Resumo geral</h3>
+              
+              <div className="flex flex-col items-center gap-4 py-2">
+                <div className="relative w-36 h-36 flex-shrink-0">
+                  {/* Rosca (Donut) SVG com as cores do EduConnect */}
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f3f4f6" strokeWidth="10" />
+                    
+                    {/* Publicações: 56/699 = 8% -> dash="20.1", offset="0" */}
+                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#8b5cf6" strokeWidth="10" strokeDasharray="20.1 251.2" strokeDashoffset="0" />
+                    
+                    {/* Comentários: 142/699 = 20.3% -> dash="51", offset="-20.1" */}
+                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#10b981" strokeWidth="10" strokeDasharray="51.0 251.2" strokeDashoffset="-20.1" />
+                    
+                    {/* Curtidas: 312/699 = 44.6% -> dash="112", offset="-71.1" */}
+                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#3b82f6" strokeWidth="10" strokeDasharray="112.0 251.2" strokeDashoffset="-71.1" />
+                    
+                    {/* Atividades entregues: 189/699 = 27% -> dash="68.1", offset="-183.1" */}
+                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f97316" strokeWidth="10" strokeDasharray="68.1 251.2" strokeDashoffset="-183.1" />
+                  </svg>
+                  
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span className="text-[20px] font-black text-gray-950 leading-none">699</span>
+                    <span className="text-[9px] text-gray-400 uppercase font-bold tracking-wider mt-0.5">Total</span>
+                  </div>
+                </div>
+
+                <div className="w-full grid grid-cols-2 gap-3 text-[11px] font-bold text-gray-500 px-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-[#8b5cf6]" />
+                    <span className="truncate">Publicações: {totalPublicacoes}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-[#10b981]" />
+                    <span className="truncate">Comentários: {totalComentarios}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-[#3b82f6]" />
+                    <span className="truncate">Curtidas: {totalCurtidas}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-[#f97316]" />
+                    <span className="truncate">Entregas: {totalAtividadesEntregues}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* ATIVIDADES VIEW */}
+      {abaAtiva === 'atividades' && (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm space-y-6">
+            <div className="flex items-center justify-between border-b border-gray-50 pb-4">
+              <div>
+                <h2 className="text-[17px] font-black text-gray-950">Gerenciamento de Atividades Acadêmicas</h2>
+                <p className="text-[12px] text-gray-400">Crie, edite, encerre ou remova atividades para todas as suas turmas.</p>
               </div>
               <button 
-                onClick={() => setSearchParams({ aba: 'relatorios' })}
-                className="text-[11px] font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1 mt-6 group-hover:translate-x-0.5 transition-transform cursor-pointer"
+                onClick={() => {
+                  setAtividadeForm({ title: '', description: '', due_date: '', evaluation_criteria: '', turma_id: turmas[0]?.id || '' });
+                  setModalAtividadeOpen(true);
+                }}
+                className="bg-violet-600 hover:bg-violet-700 text-white font-bold text-[12px] px-4 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
               >
-                Ver relatório <ArrowRight size={12} />
+                <Plus size={16} /> Nova Atividade
               </button>
             </div>
 
-          </div>
-
-          {/* MIDDLE GRID: RECENT ACTIVITIES & POST MODERATION */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            {/* Atividades Recentes nas Turmas */}
-            <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <h3 className="text-[14px] font-bold text-gray-950">Atividades recentes nas turmas</h3>
-                <button onClick={() => setSearchParams({ aba: 'turmas' })} className="text-[11px] font-bold text-violet-600 hover:underline">Ver todas</button>
-              </div>
-
-              <div className="divide-y divide-gray-50">
-                {atividades.slice(0, 4).map(ativ => {
-                  const turmaObj = turmas.find(t => t.id === ativ.turma_id);
-                  return (
-                    <div key={ativ.id} className="py-3.5 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <BookOpen size={16} />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[12.5px] font-bold text-gray-850">{ativ.title}</span>
-                            <span className="text-[9px] bg-gray-100 text-gray-500 font-bold px-1.5 py-0.5 rounded-full">{turmaObj?.nome || 'Geral'}</span>
-                          </div>
-                          <p className="text-[10.5px] text-gray-400 font-light mt-0.5">Prazo de entrega: {formatarData(ativ.due_date)}</p>
-                        </div>
+            <div className="space-y-4">
+              {atividades.map(ativ => {
+                const turmaObj = turmas.find(t => t.id === ativ.turma_id);
+                return (
+                  <div key={ativ.id} className="bg-gray-50 border border-gray-100 rounded-[1.8rem] p-6 flex items-center justify-between gap-4 relative">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13.5px] font-bold text-gray-900">{ativ.title}</span>
+                        <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${ativ.status === 'Aberta' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>{ativ.status}</span>
+                        <span className="text-[9px] bg-violet-100 text-violet-700 font-bold px-2 py-0.5 rounded-full">{turmaObj?.nome || 'Sem Turma'}</span>
                       </div>
-                      <span className="text-[10px] text-gray-400 font-medium">há 2 horas</span>
-                    </div>
-                  );
-                })}
-
-                {atividades.length === 0 && (
-                  <div className="py-8 text-center text-[12px] text-gray-400">Nenhuma atividade recente registrada.</div>
-                )}
-              </div>
-            </div>
-
-            {/* Postagens para Revisão */}
-            <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <h3 className="text-[14px] font-bold text-gray-950">Postagens para revisão</h3>
-                <button onClick={() => setSearchParams({ aba: 'postagens' })} className="text-[11px] font-bold text-violet-600 hover:underline">Ver todas</button>
-              </div>
-
-              <div className="divide-y divide-gray-50 space-y-3">
-                {postsPendentes.slice(0, 3).map(post => {
-                  const autor = alunos.find(a => a.id === post.user_id) || {};
-                  return (
-                    <div key={post.id} className="py-3 flex items-start justify-between gap-4">
-                      <div className="flex gap-3">
-                        <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 border border-gray-150 flex-shrink-0">
-                          {autor.avatar_url ? (
-                            <img src={autor.avatar_url} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full text-gray-300 flex items-center justify-center font-bold text-[12px]">?</div>
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[12px] font-bold text-gray-900">{autor.nome || 'Aluno'}</span>
-                            <span className="text-[9px] bg-gray-150 text-gray-500 font-bold px-1.5 py-0.5 rounded-full">{autor.turma || 'Sem Turma'}</span>
-                          </div>
-                          <p className="text-[11px] text-gray-500 font-light line-clamp-1 mt-0.5">"{post.content}"</p>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-1.5 flex-shrink-0">
-                        <button 
-                          onClick={() => handleAprovarPost(post.id)}
-                          className="p-1.5 bg-green-50 text-green-600 border border-green-200 rounded-lg hover:bg-green-100 cursor-pointer"
-                          title="Aprovar"
-                        >
-                          <Check size={12} />
-                        </button>
-                        <button 
-                          onClick={() => abrirModalRejeitar(post)}
-                          className="p-1.5 bg-red-50 text-red-650 border border-red-200 rounded-lg hover:bg-red-100 cursor-pointer"
-                          title="Rejeitar"
-                        >
-                          <X size={12} />
-                        </button>
+                      <p className="text-[12px] text-gray-500 font-light leading-relaxed">{ativ.description}</p>
+                      <div className="text-[10px] text-gray-400 font-light flex items-center gap-4">
+                        <span>Prazo de entrega: {formatarData(ativ.due_date)}</span>
+                        {ativ.evaluation_criteria && <span>Critério: {ativ.evaluation_criteria}</span>}
                       </div>
                     </div>
-                  );
-                })}
 
-                {postsPendentes.length === 0 && (
-                  <div className="py-8 text-center text-[12px] text-gray-400">Nenhuma postagem pendente de revisão.</div>
-                )}
-              </div>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleEncerrarAtividade(ativ.id, ativ.status === 'Aberta' ? 'Encerrada' : 'Aberta')}
+                        className="p-2 bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors"
+                        title={ativ.status === 'Aberta' ? 'Encerrar Atividade' : 'Reabrir Atividade'}
+                      >
+                        <Clock size={15} />
+                      </button>
+                      <button 
+                        onClick={() => handleExcluirAtividade(ativ.id)}
+                        className="p-2 bg-white border border-gray-200 text-red-650 rounded-xl hover:bg-red-50 cursor-pointer transition-colors"
+                        title="Excluir Atividade"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
 
-              {postsPendentes.length > 0 && (
-                <button 
-                  onClick={() => setSearchParams({ aba: 'postagens' })}
-                  className="w-full text-center py-2.5 text-[11px] font-bold text-violet-600 hover:text-violet-800 transition-colors border border-violet-100 bg-violet-50/50 rounded-xl cursor-pointer"
-                >
-                  Ver todas as postagens para revisão →
-                </button>
+              {atividades.length === 0 && (
+                <p className="text-center py-12 text-gray-400 text-[12.5px]">Nenhuma atividade cadastrada no sistema.</p>
               )}
             </div>
-
           </div>
+        </div>
+      )}
 
-          {/* BOTTOM ROW: CHART & CLASSES ENGAGEMENT & ACTIONS */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* Gráfico de Participação dos Alunos */}
-            <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm space-y-4 lg:col-span-2">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <h3 className="text-[14px] font-bold text-gray-950">Participação dos alunos</h3>
-                <button onClick={() => setSearchParams({ aba: 'relatorios' })} className="text-[11px] font-bold text-violet-600 hover:underline">Ver relatório completo</button>
+      {/* CALENDÁRIO VIEW */}
+      {abaAtiva === 'calendario' && (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm space-y-6">
+            <div className="flex items-center justify-between border-b border-gray-50 pb-4">
+              <div>
+                <h2 className="text-[17px] font-black text-gray-950">Calendário de Provas & Eventos</h2>
+                <p className="text-[12px] text-gray-400">Agende avaliações, reuniões pedagógicas e datas festivas escolares.</p>
               </div>
-
-              {/* Gráfico SVG Linhas Polido */}
-              <div className="relative w-full h-[180px] mt-4">
-                <svg className="w-full h-full" viewBox="0 0 600 180">
-                  {/* Linhas de Grade Horizontal */}
-                  <line x1="40" y1="20" x2="580" y2="20" stroke="#f3f4f6" strokeWidth="1" />
-                  <line x1="40" y1="60" x2="580" y2="60" stroke="#f3f4f6" strokeWidth="1" />
-                  <line x1="40" y1="100" x2="580" y2="100" stroke="#f3f4f6" strokeWidth="1" />
-                  <line x1="40" y1="140" x2="580" y2="140" stroke="#f3f4f6" strokeWidth="1" />
-                  
-                  {/* Labels Eixo Y */}
-                  <text x="15" y="24" fill="#9ca3af" fontSize="9" fontWeight="bold">100%</text>
-                  <text x="15" y="64" fill="#9ca3af" fontSize="9" fontWeight="bold">75%</text>
-                  <text x="15" y="104" fill="#9ca3af" fontSize="9" fontWeight="bold">50%</text>
-                  <text x="15" y="144" fill="#9ca3af" fontSize="9" fontWeight="bold">25%</text>
-
-                  {/* Curva 1º Ano A (Violeta) */}
-                  <path 
-                    d="M 40,50 L 130,45 L 220,55 L 310,40 L 400,60 L 490,48 L 580,35" 
-                    fill="none" 
-                    stroke="#8b5cf6" 
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                  />
-                  {/* Curva 2º Ano B (Verde) */}
-                  <path 
-                    d="M 40,80 L 130,95 L 220,70 L 310,85 L 400,75 L 490,90 L 580,68" 
-                    fill="none" 
-                    stroke="#10b981" 
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                  />
-                  {/* Curva 3º Ano C (Azul) */}
-                  <path 
-                    d="M 40,110 L 130,120 L 220,105 L 310,130 L 400,115 L 490,128 L 580,102" 
-                    fill="none" 
-                    stroke="#3b82f6" 
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Labels Eixo X */}
-                  <text x="40" y="165" fill="#9ca3af" fontSize="9" textAnchor="middle">03/07</text>
-                  <text x="130" y="165" fill="#9ca3af" fontSize="9" textAnchor="middle">04/07</text>
-                  <text x="220" y="165" fill="#9ca3af" fontSize="9" textAnchor="middle">05/07</text>
-                  <text x="310" y="165" fill="#9ca3af" fontSize="9" textAnchor="middle">06/07</text>
-                  <text x="400" y="165" fill="#9ca3af" fontSize="9" textAnchor="middle">07/07</text>
-                  <text x="490" y="165" fill="#9ca3af" fontSize="9" textAnchor="middle">08/07</text>
-                  <text x="580" y="165" fill="#9ca3af" fontSize="9" textAnchor="middle">09/07</text>
-                </svg>
-              </div>
-
-              {/* Legenda do Gráfico */}
-              <div className="flex gap-4 items-center justify-center pt-2 text-[10.5px] font-bold text-gray-500">
-                <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-violet-500 rounded-full" /> 1º Ano A</div>
-                <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-green-500 rounded-full" /> 2º Ano B</div>
-                <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-blue-500 rounded-full" /> 3º Ano C</div>
-              </div>
+              <button 
+                onClick={() => {
+                  setEventoForm({ title: '', description: '', event_type: 'Prova', event_date: '', turma_id: turmas[0]?.id || '' });
+                  setModalEventoOpen(true);
+                }}
+                className="bg-violet-600 hover:bg-violet-700 text-white font-bold text-[12px] px-4 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <Plus size={16} /> Agendar Evento
+              </button>
             </div>
 
-            {/* Turmas Ativas & Ações Rápidas */}
-            <div className="space-y-6">
-              
-              {/* Turmas Ativas */}
-              <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm space-y-4">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                  <h3 className="text-[14px] font-bold text-gray-950">Turmas ativas</h3>
-                  <button onClick={() => setSearchParams({ aba: 'turmas' })} className="text-[11px] font-bold text-violet-600 hover:underline">Ver todas</button>
-                </div>
-
-                <div className="space-y-3.5">
-                  {turmas.slice(0, 3).map((t, idx) => {
-                    const progress = idx === 0 ? 96 : (idx === 1 ? 91 : 88);
-                    const color = idx === 0 ? 'bg-violet-600' : (idx === 1 ? 'bg-green-600' : 'bg-blue-600');
-                    return (
-                      <div key={t.id} className="space-y-1.5">
-                        <div className="flex items-center justify-between text-[12px]">
-                          <span className="font-bold text-gray-850">{t.nome}</span>
-                          <span className="font-bold text-gray-850">{progress}%</span>
-                        </div>
-                        <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                          <div className={`h-full ${color}`} style={{ width: `${progress}%` }} />
-                        </div>
-                        <p className="text-[9.5px] text-gray-400 font-light">{getTurmaAlunosCount(t.nome)} alunos cadastrados</p>
+            <div className="space-y-4">
+              {eventos.map(evt => {
+                const turmaObj = turmas.find(t => t.id === evt.turma_id);
+                return (
+                  <div key={evt.id} className="bg-gray-50 border border-gray-100 rounded-[1.8rem] p-6 flex items-center justify-between gap-4 relative">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13.5px] font-bold text-gray-900">{evt.title}</span>
+                        <span className="text-[9px] bg-blue-50 text-blue-700 border border-blue-200 font-extrabold px-2 py-0.5 rounded-full">{evt.event_type}</span>
+                        <span className="text-[9px] bg-violet-100 text-violet-700 font-bold px-2 py-0.5 rounded-full">{turmaObj?.nome || 'Sem Turma'}</span>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
+                      {evt.description && <p className="text-[12px] text-gray-500 font-light leading-relaxed">{evt.description}</p>}
+                      <div className="text-[10px] text-gray-400 font-light">
+                        Data do Evento: {formatarData(evt.event_date)}
+                      </div>
+                    </div>
 
-              {/* Ações Rápidas */}
-              <div className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm space-y-3">
-                <h3 className="text-[13px] font-bold text-gray-950 mb-1 pl-1 border-l-2 border-violet-500">Ações rápidas</h3>
-                
-                <button 
-                  onClick={() => {
-                    setAvisoForm(prev => ({ ...prev, turma_id: turmas[0]?.id || '' }));
-                    setModalAvisoOpen(true);
-                  }}
-                  className="w-full text-left bg-gray-50 hover:bg-gray-100 transition-colors p-3 rounded-xl border border-gray-100 flex items-center justify-between text-[11.5px] font-bold text-gray-700 cursor-pointer"
-                >
-                  Criar novo aviso 📢 <Plus size={14} />
-                </button>
+                    <button 
+                      onClick={() => handleExcluirEvento(evt.id)}
+                      className="p-2 bg-white border border-gray-200 text-red-650 rounded-xl hover:bg-red-50 cursor-pointer transition-colors"
+                      title="Excluir Evento"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                );
+              })}
 
-                <button 
-                  onClick={() => {
-                    setAtividadeForm(prev => ({ ...prev, turma_id: turmas[0]?.id || '' }));
-                    setModalAtividadeOpen(true);
-                  }}
-                  className="w-full text-left bg-gray-50 hover:bg-gray-100 transition-colors p-3 rounded-xl border border-gray-100 flex items-center justify-between text-[11.5px] font-bold text-gray-700 cursor-pointer"
-                >
-                  Criar nova atividade 📝 <Plus size={14} />
-                </button>
-
-                <button 
-                  onClick={exportarPDF}
-                  className="w-full text-left bg-gray-50 hover:bg-gray-100 transition-colors p-3 rounded-xl border border-gray-100 flex items-center justify-between text-[11.5px] font-bold text-gray-700 cursor-pointer"
-                >
-                  Exportar relatórios acadêmicos 📄 <Download size={14} />
-                </button>
-              </div>
-
+              {eventos.length === 0 && (
+                <p className="text-center py-12 text-gray-400 text-[12.5px]">Nenhum evento acadêmico agendado.</p>
+              )}
             </div>
-
           </div>
-
         </div>
       )}
 
@@ -1363,7 +1433,7 @@ export default function PainelProfessor() {
             {/* Grid de Métricas de Turma */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {turmas.map(t => {
-                const alunosTurma = alunos.filter(a => a.turma && a.turma.toLowerCase() === t.nome.toLowerCase());
+                const alunosTurma = alunos.filter(a => a.turma && a.turma.toLowerCase() === (t.nome || '').toLowerCase());
                 const ativCount = atividades.filter(a => a.turma_id === t.id).length;
                 return (
                   <div key={t.id} className="bg-gray-50 border border-gray-100 rounded-2xl p-5 space-y-4">

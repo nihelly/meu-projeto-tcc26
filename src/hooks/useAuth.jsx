@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from 'sonner';
 
-export function useAuth() {
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [perfil, setPerfil] = useState(null);
   const [carregando, setCarregando] = useState(true);
@@ -72,12 +74,25 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Retornamos um objeto com tudo o que o App precisa
-  return { 
+  const value = { 
     usuario, 
     perfil, 
     carregando, 
     ehProfessor: perfil?.papel === 'professor',
-    ehAdmin: perfil?.papel === 'administrador'
+    ehAdmin: perfil?.papel === 'professor'
   };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth deve ser utilizado dentro de um AuthProvider');
+  }
+  return context;
 }

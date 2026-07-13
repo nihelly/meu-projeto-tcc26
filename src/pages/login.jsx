@@ -14,6 +14,7 @@ import {
   LockKeyhole 
 } from 'lucide-react';
 import logoEduconnect from '../assets/logo-educonnect.png';
+import GeometricBackground from '../components/GeometricBackground';
 
 const LogoGoogleSvg = () => (
   <svg className="w-4 h-4 mr-2 flex-shrink-0" viewBox="0 0 24 24">
@@ -105,9 +106,7 @@ export default function Login() {
         toast.success('Bem-vindo de volta ao EduConnect!');
 
         const papel = perfilData?.papel;
-        if (papel === 'administrador') {
-          navigate('/admin');
-        } else if (papel === 'professor') {
+        if (papel === 'professor' || papel === 'administrador') {
           navigate('/professor');
         } else {
           navigate('/feed');
@@ -131,14 +130,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-[#0b1b3d] via-[#102a61] to-[#1e488f] flex flex-col items-center justify-center p-4 relative overflow-hidden select-none">
+    <div className="min-h-screen bg-white dark:bg-black flex flex-col items-center justify-center p-4 relative z-[1] overflow-hidden select-none transition-colors duration-300">
+      <GeometricBackground />
       
-      {/* Padrões geométricos em gradiente de fundo */}
-      <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-blue-500/10 blur-3xl" />
-      <div className="absolute bottom-[-10%] left-[-15%] w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-3xl" />
-
       {/* CARD PRINCIPAL */}
-      <div className="relative z-10 w-full max-w-[420px] bg-white rounded-[2.5rem] shadow-2xl border border-white/10 p-8 flex flex-col items-center animate-in zoom-in-95 duration-300">
+      <div className="relative z-10 w-full max-w-[420px] bg-white dark:bg-zinc-950 rounded-[2rem] shadow-sm border border-gray-150 dark:border-zinc-800 p-8 flex flex-col items-center animate-in zoom-in-95 duration-300">
         
         {/* Logo EduConnect */}
         <div className="mb-4">

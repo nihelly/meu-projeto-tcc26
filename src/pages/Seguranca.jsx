@@ -85,8 +85,8 @@ export default function Seguranca() {
         { id: '1', device_name: 'Chrome • Windows', ip_address: '192.168.1.15', last_active: new Date().toISOString() }
       ]);
 
-      // 4. Backups (apenas para Admin)
-      if (perfil?.papel === 'administrador') {
+      // 4. Backups (apenas para Admin/Professor)
+      if (perfil?.papel === 'professor' || perfil?.papel === 'administrador') {
         const { data: backupsData } = await supabase.from('security_backups').select('*').order('created_at', { ascending: false });
         setBackups(backupsData || []);
       }
@@ -99,7 +99,7 @@ export default function Seguranca() {
     }
   }
 
-  const ehAdmin = () => perfil?.papel === 'administrador';
+  const ehAdmin = () => perfil?.papel === 'professor' || perfil?.papel === 'administrador';
 
   // --- ALTERAR SENHA ---
   const handleAlterarSenha = async (e) => {

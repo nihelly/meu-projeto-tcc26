@@ -169,7 +169,7 @@ export default function PaginaTurma() {
     }
   }
 
-  const ehAdmin = () => perfil?.papel === 'administrador';
+  const ehAdmin = () => perfil?.papel === 'professor' || perfil?.papel === 'administrador';
   const ehProfessor = () => perfil?.papel === 'professor' && (professores.some(p => p.id === usuario.id) || ehAdmin());
 
   // --- POSTS ---

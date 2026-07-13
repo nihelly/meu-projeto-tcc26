@@ -414,7 +414,6 @@ export default function GerenciarUsuarios() {
                 <option value="Todos">Todos</option>
                 <option value="Aluno">Aluno</option>
                 <option value="Professor">Professor</option>
-                <option value="Administrador">Administrador</option>
               </select>
             </div>
 
@@ -731,7 +730,6 @@ export default function GerenciarUsuarios() {
                 >
                   <option value="aluno">Aluno (Estudante)</option>
                   <option value="professor">Professor (Docente)</option>
-                  <option value="administrador">Administrador</option>
                 </select>
               </div>
 

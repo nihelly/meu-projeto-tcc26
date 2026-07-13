@@ -128,7 +128,7 @@ export default function DetalhePost() {
     }
   }
 
-  const ehAdmin = () => perfil?.papel === 'administrador';
+  const ehAdmin = () => perfil?.papel === 'professor' || perfil?.papel === 'administrador';
   const ehProfessor = () => perfil?.papel === 'professor';
 
   // --- FILTRO DE LINGUAGEM INADEQUADA ---

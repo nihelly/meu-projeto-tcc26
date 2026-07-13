@@ -29,12 +29,14 @@ import PaginaTurma from './pages/PaginaTurma';
 import DetalhePost from './pages/DetalhePost';
 import Seguranca from './pages/Seguranca';
 import Privacidade from './pages/Privacidade';
+import { AuthProvider } from './hooks/useAuth';
 
 export default function App() {
   return (
-    <Router>
-      {/* Provedor global das notificações flutuantes (Toast) */}
-      <Toaster position="top-right" richColors closeButton />
+    <AuthProvider>
+      <Router>
+        {/* Provedor global das notificações flutuantes (Toast) */}
+        <Toaster position="top-right" richColors closeButton />
 
       <Routes>
         {/* ==================== ROTAS PÚBLICAS ==================== */}
@@ -146,7 +148,7 @@ export default function App() {
         <Route 
           path="/gerenciar-usuarios" 
           element={
-            <RotaProtegida apenasAdmin={true}>
+            <RotaProtegida apenasProfessor={true}>
               <AdminLayout><GerenciarUsuarios /></AdminLayout>
             </RotaProtegida>
           } 
@@ -172,14 +174,10 @@ export default function App() {
           } 
         />
 
-        {/* Painel do Administrador (Apenas Admin) */}
+        {/* Painel do Administrador (Redirecionado para Painel do Professor) */}
         <Route 
           path="/admin" 
-          element={
-            <RotaProtegida apenasAdmin={true}>
-              <AdminLayout><PainelAdministrador /></AdminLayout>
-            </RotaProtegida>
-          } 
+          element={<Navigate to="/professor" replace />} 
         />
 
         {/* Organização por Turmas (Acesso para todos os logados) */}
@@ -210,7 +208,7 @@ export default function App() {
         <Route 
           path="/seguranca" 
           element={
-            <RotaProtegida apenasAdmin={true}>
+            <RotaProtegida apenasProfessor={true}>
               <AdminLayout><Seguranca /></AdminLayout>
             </RotaProtegida>
           } 
@@ -230,6 +228,7 @@ export default function App() {
         {/* Fallback: Qualquer caminho inválido joga para o login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 }
