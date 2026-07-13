@@ -899,7 +899,7 @@ export default function PaginaTurma() {
                     </div>
                     <div>
                       <h5 className="text-[13px] font-extrabold text-gray-950">{prof.nome}</h5>
-                      <span className="text-[10px] bg-violet-100 text-violet-750 font-bold px-2 py-0.5 rounded-full mt-1 inline-block">{prof.disciplinas || 'Coordenador'}</span>
+                      <span className="text-[10px] bg-blue-50 text-blue-600 font-bold px-2 py-0.5 rounded-full mt-1 inline-block">{prof.disciplinas || 'Coordenador'}</span>
                     </div>
                   </div>
                 ))}

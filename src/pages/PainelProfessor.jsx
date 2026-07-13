@@ -875,8 +875,8 @@ export default function PainelProfessor() {
                   },
                   {
                     title: "Relatórios",
-                    icon: <BarChart3 size={20} className="text-pink-600" />,
-                    bg: "bg-pink-50 hover:bg-pink-100/50",
+                    icon: <BarChart3 size={20} className="text-violet-600" />,
+                    bg: "bg-violet-50 hover:bg-violet-100/50",
                     action: () => setSearchParams({ aba: 'relatorios' })
                   },
                   {
