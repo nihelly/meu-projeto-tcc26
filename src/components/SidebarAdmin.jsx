@@ -50,7 +50,7 @@ export default function SidebarAdmin({ unreadCount, unreadMessagesCount, reportC
         <div className="space-y-6">
           {/* Logo e Nome */}
           <div className={`flex items-center gap-2.5 px-3 py-1 ${collapsed ? 'justify-center' : ''}`}>
-            <img src={logoEduconnect} alt="EduConnect" className="w-7 h-7 object-contain animate-pulse" />
+            <img src={logoEduconnect} alt="EduConnect" className="w-7 h-7 object-contain" />
             {!collapsed && <span className="font-bold text-[16px] text-white tracking-tight animate-in fade-in duration-300">EduConnect</span>}
           </div>
 
