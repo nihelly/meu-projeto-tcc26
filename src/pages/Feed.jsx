@@ -30,16 +30,22 @@ export default function Feed() {
       try {
         setCarregando(true);
         
-        // Obter usuário atual
-        const { data: { user } } = await supabase.auth.getUser();
-        setCurrentUser(user);
+        // Obter usuário e dados em paralelo
+        const [
+          { data: { user } },
+          { data: postsData, error: postsError },
+          { data: likesData },
+          { data: repostsData },
+          { data: commentsCountData }
+        ] = await Promise.all([
+          supabase.auth.getUser(),
+          supabase.from('posts').select('*').eq('status', 'Aprovada').order('created_at', { ascending: false }),
+          supabase.from('likes').select('post_id, user_id'),
+          supabase.from('reposts').select('post_id, user_id'),
+          supabase.from('comments').select('post_id')
+        ]);
 
-        // Obter posts (apenas aprovados e excluindo avisos com prefixo AVISO:)
-        const { data: postsData, error: postsError } = await supabase
-          .from('posts')
-          .select('*')
-          .eq('status', 'Aprovada')
-          .order('created_at', { ascending: false });
+        setCurrentUser(user);
 
         if (postsError) throw postsError;
 
@@ -47,21 +53,6 @@ export default function Feed() {
           if (!post.title) return true;
           return !post.title.startsWith('AVISO:');
         });
-
-        // Obter curtidas do banco
-        const { data: likesData } = await supabase
-          .from('likes')
-          .select('post_id, user_id');
-
-        // Obter reposts do banco
-        const { data: repostsData } = await supabase
-          .from('reposts')
-          .select('post_id, user_id');
-
-        // Obter contagem de comentários da tabela comments
-        const { data: commentsCountData } = await supabase
-          .from('comments')
-          .select('post_id');
 
         // Obter perfis reais dos autores
         const userIds = [...new Set(finalPosts.map(p => p.user_id).filter(Boolean))];

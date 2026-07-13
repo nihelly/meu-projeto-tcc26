@@ -64,29 +64,30 @@ export default function Turmas() {
     try {
       setLoading(true);
 
-      // 1. Obter todas as turmas
-      const { data: dataTurmas, error: errTurmas } = await supabase.from('turmas').select('*').order('nome');
+      const [
+        { data: dataTurmas, error: errTurmas },
+        { data: dataMat, error: errMat },
+        { data: dataTP, error: errTP },
+        { data: dataP, error: errP },
+        { data: dataAtiv, error: errAtiv }
+      ] = await Promise.all([
+        supabase.from('turmas').select('*').order('nome'),
+        supabase.from('matriculas').select('*'),
+        supabase.from('turma_professores').select('*'),
+        supabase.from('profiles').select('*'),
+        supabase.from('activities').select('*').order('due_date')
+      ]);
+
       if (errTurmas) throw errTurmas;
-      setTurmas(dataTurmas || []);
-
-      // 2. Obter todas as matrículas
-      const { data: dataMat, error: errMat } = await supabase.from('matriculas').select('*');
       if (errMat) throw errMat;
-      setMatriculas(dataMat || []);
-
-      // 3. Obter todos os professores por turma
-      const { data: dataTP, error: errTP } = await supabase.from('turma_professores').select('*');
       if (errTP) throw errTP;
-      setTurmaProfessores(dataTP || []);
-
-      // 4. Obter todos os perfis (alunos e professores)
-      const { data: dataP, error: errP } = await supabase.from('profiles').select('*');
       if (errP) throw errP;
-      setTodosPerfis(dataP || []);
-
-      // 5. Obter atividades
-      const { data: dataAtiv, error: errAtiv } = await supabase.from('activities').select('*').order('due_date');
       if (errAtiv) throw errAtiv;
+
+      setTurmas(dataTurmas || []);
+      setMatriculas(dataMat || []);
+      setTurmaProfessores(dataTP || []);
+      setTodosPerfis(dataP || []);
       setAtividades(dataAtiv || []);
 
     } catch (err) {

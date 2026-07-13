@@ -98,47 +98,65 @@ export default function PainelProfessor() {
     try {
       setLoading(true);
 
-      // 1. Obter todas as turmas
-      const { data: dataTurmas, error: errTurmas } = await supabase.from('turmas').select('*');
+      const [
+        { data: dataTurmas, error: errTurmas },
+        { data: dataPerfis, error: errPerfis },
+        { data: dataAtiv, error: errAtiv },
+        { data: dataAvisos, error: errAvisos },
+        { data: dataEventos, error: errEventos },
+        { data: dataSub, error: errSub },
+        { data: dataPosts, error: errPosts },
+        { data: dataDen, error: errDen },
+        { data: dataComments },
+        { data: dataLikes }
+      ] = await Promise.all([
+        supabase.from('turmas').select('*'),
+        supabase.from('profiles').select('*'),
+        supabase.from('activities').select('*'),
+        supabase.from('announcements').select('*'),
+        supabase.from('calendar_events').select('*'),
+        supabase.from('activity_submissions').select('*'),
+        supabase.from('posts').select('*').order('created_at', { ascending: false }),
+        supabase.from('reports').select('*'),
+        supabase.from('comments').select('id'),
+        supabase.from('post_likes').select('id')
+      ]);
+
       if (errTurmas) throw errTurmas;
+      if (errPerfis) throw errPerfis;
+      if (errAtiv) throw errAtiv;
+      if (errAvisos) throw errAvisos;
+      if (errEventos) throw errEventos;
+      if (errSub) throw errSub;
+      if (errPosts) throw errPosts;
+      if (errDen) throw errDen;
+
+      // 1. Obter todas as turmas
       const allTurmas = dataTurmas || [];
       setTotalTurmas(allTurmas.length || 8);
       setTurmas(allTurmas);
 
       // 2. Obter todos os perfis (Alunos e Professores)
-      const { data: dataPerfis, error: errPerfis } = await supabase.from('profiles').select('*');
-      if (errPerfis) throw errPerfis;
       const allProfiles = dataPerfis || [];
-      
       const alunosFiltrados = allProfiles.filter(p => p.papel === 'aluno');
       setAlunos(alunosFiltrados);
       setTotalAlunosCount(alunosFiltrados.length || 256);
 
       // 3. Obter atividades
-      const { data: dataAtiv, error: errAtiv } = await supabase.from('activities').select('*');
-      if (errAtiv) throw errAtiv;
       setAtividades(dataAtiv || []);
       setTotalAtividades(dataAtiv?.length || 24);
 
       // 4. Obter avisos / comunicados
-      const { data: dataAvisos, error: errAvisos } = await supabase.from('announcements').select('*');
-      if (errAvisos) throw errAvisos;
       setAvisos(dataAvisos || []);
 
       // 5. Obter eventos de calendário
-      const { data: dataEventos, error: errEventos } = await supabase.from('calendar_events').select('*');
-      if (errEventos) throw errEventos;
       setEventos(dataEventos || []);
 
       // 6. Obter submissões de atividades
-      const { data: dataSub, error: errSub } = await supabase.from('activity_submissions').select('*');
-      if (errSub) throw errSub;
       setSubmissoes(dataSub || []);
       setTotalAtividadesEntregues(dataSub?.length || 189);
 
       // 7. Obter todas as postagens
-      const { data: dataPosts, error: errPosts } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
-      if (errPosts) throw errPosts;
       const allPosts = dataPosts || [];
       setTotalPublicacoes(allPosts.length || 56);
 
@@ -147,15 +165,10 @@ export default function PainelProfessor() {
       setPostsPendentes(postsPendentesFiltrados);
 
       // 8. Obter denúncias
-      const { data: dataDen, error: errDen } = await supabase.from('reports').select('*');
-      if (errDen) throw errDen;
       setDenuncias(dataDen || []);
 
       // 9. Obter contagem de comentários e curtidas
-      const { data: dataComments } = await supabase.from('comments').select('id');
       setTotalComentarios(dataComments?.length || 142);
-
-      const { data: dataLikes } = await supabase.from('post_likes').select('id');
       setTotalCurtidas(dataLikes?.length || 312);
 
     } catch (error) {

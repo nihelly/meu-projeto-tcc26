@@ -98,8 +98,30 @@ export default function PaginaTurma() {
     try {
       setLoading(true);
 
-      // 1. Obter informações da turma
-      const { data: dataTurma, error: errT } = await supabase.from('turmas').select('*').eq('id', turmaId).single();
+      const [
+        { data: dataTurma, error: errT },
+        { data: dataTP },
+        { data: dataProfiles },
+        { data: dataMat },
+        { data: dataAvisos },
+        { data: dataAtiv },
+        { data: dataEvt },
+        { data: dataArq },
+        resChat,
+        { data: dataPosts }
+      ] = await Promise.all([
+        supabase.from('turmas').select('*').eq('id', turmaId).single(),
+        supabase.from('turma_professores').select('professor_id').eq('turma_id', turmaId),
+        supabase.from('profiles').select('*'),
+        supabase.from('matriculas').select('aluno_id').eq('turma_id', turmaId),
+        supabase.from('announcements').select('*').eq('turma_id', turmaId).order('is_pinned', { ascending: false }).order('created_at', { ascending: false }),
+        supabase.from('activities').select('*').eq('turma_id', turmaId).order('due_date'),
+        supabase.from('calendar_events').select('*').eq('turma_id', turmaId).order('event_date'),
+        supabase.from('turma_arquivos').select('*').eq('turma_id', turmaId).order('uploaded_at', { ascending: false }),
+        supabase.from('turma_messages').select('*').eq('turma_id', turmaId).order('created_at').catch(() => ({ data: [] })),
+        supabase.from('posts').select('*').order('created_at', { ascending: false })
+      ]);
+
       if (errT) throw errT;
       setTurma(dataTurma);
 
@@ -111,48 +133,32 @@ export default function PaginaTurma() {
       }
 
       // 2. Obter professores vinculados a essa turma
-      const { data: dataTP } = await supabase.from('turma_professores').select('professor_id').eq('turma_id', turmaId);
       const profIds = dataTP ? dataTP.map(tp => tp.professor_id) : [];
-      
-      const { data: dataProfiles } = await supabase.from('profiles').select('*');
       if (dataProfiles) {
         setProfessores(dataProfiles.filter(p => profIds.includes(p.id) || (p.papel === 'professor' && p.turma?.toLowerCase().includes(dataTurma.nome.toLowerCase()))));
         // Alunos matriculados
-        const { data: dataMat } = await supabase.from('matriculas').select('aluno_id').eq('turma_id', turmaId);
         const alunoIds = dataMat ? dataMat.map(m => m.aluno_id) : [];
         setAlunos(dataProfiles.filter(p => alunoIds.includes(p.id) || (p.papel === 'aluno' && p.turma?.toLowerCase() === dataTurma.nome.toLowerCase())));
       }
 
       // 3. Obter avisos da turma
-      const { data: dataAvisos } = await supabase.from('announcements').select('*').eq('turma_id', turmaId).order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
       setAvisos(dataAvisos || []);
 
       // 4. Obter atividades
-      const { data: dataAtiv } = await supabase.from('activities').select('*').eq('turma_id', turmaId).order('due_date');
       setAtividades(dataAtiv || []);
 
       // 5. Obter eventos
-      const { data: dataEvt } = await supabase.from('calendar_events').select('*').eq('turma_id', turmaId).order('event_date');
       setEventos(dataEvt || []);
 
       // 6. Obter arquivos
-      const { data: dataArq } = await supabase.from('turma_arquivos').select('*').eq('turma_id', turmaId).order('uploaded_at', { ascending: false });
       setArquivos(dataArq || []);
 
-      // 7. Obter mensagens do chat (ou criar tabela se for necessário, senão manter mock funcional/persistente no local state)
-      // Como a tabela turma_messages foi planejada no SQL, vamos consultá-la
-      try {
-        const { data: chatMsgs } = await supabase.from('turma_messages').select('*').eq('turma_id', turmaId).order('created_at');
-        setMensagensChat(chatMsgs || []);
-      } catch (e) {
-        // Tabela não criada ainda? Criar mock inicial
-        setMensagensChat([]);
-      }
+      // 7. Obter mensagens do chat
+      setMensagensChat(resChat?.data || []);
 
       // 8. Obter posts aprovados de alunos desta turma + posts de professores/admin
       if (dataProfiles && dataTurma) {
         const turmaAlunosIds = dataProfiles.filter(p => p.turma?.toLowerCase() === dataTurma.nome.toLowerCase()).map(p => p.id);
-        const { data: dataPosts } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
         if (dataPosts) {
           const postsFiltrados = dataPosts.filter(p => 
             p.status === 'Aprovada' && (turmaAlunosIds.includes(p.user_id) || p.user_id === usuario.id)
