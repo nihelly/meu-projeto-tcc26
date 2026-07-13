@@ -114,24 +114,33 @@ html.dark {
 }
 
 html.dark body {
-  background-color: #000000 !important; /* Fundo principal preto puro */
+  background-color: #08070d !important; /* Fundo principal profundo */
   color: #ffffff !important;
 }
 
-/* ─── Fundos estruturais no escuro (Tudo Preto Puro) ─── */
+/* ─── Fundos estruturais no escuro (Exatamente como na imagem) ─── */
 html.dark .bg-white,
 html.dark .bg-\[\#0c0b12\],
-html.dark .bg-\[\#0d0c13\],
+html.dark .bg-\[\#07060c\] {
+  background-color: #0c0b12 !important; /* Cards e blocos de conteúdo */
+}
+
+html.dark .bg-\[\#0d0c13\] {
+  background-color: #0d0c13 !important; /* Sidebar */
+}
+
 html.dark .bg-\[\#fcfcfc\],
 html.dark .bg-gray-50,
+html.dark .bg-\[\#08070d\] {
+  background-color: #08070d !important; /* Fundo principal da página */
+}
+
 html.dark .bg-gray-100,
 html.dark .bg-gray-55,
 html.dark .bg-\[\#f5f5f5\],
 html.dark .bg-\[\#12101b\],
-html.dark .bg-\[\#191629\],
-html.dark .bg-\[\#08070d\],
-html.dark .bg-\[\#07060c\] {
-  background-color: #000000 !important; 
+html.dark .bg-\[\#191629\] {
+  background-color: #09080e !important; /* Elementos internos e inputs */
 }
 
 html.dark .bg-gray-50\/50,
