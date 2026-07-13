@@ -12,7 +12,7 @@ export default function Perfil() {
   const navigate = useNavigate();
   const { translate } = useLanguage();
   const { id } = useParams();
-  const { usuario } = useAuth();
+  const { usuario, recarregarPerfil } = useAuth();
   
   const [perfil, setPerfil] = useState(null);
   const [carregando, setCarregando] = useState(true);
@@ -247,17 +247,18 @@ export default function Perfil() {
 
       const urlComBuster = `${publicUrl}?t=${Date.now()}`;
 
-      const { error: dbError } = await supabase
+       const { error: dbError } = await supabase
         .from('profiles')
         .update({ avatar_url: urlComBuster })
         .eq('id', usuario.id);
 
-      if (dbError) throw dbError;
+       if (dbError) throw dbError;
 
-      setPerfil(prev => ({ ...prev, avatar_url: urlComBuster }));
-      toast.success('Foto de perfil atualizada com sucesso!');
-    } catch (err) {
-      console.error(err);
+       setPerfil(prev => ({ ...prev, avatar_url: urlComBuster }));
+       recarregarPerfil();
+       toast.success('Foto de perfil atualizada com sucesso!');
+     } catch (err) {
+       console.error(err);
       toast.error('Erro ao atualizar a foto de perfil.');
       carregarPerfilEMetricas();
     } finally {

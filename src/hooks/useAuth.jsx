@@ -49,6 +49,12 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function recarregarPerfil() {
+    if (usuario) {
+      await buscarPerfil(usuario.id);
+    }
+  }
+
   useEffect(() => {
     // 1. Pega a sessão inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -79,7 +85,8 @@ export function AuthProvider({ children }) {
     perfil, 
     carregando, 
     ehProfessor: perfil?.papel === 'professor',
-    ehAdmin: perfil?.papel === 'professor'
+    ehAdmin: perfil?.papel === 'professor',
+    recarregarPerfil
   };
 
   return (

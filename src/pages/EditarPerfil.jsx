@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, Loader2, Check, X, ImagePlus } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from 'sonner';
+import { useAuth } from '../hooks/useAuth';
 
 export default function EditarPerfil() {
   const navigate = useNavigate();
+  const { recarregarPerfil } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -169,6 +171,7 @@ export default function EditarPerfil() {
 
       if (updateError) throw updateError;
 
+      recarregarPerfil();
       toast.success('Perfil atualizado com sucesso!');
       navigate(`/perfil/${userId}`, { replace: true });
     } catch (err) {
