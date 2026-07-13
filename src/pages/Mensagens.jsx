@@ -723,32 +723,32 @@ export default function Mensagens() {
 
   // --- REAGIR COM EMOJI ---
   const handleReagirEmoji = async (msgId, emoji) => {
-    if (conversaAtiva.id.startsWith('mock-')) {
-      setMensagens(prev => prev.map(m => {
-        if (m.id === msgId) {
-          const reactions = m.reactions || [];
-          return { ...m, reactions: [...reactions, { emoji, user_id: 'me' }] };
-        }
-        return m;
-      }));
-      return;
-    }
-
     try {
+      const userId = usuario?.id || 'me';
       const msg = mensagens.find(m => m.id === msgId);
+      if (!msg) return;
+
       const reactions = msg.reactions || [];
-      const novaReacao = { emoji, user_id: usuario.id };
+      const jaReagiu = reactions.some(r => r.emoji === emoji && r.user_id === userId);
+      const novasReacoes = jaReagiu
+        ? reactions.filter(r => !(r.emoji === emoji && r.user_id === userId))
+        : [...reactions, { emoji, user_id: userId }];
 
-      const { error } = await supabase
-        .from('messages')
-        .update({
-          reactions: [...reactions, novaReacao]
-        })
-        .eq('id', msgId);
+      // Atualização otimista imediata no estado local
+      setMensagens(prev => prev.map(m => m.id === msgId ? { ...m, reactions: novasReacoes } : m));
 
-      if (error) throw error;
+      if (!conversaAtiva.id.startsWith('mock-')) {
+        const { error } = await supabase
+          .from('messages')
+          .update({
+            reactions: novasReacoes
+          })
+          .eq('id', msgId);
+
+        if (error) throw error;
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Erro ao reagir com emoji:', err);
     }
   };
 
@@ -769,7 +769,7 @@ export default function Mensagens() {
             border-color: rgba(255, 255, 255, 0.06) !important;
           }
           /* Coluna esquerda (Lista de Conversas) */
-          .dark-chat-theme .w-\[340px\].bg-white {
+          .dark-chat-theme .chat-sidebar-container {
             background-color: #0c0b12 !important;
             border-color: rgba(255, 255, 255, 0.06) !important;
           }
@@ -802,26 +802,27 @@ export default function Mensagens() {
             background-color: #0c0b12 !important;
             border-color: rgba(255, 255, 255, 0.06) !important;
           }
-          /* Área de Histórico (Fundo cinza vira roxo escuro premium) */
-          .dark-chat-theme .bg-gray-50\/30 {
-            background-color: #12101e !important;
-            background-image: radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15), transparent 450px),
-                              radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.08), transparent 450px) !important;
+          /* Área de Histórico (Fundo cinza vira Preto absoluto com gradiente roxo sutil) */
+          .dark-chat-theme .chat-history-container {
+            background-color: #000000 !important;
+            background-image: radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.1), transparent 450px),
+                              radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.05), transparent 450px) !important;
             border-color: rgba(255, 255, 255, 0.06) !important;
           }
-          /* Balões de Mensagem Recebida (Preto) */
-          .dark-chat-theme .bg-white.text-gray-900 {
-            background-color: #07060a !important;
+          /* Balões de Mensagem Recebida (Roxo Premium) */
+          .dark-chat-theme .other-message-bubble {
+            background-color: #171224 !important;
             color: #ffffff !important;
-            border-color: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(139, 92, 246, 0.22) !important;
           }
-          /* Balões de Mensagem Enviada (Gradiente Roxo/Azul) */
-          .dark-chat-theme .bg-violet-100 {
-            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%) !important;
+          /* Balões de Mensagem Enviada (Gradiente Roxo Premium) */
+          .dark-chat-theme .my-message-bubble {
+            background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
             color: #ffffff !important;
+            border: none !important;
           }
           /* Barra de digitação inferior */
-          .dark-chat-theme .p-4.bg-white.border-t.border-gray-100 {
+          .dark-chat-theme .chat-input-container {
             background-color: #0c0b12 !important;
             border-color: rgba(255, 255, 255, 0.06) !important;
           }
@@ -831,7 +832,7 @@ export default function Mensagens() {
             color: #ffffff !important;
           }
           /* Painel Lateral Direito */
-          .dark-chat-theme .w-\[300px\].bg-white {
+          .dark-chat-theme .chat-details-container {
             background-color: #0c0b12 !important;
             border-color: rgba(255, 255, 255, 0.06) !important;
           }
@@ -862,13 +863,15 @@ export default function Mensagens() {
             color: #ffffff !important;
           }
           /* Reações e popovers */
-          .dark-chat-theme .absolute.bg-white.border.border-gray-100 {
-            background-color: #0c0b12 !important;
-            border-color: rgba(255, 255, 255, 0.08) !important;
+          .dark-chat-theme .msg-reactions-hover-bar {
+            background-color: #0d0c13 !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
           }
-          .dark-chat-theme .bg-gray-50.border.border-gray-150 {
-            background-color: #0c0b12 !important;
-            border-color: rgba(255, 255, 255, 0.08) !important;
+          .dark-chat-theme .msg-reactions-rendered-badge {
+            background-color: #171224 !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
           }
           /* Botão bloquear conversa (Roxo) */
           .dark-chat-theme .bg-red-50 {
@@ -885,7 +888,7 @@ export default function Mensagens() {
       )}
       
       {/* COLUNA ESQUERDA: LISTA DE CONVERSAS */}
-      <div className="w-[340px] border-r border-gray-100 flex flex-col flex-shrink-0 bg-white">
+      <div className="w-[340px] border-r border-gray-100 flex flex-col flex-shrink-0 bg-white chat-sidebar-container">
         
         {/* Topo Barra Lateral */}
         <div className="p-6 pb-4 space-y-4">
@@ -988,7 +991,7 @@ export default function Mensagens() {
       </div>
 
       {/* COLUNA CENTRAL: CHAT ATIVO */}
-      <div className="flex-1 flex flex-col min-w-0 bg-gray-50/30">
+      <div className="flex-1 flex flex-col min-w-0 bg-gray-50/30 chat-history-container">
         
         {/* Cabeçalho da Conversa */}
         {conversaAtiva && (
@@ -1049,8 +1052,8 @@ export default function Mensagens() {
                 <div className="space-y-1">
                   <div className={`rounded-2xl px-4 py-2.5 text-[12px] leading-relaxed shadow-sm relative group ${
                     enviadaPorMim 
-                      ? 'bg-violet-100 text-gray-905 rounded-tr-sm' 
-                      : 'bg-white text-gray-900 rounded-tl-sm border border-gray-100/60'
+                      ? 'bg-violet-100 text-gray-905 rounded-tr-sm my-message-bubble' 
+                      : 'bg-white text-gray-900 rounded-tl-sm border border-gray-100/60 other-message-bubble'
                   }`}>
                     {msg.type === 'image' ? (
                       <div className="relative rounded-lg overflow-hidden max-w-xs my-1 border border-gray-150/40">
@@ -1086,7 +1089,7 @@ export default function Mensagens() {
 
                     {/* Reações de Emojis */}
                     {msg.reactions && msg.reactions.length > 0 && (
-                      <div className="absolute -bottom-2 right-2 bg-white border border-gray-100 rounded-full px-1.5 py-0.5 shadow-sm text-[10px] flex items-center gap-0.5 z-10">
+                      <div className="absolute -bottom-2 right-2 bg-white border border-gray-100 rounded-full px-1.5 py-0.5 shadow-sm text-[10px] flex items-center gap-0.5 z-10 msg-reactions-rendered-badge">
                         {msg.reactions.map((r, ri) => (
                           <span key={ri} title="Reação">{r.emoji}</span>
                         ))}
@@ -1095,7 +1098,7 @@ export default function Mensagens() {
                     )}
 
                     {/* Barra de Reação Flutuante */}
-                    <div className="absolute top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 bg-white border border-gray-100 rounded-full p-1 shadow-md z-25 transition-all duration-200 -left-20">
+                    <div className="absolute top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 bg-white border border-gray-100 rounded-full p-1 shadow-md z-25 transition-all duration-200 -left-20 msg-reactions-hover-bar">
                       {['👍', '❤️', '😂', '🔥'].map(emoji => (
                         <button 
                           key={emoji}
@@ -1122,7 +1125,7 @@ export default function Mensagens() {
         </div>
 
         {/* Barra de Entrada / Digitação */}
-        <div className="p-4 bg-white border-t border-gray-100 space-y-2 flex-shrink-0">
+        <div className="p-4 bg-white border-t border-gray-100 space-y-2 flex-shrink-0 chat-input-container">
           
           {/* Arquivo Selecionado Preview Banner */}
           {arquivoSelecionado && (
@@ -1244,7 +1247,7 @@ export default function Mensagens() {
 
       {/* COLUNA DIREITA: INFORMAÇÕES DA CONVERSA / TURMA */}
       {mostrarPainelDireito && conversaAtiva && (
-        <div className="w-[300px] border-l border-gray-100 flex flex-col flex-shrink-0 bg-white overflow-y-auto animate-in slide-in-from-right duration-300">
+        <div className="w-[300px] border-l border-gray-100 flex flex-col flex-shrink-0 bg-white overflow-y-auto animate-in slide-in-from-right duration-300 chat-details-container">
           
           {/* Header Info */}
           <div className="p-6 border-b border-gray-50 flex items-center justify-between">
