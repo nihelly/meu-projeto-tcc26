@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/src/assets/logo-educonnect.png" />
@@ -9,12 +9,11 @@
   <body>
     <script>
       // Anti-flash: aplica preferências de acessibilidade antes da renderização
-      const isDarkMode = localStorage.getItem('educonnect-dark-mode') === 'true';
       const isHighContrast = localStorage.getItem('educonnect-high-contrast') === 'true';
       const fontSize = localStorage.getItem('educonnect-font-size') || 'media';
       const root = document.documentElement;
 
-      if (isDarkMode) root.classList.add('dark');
+      root.classList.add('dark');
       if (isHighContrast) root.classList.add('high-contrast');
 
       root.classList.remove('font-size-pequena', 'font-size-media', 'font-size-grande');

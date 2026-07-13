@@ -33,25 +33,7 @@ import { toast } from 'sonner';
 
 export default function Mensagens() {
   const { usuario, perfil } = useAuth();
-  const [isDarkTheme, setIsDarkTheme] = useState(() => {
-    const papel = perfil?.papel || '';
-    const padraoEscuro = papel === 'professor' || papel === 'administrador';
-    const savedDark = localStorage.getItem('educonnect-dark-mode');
-    return savedDark !== null ? savedDark === 'true' : padraoEscuro;
-  });
-
-  useEffect(() => {
-    const handleThemeChange = () => {
-      const papel = perfil?.papel || '';
-      const padraoEscuro = papel === 'professor' || papel === 'administrador';
-      const savedDark = localStorage.getItem('educonnect-dark-mode');
-      setIsDarkTheme(savedDark !== null ? savedDark === 'true' : padraoEscuro);
-    };
-    window.addEventListener('theme-changed', handleThemeChange);
-    // Adicionalmente, atualiza o tema se o perfil do usuário carregar
-    handleThemeChange();
-    return () => window.removeEventListener('theme-changed', handleThemeChange);
-  }, [perfil]);
+  const isDarkTheme = true;
   
   // Estados de layout
   const [loading, setLoading] = useState(true);

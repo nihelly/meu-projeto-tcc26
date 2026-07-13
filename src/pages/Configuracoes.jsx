@@ -54,9 +54,6 @@ export default function Configuracoes() {
   const [ocultarAtividade, setOcultarAtividade] = useState(() => {
     return localStorage.getItem('educonnect-hide-active') === 'true';
   });
-  const [modoNocturno, setModoNocturno] = useState(() => {
-    return localStorage.getItem('educonnect-dark-mode') === 'true';
-  });
   const [altoContraste, setAltoContraste] = useState(() => {
     return localStorage.getItem('educonnect-high-contrast') === 'true';
   });
@@ -88,17 +85,6 @@ export default function Configuracoes() {
   useEffect(() => {
     localStorage.setItem('educonnect-hide-active', String(ocultarAtividade));
   }, [ocultarAtividade]);
-
-  // Efeito que aplica/remove a classe 'dark' no HTML
-  useEffect(() => {
-    if (modoNocturno) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('educonnect-dark-mode', String(modoNocturno));
-    window.dispatchEvent(new Event('theme-changed'));
-  }, [modoNocturno]);
 
   // Efeito para aplicar Alto Contraste
   useEffect(() => {
@@ -301,22 +287,6 @@ export default function Configuracoes() {
               </div>
             </div>
           )}
-        </div>
-
-        {/* ================= SEÇÃO: MODO NOTURNO ================= */}
-        <div className="bg-white dark:bg-[#0c0b12] rounded-[2rem] shadow-[0_4px_25px_rgba(0,0,0,0.005)] border border-gray-100 dark:border-purple-500/10 overflow-hidden transition-all duration-300">
-          <div className="w-full flex items-center justify-between p-4 sm:p-6">
-            <div className="flex items-center gap-3 sm:gap-3.5 text-gray-800 dark:text-gray-100 font-semibold text-[13px] sm:text-[13.5px]">
-              <div className="p-2 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded-xl flex-shrink-0">
-                <Moon size={16} />
-              </div>
-              <span className="whitespace-nowrap">{translate('nightMode')}</span>
-            </div>
-            <CustomToggle 
-              checked={modoNocturno} 
-              onChange={() => setModoNocturno(!modoNocturno)} 
-            />
-          </div>
         </div>
 
         {/* ================= SEÇÃO: ACESSIBILIDADE ================= */}

@@ -223,33 +223,11 @@ export function AdminLayout({ children }) {
     );
   };
 
-  const [isDarkTheme, setIsDarkTheme] = useState(() => {
-    const papel = perfil?.papel || '';
-    const padraoEscuro = papel === 'professor' || papel === 'administrador';
-    const savedDark = localStorage.getItem('educonnect-dark-mode');
-    return savedDark !== null ? savedDark === 'true' : padraoEscuro;
-  });
+  const isDarkTheme = true;
 
   useEffect(() => {
-    const handleThemeChange = () => {
-      const papel = perfil?.papel || '';
-      const padraoEscuro = papel === 'professor' || papel === 'administrador';
-      const savedDark = localStorage.getItem('educonnect-dark-mode');
-      setIsDarkTheme(savedDark !== null ? savedDark === 'true' : padraoEscuro);
-    };
-    window.addEventListener('theme-changed', handleThemeChange);
-    // Adicionalmente, atualiza o tema se o perfil do usuário carregar
-    handleThemeChange();
-    return () => window.removeEventListener('theme-changed', handleThemeChange);
-  }, [perfil]);
-
-  useEffect(() => {
-    if (isDarkTheme) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkTheme]);
+    document.documentElement.classList.add('dark');
+  }, []);
 
   return (
     <div className={`min-h-screen flex relative z-[1] font-sans transition-colors duration-300 ${isDarkTheme ? 'dark-dashboard-teacher bg-[#08070d] text-white' : 'bg-[#fcfcfc] text-gray-900'}`}>
