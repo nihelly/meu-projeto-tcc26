@@ -30,22 +30,30 @@ export default function Feed() {
       try {
         setCarregando(true);
         
-        // Obter usuário e dados em paralelo
+        // 1. Obter usuário logado primeiro
+        const { data: { user } } = await supabase.auth.getUser();
+        setCurrentUser(user);
+
+        // 2. Construir query de posts (exibir aprovados + próprios do usuário se logado)
+        let postsQuery = supabase.from('posts').select('*');
+        if (user) {
+          postsQuery = postsQuery.or(`status.eq.Aprovada,user_id.eq.${user.id}`);
+        } else {
+          postsQuery = postsQuery.eq('status', 'Aprovada');
+        }
+
+        // 3. Executar as consultas em paralelo
         const [
-          { data: { user } },
           { data: postsData, error: postsError },
           { data: likesData },
           { data: repostsData },
           { data: commentsCountData }
         ] = await Promise.all([
-          supabase.auth.getUser(),
-          supabase.from('posts').select('*').eq('status', 'Aprovada').order('created_at', { ascending: false }),
+          postsQuery.order('created_at', { ascending: false }),
           supabase.from('likes').select('post_id, user_id'),
           supabase.from('reposts').select('post_id, user_id'),
           supabase.from('comments').select('post_id')
         ]);
-
-        setCurrentUser(user);
 
         if (postsError) throw postsError;
 
@@ -470,6 +478,11 @@ export default function Feed() {
                   <span className="text-[13px] text-gray-500 font-medium group-hover:text-black group-hover:underline transition-all">
                     {post.authorHandle || '@usuario'}
                   </span>
+                  {post.status === 'Aguardando aprovação' && (
+                    <span className="text-[9px] bg-purple-500/10 text-purple-400 border border-purple-500/20 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Aguardando Aprovação
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5">
                   {currentUser && post.user_id === currentUser.id && (
