@@ -81,6 +81,7 @@ export default function PaginaTurma() {
   const [categoriaArquivo, setCategoriaArquivo] = useState('');
 
   useEffect(() => {
+    if (!usuario || !perfil) return;
     carregarDadosTurma();
   }, [turmaId, usuario, perfil]);
 
@@ -161,7 +162,7 @@ export default function PaginaTurma() {
         const turmaAlunosIds = dataProfiles.filter(p => (p.turma || '').toLowerCase() === dataTurma.nome.toLowerCase()).map(p => p.id);
         if (dataPosts) {
           const postsFiltrados = dataPosts.filter(p => 
-            p.status === 'Aprovada' && (turmaAlunosIds.includes(p.user_id) || p.user_id === usuario.id)
+            p.status === 'Aprovada' && (turmaAlunosIds.includes(p.user_id) || p.user_id === usuario?.id)
           );
           setPosts(postsFiltrados);
         }
@@ -176,7 +177,7 @@ export default function PaginaTurma() {
   }
 
   const ehAdmin = () => perfil?.papel === 'professor' || perfil?.papel === 'administrador';
-  const ehProfessor = () => perfil?.papel === 'professor' && (professores.some(p => p.id === usuario.id) || ehAdmin());
+  const ehProfessor = () => perfil?.papel === 'professor' && (professores.some(p => p.id === usuario?.id) || ehAdmin());
 
   // --- POSTS ---
   const handleCriarPost = async (e) => {
@@ -778,7 +779,7 @@ export default function PaginaTurma() {
                         <Download size={12} />
                       </a>
                       
-                      {(ehProfessor() || arq.user_id === usuario.id) && (
+                      {(ehProfessor() || arq.user_id === usuario?.id) && (
                         <button
                           onClick={async () => {
                             if (!window.confirm('Excluir arquivo?')) return;
@@ -818,7 +819,7 @@ export default function PaginaTurma() {
           {/* Mensagens */}
           <div className="flex-1 overflow-y-auto py-4 space-y-3.5 scrollbar-thin">
             {mensagensChat.map((msg) => {
-              const isMe = msg.user_id === usuario.id;
+              const isMe = msg.user_id === usuario?.id;
               const autorName = getAutorNome(msg.user_id);
               const avatar = getAutorAvatar(msg.user_id);
               return (
