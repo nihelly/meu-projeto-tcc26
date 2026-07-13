@@ -1491,18 +1491,82 @@ export function useLanguage() {
       '한국어': 'ko'
     };
 
+    const setCookie = (name, value) => {
+      const hostname = window.location.hostname;
+      document.cookie = `${name}=${value}; path=/;`;
+      if (hostname && hostname !== 'localhost') {
+        document.cookie = `${name}=${value}; path=/; domain=.${hostname}`;
+        document.cookie = `${name}=${value}; path=/; domain=${hostname}`;
+      }
+    };
+
+    const deleteCookie = (name) => {
+      const hostname = window.location.hostname;
+      document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+      if (hostname && hostname !== 'localhost') {
+        document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.${hostname}`;
+        document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${hostname}`;
+      }
+    };
+
     const atualizarLangHTML = (idioma) => {
       const codigo = langMap[idioma] || 'pt-BR';
       document.documentElement.setAttribute('lang', codigo);
     };
 
-    // Atualiza no carregamento inicial
+    const addGoogleTranslateScript = () => {
+      if (document.getElementById('google-translate-script')) return;
+
+      // Criar elemento container invisível
+      if (!document.getElementById('google_translate_element')) {
+        const div = document.createElement('div');
+        div.id = 'google_translate_element';
+        div.style.display = 'none';
+        document.body.appendChild(div);
+      }
+
+      // Inicialização global do Google Translate
+      window.googleTranslateElementInit = () => {
+        new window.google.translate.TranslateElement({
+          pageLanguage: 'pt',
+          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false
+        }, 'google_translate_element');
+      };
+
+      const script = document.createElement('script');
+      script.id = 'google-translate-script';
+      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      document.body.appendChild(script);
+    };
+
+    // Inicialização no carregamento
     atualizarLangHTML(lang);
+    if (lang !== 'Português (BR)') {
+      const codigo = langMap[lang] || 'pt-BR';
+      const targetCode = codigo === 'pt-BR' ? 'pt' : codigo;
+      setCookie('googtrans', `/pt/${targetCode}`);
+      addGoogleTranslateScript();
+    } else {
+      deleteCookie('googtrans');
+    }
 
     const handleLanguageChange = () => {
       const novoIdioma = localStorage.getItem('educonnect-lang') || 'Português (BR)';
       setLang(novoIdioma);
       atualizarLangHTML(novoIdioma);
+
+      const codigo = langMap[novoIdioma] || 'pt-BR';
+      const targetCode = codigo === 'pt-BR' ? 'pt' : codigo;
+
+      if (novoIdioma === 'Português (BR)') {
+        deleteCookie('googtrans');
+      } else {
+        setCookie('googtrans', `/pt/${targetCode}`);
+      }
+      
+      // Recarregar a página para aplicar a tradução limpa em todo o site
+      window.location.reload();
     };
 
     window.addEventListener('educonnect-language-change', handleLanguageChange);
