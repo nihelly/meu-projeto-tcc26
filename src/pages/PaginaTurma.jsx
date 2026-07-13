@@ -126,7 +126,7 @@ export default function PaginaTurma() {
       setTurma(dataTurma);
 
       // Verificar segurança: Aluno só pode ver sua turma
-      if (perfil?.papel === 'aluno' && perfil.turma.toLowerCase() !== dataTurma.nome.toLowerCase()) {
+      if (perfil?.papel === 'aluno' && (perfil.turma || '').toLowerCase() !== dataTurma.nome.toLowerCase()) {
         toast.error('Você não tem permissão para acessar esta turma.');
         navigate('/turmas');
         return;
@@ -135,10 +135,10 @@ export default function PaginaTurma() {
       // 2. Obter professores vinculados a essa turma
       const profIds = dataTP ? dataTP.map(tp => tp.professor_id) : [];
       if (dataProfiles) {
-        setProfessores(dataProfiles.filter(p => profIds.includes(p.id) || (p.papel === 'professor' && p.turma?.toLowerCase().includes(dataTurma.nome.toLowerCase()))));
+        setProfessores(dataProfiles.filter(p => profIds.includes(p.id) || (p.papel === 'professor' && (p.turma || '').toLowerCase().includes(dataTurma.nome.toLowerCase()))));
         // Alunos matriculados
         const alunoIds = dataMat ? dataMat.map(m => m.aluno_id) : [];
-        setAlunos(dataProfiles.filter(p => alunoIds.includes(p.id) || (p.papel === 'aluno' && p.turma?.toLowerCase() === dataTurma.nome.toLowerCase())));
+        setAlunos(dataProfiles.filter(p => alunoIds.includes(p.id) || (p.papel === 'aluno' && (p.turma || '').toLowerCase() === dataTurma.nome.toLowerCase())));
       }
 
       // 3. Obter avisos da turma
@@ -158,7 +158,7 @@ export default function PaginaTurma() {
 
       // 8. Obter posts aprovados de alunos desta turma + posts de professores/admin
       if (dataProfiles && dataTurma) {
-        const turmaAlunosIds = dataProfiles.filter(p => p.turma?.toLowerCase() === dataTurma.nome.toLowerCase()).map(p => p.id);
+        const turmaAlunosIds = dataProfiles.filter(p => (p.turma || '').toLowerCase() === dataTurma.nome.toLowerCase()).map(p => p.id);
         if (dataPosts) {
           const postsFiltrados = dataPosts.filter(p => 
             p.status === 'Aprovada' && (turmaAlunosIds.includes(p.user_id) || p.user_id === usuario.id)
