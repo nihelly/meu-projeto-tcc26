@@ -119,7 +119,7 @@ export default function PaginaTurma() {
         supabase.from('activities').select('*').eq('turma_id', turmaId).order('due_date'),
         supabase.from('calendar_events').select('*').eq('turma_id', turmaId).order('event_date'),
         supabase.from('turma_arquivos').select('*').eq('turma_id', turmaId).order('uploaded_at', { ascending: false }),
-        supabase.from('turma_messages').select('*').eq('turma_id', turmaId).order('created_at').catch(() => ({ data: [] })),
+        supabase.from('turma_messages').select('*').eq('turma_id', turmaId).order('created_at').then(res => res, () => ({ data: [] })),
         supabase.from('posts').select('*').order('created_at', { ascending: false })
       ]);
 
