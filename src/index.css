@@ -114,27 +114,38 @@ html.dark {
 }
 
 html.dark body {
-  background-color: #08070d !important; /* Fundo principal original profundo e azul-arroxeado */
+  background-color: #000000 !important; /* Fundo principal preto puro */
   color: #ffffff !important;
 }
 
-/* ─── Fundos estruturais no escuro ─── */
-html.dark .bg-white { background-color: #0c0b12 !important; } /* Cards no tom original da imagem */
+/* ─── Fundos estruturais no escuro (Tudo Preto Puro) ─── */
+html.dark .bg-white,
+html.dark .bg-\[\#0c0b12\],
+html.dark .bg-\[\#0d0c13\],
 html.dark .bg-\[\#fcfcfc\],
-html.dark .bg-gray-50 {
-  background-color: #08070d !important; /* Fundo estrutural original */
-}
-html.dark .bg-gray-50\/50 { background-color: rgba(15, 15, 15, 0.5) !important; }
-html.dark .bg-gray-50\/70 { background-color: rgba(15, 15, 15, 0.7) !important; }
+html.dark .bg-gray-50,
 html.dark .bg-gray-100,
 html.dark .bg-gray-55,
 html.dark .bg-\[\#f5f5f5\],
 html.dark .bg-\[\#12101b\],
-html.dark .bg-\[\#191629\] {
-  background-color: #161616 !important; /* Sub-cards/elementos internos em cinza grafite */
+html.dark .bg-\[\#191629\],
+html.dark .bg-\[\#08070d\],
+html.dark .bg-\[\#07060c\] {
+  background-color: #000000 !important; 
 }
 
-/* ─── Bordas no escuro ─── */
+html.dark .bg-gray-50\/50,
+html.dark .bg-gray-50\/70,
+html.dark .bg-\[\#151322\]\/20,
+html.dark .bg-\[\#151322\]\/10,
+html.dark .hover\:bg-white\/5:hover,
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-gray-100:hover,
+html.dark .hover\:bg-gray-200:hover {
+  background-color: rgba(139, 92, 246, 0.08) !important; /* Hover roxo translúcido */
+}
+
+/* ─── Bordas no escuro (Apenas tons de roxo/azul translúcidos ou pretos) ─── */
 html.dark .border,
 html.dark .border-gray-50,
 html.dark .border-gray-100,
@@ -142,51 +153,60 @@ html.dark .border-gray-150,
 html.dark .border-gray-200,
 html.dark .border-r-gray-100,
 html.dark .border-white\/5,
-html.dark .border-white\/10 {
-  border-color: #242424 !important; /* Bordas discretas e minimalistas */
+html.dark .border-white\/10,
+html.dark .border-purple-500\/10,
+html.dark .border-purple-500\/5 {
+  border-color: rgba(139, 92, 246, 0.15) !important; /* Bordas em tom roxo sutil */
 }
 
-/* ─── Tipografia em Modo Escuro ─── */
+html.dark .divide-gray-100 > :not(:first-child),
+html.dark .divide-gray-50 > :not(:first-child) {
+  border-color: rgba(139, 92, 246, 0.15) !important;
+}
+
+/* ─── Tipografia em Modo Escuro (Somente Branco, Roxo ou Azul) ─── */
 html.dark .text-gray-950,
 html.dark .text-gray-900,
-html.dark .text-black {
-  color: #ffffff !important; /* Textos de alta importância em branco puro */
-}
 html.dark .text-gray-850,
 html.dark .text-gray-800,
-html.dark .text-gray-700 {
-  color: #e5e5e5 !important;
-}
+html.dark .text-gray-700,
 html.dark .text-gray-650,
 html.dark .text-gray-600,
-html.dark .text-gray-500 {
-  color: #a3a3a3 !important;
-}
+html.dark .text-gray-500,
 html.dark .text-gray-450,
-html.dark .text-gray-400 {
-  color: #737373 !important;
-}
+html.dark .text-gray-400,
 html.dark .text-gray-350,
-html.dark .text-gray-300 {
-  color: #404040 !important;
+html.dark .text-gray-300,
+html.dark .text-black {
+  color: #ffffff !important; /* Somente branco para textos */
+}
+
+/* Subtextos de menor prioridade recebem transparência sutil sobre o branco, mantendo a hierarquia */
+html.dark .text-gray-400,
+html.dark .text-gray-500 {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+html.dark .text-gray-300,
+html.dark .text-gray-350 {
+  color: rgba(255, 255, 255, 0.45) !important;
 }
 
 /* ─── Inputs e formulários ─── */
 select option {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #000000;
+  color: #ffffff;
 }
 
 html.dark select option {
-  background-color: #161616 !important;
+  background-color: #000000 !important;
   color: #ffffff !important;
 }
 
 html.dark input,
 html.dark textarea,
 html.dark select {
-  background-color: #0f0f0f !important;
-  border-color: #242424 !important;
+  background-color: #000000 !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
   color: #ffffff !important;
 }
 
@@ -199,33 +219,65 @@ html.dark textarea:focus {
 
 html.dark input::placeholder,
 html.dark textarea::placeholder {
-  color: #555555 !important;
+  color: rgba(255, 255, 255, 0.3) !important;
 }
 
 /* ─── Sombras atenuadas ─── */
 html.dark [class*="shadow-\["] {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9) !important;
 }
 html.dark .shadow-sm {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
 }
 
 /* ─── Botões e divisores ─── */
 html.dark .border-black {
-  border-color: #ffffff !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
 }
 
 html.dark .divide-gray-100 > :not(:first-child),
 html.dark .divide-gray-50 > :not(:first-child) {
-  border-color: #242424 !important;
+  border-color: rgba(139, 92, 246, 0.15) !important;
 }
 
 /* ─── Hovers em modo escuro ─── */
-html.dark .hover\:bg-gray-50:hover { background-color: #161616 !important; }
-html.dark .hover\:bg-gray-50\/30:hover { background-color: rgba(22, 22, 22, 0.3) !important; }
-html.dark .hover\:bg-gray-50\/60:hover { background-color: rgba(22, 22, 22, 0.6) !important; }
-html.dark .hover\:bg-gray-100:hover { background-color: #1e1e1e !important; }
-html.dark .hover\:bg-gray-200:hover { background-color: #262626 !important; }
+html.dark .hover\:bg-gray-50:hover { background-color: rgba(139, 92, 246, 0.08) !important; }
+html.dark .hover\:bg-gray-50\/30:hover { background-color: rgba(139, 92, 246, 0.05) !important; }
+html.dark .hover\:bg-gray-50\/60:hover { background-color: rgba(139, 92, 246, 0.08) !important; }
+html.dark .hover\:bg-gray-100:hover { background-color: rgba(139, 92, 246, 0.08) !important; }
+html.dark .hover\:bg-gray-200:hover { background-color: rgba(139, 92, 246, 0.12) !important; }
+
+/* ─── Mapeamento Semântico de Cores (Sem Verde/Vermelho/Amarelo) ─── */
+html.dark [class*="bg-green-"],
+html.dark [class*="bg-emerald-"],
+html.dark [class*="bg-teal-"] {
+  background-color: rgba(59, 130, 246, 0.15) !important; /* Sucesso virá azul translúcido */
+}
+html.dark [class*="text-green-"],
+html.dark [class*="text-emerald-"],
+html.dark [class*="text-teal-"] {
+  color: #3b82f6 !important; /* Sucesso vira azul brilhante */
+}
+
+html.dark [class*="bg-yellow-"],
+html.dark [class*="bg-amber-"],
+html.dark [class*="bg-orange-"] {
+  background-color: rgba(139, 92, 246, 0.15) !important; /* Avisos serão roxos translúcidos */
+}
+html.dark [class*="text-yellow-"],
+html.dark [class*="text-amber-"],
+html.dark [class*="text-orange-"] {
+  color: #8b5cf6 !important; /* Avisos viram roxo brilhante */
+}
+
+html.dark [class*="bg-red-"],
+html.dark [class*="bg-rose-"] {
+  background-color: rgba(139, 92, 246, 0.2) !important; /* Erros/Alertas críticos serão roxo forte translúcido */
+}
+html.dark [class*="text-red-"],
+html.dark [class*="text-rose-"] {
+  color: #a78bfa !important; /* Erros viram roxo claro/violeta */
+}
 
 /* ─── Scrollbar Global (Claro e Escuro) ─── */
 ::-webkit-scrollbar {
@@ -248,16 +300,16 @@ html.dark .hover\:bg-gray-200:hover { background-color: #262626 !important; }
 
 /* Scrollbar no escuro */
 html.dark ::-webkit-scrollbar-track {
-  background: #000000;
+  background: #000000 !important;
 }
 
 html.dark ::-webkit-scrollbar-thumb {
-  background: #242424;
-  border-radius: 9999px;
+  background: rgba(139, 92, 246, 0.3) !important; /* Roxo sutil */
+  border-radius: 9999px !important;
 }
 
 html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: rgba(59, 130, 246, 0.5) !important; /* Azul ao passar o mouse */
 }
 
 /* Scrollbar no Alto Contraste Claro */
@@ -285,7 +337,7 @@ html.high-contrast.dark ::-webkit-scrollbar-thumb {
 }
 
 /* ─── Backdrop blur no escuro ─── */
-html.dark .bg-white\/80 { background-color: rgba(12, 11, 18, 0.85) !important; }
+html.dark .bg-white\/80 { background-color: rgba(0, 0, 0, 0.85) !important; }
 
 /* ─── Logo do aplicativo no modo escuro (remover fundo branco mantendo cores) ─── */
 html.dark img[src*="logo-educonnect"] {
